@@ -278,29 +278,27 @@ def simplify(args, cfg):
         if all(p.exists() for p in outputs) and reduction_meta.exists() and not args.force:
             continue
         target = max(4, int(record["triangles"] * ratio))
-        if outputs[0].exists() and reduction_meta.exists() and not args.force:
-            with np.load(outputs[0]) as data:
-                p, c, f = data["positions"], data["colors"], data["faces"]
-        else:
-            with np.load(args.out / "chunks" / (tile + ".npz")) as data:
-                p, c, f = data["positions"], data["colors"], data["faces"]
-            pieces = []
-            # Compact tiles fit comfortably within the measured RAM envelope.
-            # Only oversized tiles need spatial (connectivity-preserving) splits.
-            for part in spatial_parts(p, f, args.simplify_batch_faces):
-                ids, inv = np.unique(part, return_inverse=True)
-                part_target = max(4, math.ceil(target * len(part) / len(f)))
-                pieces.append(decimate(p[ids], c[ids], inv.reshape(-1, 3), part_target))
-            del p, c, f
-            offset, indices = 0, []
-            for points, _, faces in pieces:
-                indices.append(faces + offset)
-                offset += len(points)
-            p = np.concatenate([q[0] for q in pieces])
-            c = np.concatenate([q[1] for q in pieces])
-            f = np.concatenate(indices)
-            del pieces, indices
-            p, c, f = decimate(p, c, f, target)
+        # A partial tile is rebuilt from its source chunk. Reusing reduced LOD0
+        # would lose its cleanup history and could compound decimation on resume.
+        with np.load(args.out / "chunks" / (tile + ".npz")) as data:
+            p, c, f = data["positions"], data["colors"], data["faces"]
+        pieces = []
+        # Compact tiles fit comfortably within the measured RAM envelope.
+        # Only oversized tiles need spatial (connectivity-preserving) splits.
+        for part in spatial_parts(p, f, args.simplify_batch_faces):
+            ids, inv = np.unique(part, return_inverse=True)
+            part_target = max(4, math.ceil(target * len(part) / len(f)))
+            pieces.append(decimate(p[ids], c[ids], inv.reshape(-1, 3), part_target))
+        del p, c, f
+        offset, indices = 0, []
+        for points, _, faces in pieces:
+            indices.append(faces + offset)
+            offset += len(points)
+        p = np.concatenate([q[0] for q in pieces])
+        c = np.concatenate([q[1] for q in pieces])
+        f = np.concatenate(indices)
+        del pieces, indices
+        p, c, f = decimate(p, c, f, target)
         reductions = {}
         for level, out in enumerate(outputs):
             used_weld = .001

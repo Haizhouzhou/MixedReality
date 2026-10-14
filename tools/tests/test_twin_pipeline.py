@@ -62,6 +62,20 @@ class PipelineTests(unittest.TestCase):
             subprocess.run([sys.executable, "-I", str(ROOT / "verify_tiles.py"), str(out)], check=True)
             m = json.loads((out / "manifest.json").read_text())
             self.assertEqual(m["tiles"][0]["min"], [2, 3, 0])
+            # An incomplete tile must recover from the source, even when a
+            # previous reduction metadata file and unusable LOD0 remain.
+            reduced = out / "simplified/x0_y0"
+            with np.load(reduced / "lod0.npz") as data:
+                original = {key: data[key].copy() for key in data.files}
+            damaged = dict(original)
+            damaged["positions"] = original["positions"] + 100
+            np.savez(reduced / "lod0.npz", **damaged)
+            (reduced / "lod2.npz").unlink()
+            resumed = list(cmd)
+            resumed[3] = "simplify"
+            subprocess.run(resumed, check=True, stdout=subprocess.DEVNULL)
+            with np.load(reduced / "lod0.npz") as data:
+                np.testing.assert_allclose(data["positions"], original["positions"])
 
     def test_quadric_reduction_preserves_finite_colors(self):
         import trimesh
