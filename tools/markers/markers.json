@@ -1,0 +1,8 @@
+{
+  "schema": "twin-markers/1",
+  "scan": "navvis_2022-02-06_12.55.11",
+  "markers": [
+    {"id": "0", "kind": "aruco_4x4_50", "size_m": 0.15, "position_twin": [12.4, 3.1, 1.5], "yaw_deg": 90, "normal_twin": [0, -1, 0], "measured": false, "note": "Example only: measure marker centre and outward wall normal in aligned twin coordinates before use."},
+    {"id": "QR:TWIN-01", "kind": "qr", "size_m": 0.15, "position_twin": [0, 0, 1.5], "yaw_deg": 0, "normal_twin": [1, 0, 0], "measured": false, "note": "Example only: replace with a surveyed pose."}
+  ]
+}

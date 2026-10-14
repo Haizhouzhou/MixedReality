@@ -53,7 +53,7 @@ class PipelineTests(unittest.TestCase):
             header = "ply\nformat binary_little_endian 1.0\nelement vertex 4\nproperty double x\nproperty double y\nproperty double z\nproperty uchar red\nproperty uchar green\nproperty uchar blue\nelement face 4\nproperty list uchar uint vertex_indices\nend_header\n"
             (session / "proc/meshes/mesh.ply").write_bytes(header.encode() + p.tobytes() + f.tobytes())
             out = base / "output"
-            cmd = [sys.executable, "-I", str(ROOT / "twin_pipeline.py"), "all", "--session", str(session), "--out", str(out), "--target-ratio", "1", "--batch-faces", "2"]
+            cmd = [sys.executable, "-I", str(ROOT / "twin_pipeline.py"), "all", "--session", str(session), "--out", str(out), "--target-ratio", "1", "--batch-faces", "2", "--workers", "2"]
             subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL)
             tile = out / "tiles/x0_y0/lod0.glb"
             before = tile.stat().st_mtime_ns
@@ -73,6 +73,14 @@ class PipelineTests(unittest.TestCase):
         self.assertTrue(np.isfinite(q).all())
         self.assertEqual(colors.dtype, np.uint8)
         self.assertEqual(len(q), len(colors))
+
+    def test_spatial_partitions_retain_every_source_face(self):
+        import trimesh
+        mesh = trimesh.creation.icosphere(subdivisions=2)
+        parts = list(pipeline.spatial_parts(mesh.vertices, mesh.faces, 100))
+        self.assertTrue(all(len(part) <= 100 for part in parts))
+        restored = sorted(tuple(row) for part in parts for row in part)
+        self.assertEqual(restored, sorted(tuple(row) for row in mesh.faces))
 
 
 if __name__ == "__main__":

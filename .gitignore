@@ -3,6 +3,7 @@ work/twin/
 work/logs/
 work/tmp/
 work/*.log
+work/fonts/
 __pycache__/
 *.pyc
 .venv/

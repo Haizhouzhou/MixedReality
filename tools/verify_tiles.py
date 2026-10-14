@@ -18,6 +18,10 @@ def verify(root):
     for tile in m["tiles"]:
         assert tile["id"] not in seen, "Duplicate tile"
         seen.add(tile["id"])
+        if "0" in tile["triangles"]:
+            for level, ratio in (("1", .27), ("2", .07)):
+                if level in tile["triangles"]:
+                    assert tile["triangles"][level] <= max(64, tile["triangles"]["0"] * ratio + 4), f"LOD reduction insufficient: {tile['id']} LOD{level}"
         for level, relative in tile["files"].items():
             path = (root / relative).resolve()
             assert path.is_relative_to(root.resolve()), "Path escapes output"

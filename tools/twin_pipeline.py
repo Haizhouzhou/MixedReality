@@ -15,7 +15,11 @@ import os
 from pathlib import Path
 import shutil
 import struct
+import subprocess
+import sys
+from concurrent.futures import ThreadPoolExecutor
 import time
+import threading
 from datetime import datetime, timezone
 
 import numpy as np
@@ -88,7 +92,8 @@ def config(args):
     cpath = args.out / "config.json"
     if cpath.exists() and json.loads(cpath.read_text()) != data:
         raise ValueError("Output config differs: use another --out directory (never mix stale stages)")
-    atomic_json(cpath, data)
+    if not cpath.exists():
+        atomic_json(cpath, data)
     return data, ply, offset, nv, nf, dtype
 
 
@@ -190,10 +195,10 @@ def chunk(args, cfg):
     atomic_json(args.out / "chunks.json", records)
 
 
-def clean_mesh(p, c, f, weld=True):
+def clean_mesh(p, c, f, weld=True, weld_m=.001):
     """Weld at 1 mm, discard duplicate/zero-area faces and unused vertices."""
     if weld:
-        _, selected, inverse = np.unique(np.round(p / .001).astype(np.int64), axis=0, return_index=True, return_inverse=True)
+        _, selected, inverse = np.unique(np.round(p / weld_m).astype(np.int64), axis=0, return_index=True, return_inverse=True)
         p, c, f = p[selected], c[selected], inverse[f]
     valid = (f[:, 0] != f[:, 1]) & (f[:, 1] != f[:, 2]) & (f[:, 0] != f[:, 2])
     f = f[valid]
@@ -219,43 +224,110 @@ def decimate(p, c, f, target):
     return clean_mesh(p, c, f, weld=False)
 
 
+def spatial_parts(p, f, limit):
+    """Split only unusually large tiles, along a spatial median, not face order.
+
+    Arbitrary face runs cut millions of internal edges and prevent QEM from
+    reaching low targets. Spatial cuts retain each surface's connectivity.
+    """
+    if len(f) <= limit:
+        yield f
+        return
+    extent = np.ptp(p, axis=0)
+    axis = int(np.argmax(extent))
+    centres = (p[f[:, 0], axis] + p[f[:, 1], axis] + p[f[:, 2], axis]) / 3
+    order = np.argsort(centres)
+    half = len(order) // 2
+    for indices in (order[:half], order[half:]):
+        subset = f[indices]
+        ids, inverse = np.unique(subset, return_inverse=True)
+        # Determine each child's actual spatial extent for further splits.
+        for local in spatial_parts(p[ids], inverse.reshape(-1, 3), limit):
+            yield ids[local]
+
+
 def simplify(args, cfg):
     records = json.loads((args.out / "chunks.json").read_text())
     total = sum(r["triangles"] for r in records)
     cap = 1_500_000 if args.region.lower() == "a" else 5_000_000
     ratio = min(args.target_ratio, cap * .98 / max(total, 1))
+    if args.workers > 1 and not args.tile:
+        def run_tile(record):
+            tile = record["id"]
+            outputs = [args.out / "simplified" / tile / f"lod{i}.npz" for i in range(args.lods)]
+            if all(p.exists() for p in outputs) and (outputs[0].parent / "reduction.json").exists() and not args.force:
+                return
+            command = [sys.executable, "-I", str(Path(__file__).resolve()), "simplify",
+                       "--session", str(args.session), "--region", args.region,
+                       "--out", str(args.out), "--chunk", str(args.chunk),
+                       "--target-ratio", str(args.target_ratio), "--lods", str(args.lods),
+                       "--batch-faces", str(args.batch_faces), "--simplify-batch-faces", str(args.simplify_batch_faces),
+                       "--tile", tile, "--workers", "1"]
+            if args.force:
+                command.append("--force")
+            subprocess.run(command, check=True)
+        with ThreadPoolExecutor(max_workers=args.workers) as pool:
+            list(pool.map(run_tile, records))
+        return
     for record in records:
         tile = record["id"]
-        outputs = [args.out / "simplified" / tile / f"lod{i}.npz" for i in range(args.lods)]
-        if all(p.exists() for p in outputs) and not args.force:
+        if args.tile and args.tile != tile:
             continue
-        with np.load(args.out / "chunks" / (tile + ".npz")) as data:
-            p, c, f = data["positions"], data["colors"], data["faces"]
+        outputs = [args.out / "simplified" / tile / f"lod{i}.npz" for i in range(args.lods)]
+        reduction_meta = args.out / "simplified" / tile / "reduction.json"
+        if all(p.exists() for p in outputs) and reduction_meta.exists() and not args.force:
+            continue
         target = max(4, int(record["triangles"] * ratio))
-        pieces = []
-        # Bound native QEM allocations. Process source-local face runs, then weld
-        # their shared seams before the final target pass. No full-floor arrays.
-        for start in range(0, len(f), args.simplify_batch_faces):
-            part = f[start:start + args.simplify_batch_faces]
-            ids, inv = np.unique(part, return_inverse=True)
-            part_target = max(4, math.ceil(target * len(part) / len(f)))
-            pieces.append(decimate(p[ids], c[ids], inv.reshape(-1, 3), part_target))
-        del p, c, f
-        offset, indices = 0, []
-        for points, _, faces in pieces:
-            indices.append(faces + offset)
-            offset += len(points)
-        p = np.concatenate([q[0] for q in pieces])
-        c = np.concatenate([q[1] for q in pieces])
-        f = np.concatenate(indices)
-        del pieces, indices
-        p, c, f = decimate(p, c, f, target)
+        if outputs[0].exists() and not args.force:
+            with np.load(outputs[0]) as data:
+                p, c, f = data["positions"], data["colors"], data["faces"]
+        else:
+            with np.load(args.out / "chunks" / (tile + ".npz")) as data:
+                p, c, f = data["positions"], data["colors"], data["faces"]
+            pieces = []
+            # Compact tiles fit comfortably within the measured RAM envelope.
+            # Only oversized tiles need spatial (connectivity-preserving) splits.
+            for part in spatial_parts(p, f, args.simplify_batch_faces):
+                ids, inv = np.unique(part, return_inverse=True)
+                part_target = max(4, math.ceil(target * len(part) / len(f)))
+                pieces.append(decimate(p[ids], c[ids], inv.reshape(-1, 3), part_target))
+            del p, c, f
+            offset, indices = 0, []
+            for points, _, faces in pieces:
+                indices.append(faces + offset)
+                offset += len(points)
+            p = np.concatenate([q[0] for q in pieces])
+            c = np.concatenate([q[1] for q in pieces])
+            f = np.concatenate(indices)
+            del pieces, indices
+            p, c, f = decimate(p, c, f, target)
+        reductions = {}
         for level, out in enumerate(outputs):
+            used_weld = .001
+            level_target = target
+            original = p, c, f
             if level:
                 multiplier = .25 if level == 1 else .06 * (.25 ** (level - 2))
-                p, c, f = decimate(p, c, f, max(4, int(target * multiplier)))
+                # Tiny boundary slivers may contain too few connected faces
+                # for a further legal collapse. Preserve up to 64 triangles.
+                level_target = max(64, int(target * multiplier))
+                p, c, f = decimate(*original, level_target)
+            # QEM cannot remove disconnected triangles. Spatial welding joins
+            # nearby fragments, then QEM runs again. Tolerance increases only
+            # if required and is recorded explicitly for visual/error review.
+            cap = [.08, .16, .32][level]
+            voxel = .005
+            while len(f) > level_target * 1.02 and voxel <= cap:
+                q, colors, faces = clean_mesh(*original, weld_m=voxel)
+                p, c, f = decimate(q, colors, faces, level_target)
+                used_weld = voxel
+                voxel *= 2
+            if len(f) > level_target * 1.02:
+                raise ValueError(f"{tile} LOD{level} cannot meet target within {cap}m cleanup bound")
+            reductions[str(level)] = {"triangles": len(f), "fragment_weld_m": used_weld}
             atomic_npz(out, positions=p, colors=c, faces=f)
             log(f"simplify {tile} LOD{level}: {len(f):,} (source {record['triangles']:,})")
+        atomic_json(reduction_meta, reductions)
         del p, c, f
         gc.collect()
 
@@ -309,7 +381,7 @@ def manifest(args, cfg):
     data = cfg[0]
     tiles = []
     for record in json.loads((args.out / "chunks.json").read_text()):
-        tile = {"id": record["id"], "min": record["min"], "max": record["max"], "files": {}, "triangles": {}, "bytes": {}, "bounds_lod": {}}
+        tile = {"id": record["id"], "min": record["min"], "max": record["max"], "files": {}, "triangles": {}, "bytes": {}, "bounds_lod": {}, "reduction": json.loads((args.out / "simplified" / record["id"] / "reduction.json").read_text())}
         for level in range(args.lods):
             key = str(level)
             rel = f"tiles/{tile['id']}/lod{level}.glb"
@@ -362,6 +434,8 @@ def preview(args, cfg):
         fig.savefig(args.out / f"preview_lod{level}.png", dpi=160)
         plt.close(fig)
         lines.append(f"LOD{level}: {triangles:,} triangles, {size:,} bytes")
+        tolerance = max(t["reduction"][str(level)]["fragment_weld_m"] for t in m["tiles"])
+        lines.append(f"  Maximum fragment cleanup weld: {tolerance:g} m (quantization cell width; not an accuracy guarantee)")
     (args.out / "report.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
     log("\n".join(lines))
 
@@ -376,15 +450,47 @@ def main():
     parser.add_argument("--target-ratio", type=float, default=.013)
     parser.add_argument("--lods", type=int, default=3)
     parser.add_argument("--batch-faces", type=int, default=500_000)
-    parser.add_argument("--simplify-batch-faces", type=int, default=500_000)
+    parser.add_argument("--simplify-batch-faces", type=int, default=8_000_000)
+    parser.add_argument("--workers", type=int, choices=(1, 2), default=1)
+    parser.add_argument("--tile", help=argparse.SUPPRESS)
     parser.add_argument("--force", action="store_true")
     args = parser.parse_args()
     if args.chunk <= 0 or not 0 < args.target_ratio <= 1 or not 1 <= args.lods <= 3 or args.batch_faces < 1 or args.simplify_batch_faces < 1:
         parser.error("Invalid chunk, ratio, LOD count or batch size")
     cfg = config(args)
-    for name in (["chunk", "simplify", "export", "manifest", "preview"] if args.stage == "all" else [args.stage]):
-        log(f"begin {name}")
-        globals()[name](args, cfg)
+    import psutil
+    process = psutil.Process()
+    stopped = threading.Event()
+    def monitor():
+        peak = 0
+        combined_peak = 0
+        while not stopped.is_set():
+            mem = process.memory_info()
+            peak = max(peak, getattr(mem, "peak_wset", mem.rss))
+            combined = mem.rss
+            for child in process.children(recursive=True):
+                try:
+                    combined += child.memory_info().rss
+                except psutil.NoSuchProcess:
+                    pass
+            combined_peak = max(combined_peak, combined)
+            filename = f"memory_{args.tile}.json" if args.tile else "memory.json"
+            atomic_json(args.out / filename, {"pid": os.getpid(), "peak_working_set_bytes": peak, "observed_peak_combined_bytes": combined_peak, "limit_bytes": 8_000_000_000, "checked_unix": time.time()})
+            if max(peak, combined_peak) > 8_000_000_000:
+                log("ERROR: exceeded 8GB memory envelope; checkpoints retained")
+                for child in process.children(recursive=True):
+                    child.terminate()
+                os._exit(8)
+            stopped.wait(2)
+    sampler = threading.Thread(target=monitor, daemon=True)
+    sampler.start()
+    try:
+        for name in (["chunk", "simplify", "export", "manifest", "preview"] if args.stage == "all" else [args.stage]):
+            log(f"begin {name}")
+            globals()[name](args, cfg)
+    finally:
+        stopped.set()
+        sampler.join(timeout=3)
     log("complete")
 
 

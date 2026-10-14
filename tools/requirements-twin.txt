@@ -1,0 +1,9 @@
+numpy==2.4.6
+scipy
+matplotlib
+pillow
+trimesh
+fast-simplification
+opencv-python-headless==5.0.0.93
+qrcode==8.2
+psutil==7.2.2
