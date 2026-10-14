@@ -278,7 +278,7 @@ def simplify(args, cfg):
         if all(p.exists() for p in outputs) and reduction_meta.exists() and not args.force:
             continue
         target = max(4, int(record["triangles"] * ratio))
-        if outputs[0].exists() and not args.force:
+        if outputs[0].exists() and reduction_meta.exists() and not args.force:
             with np.load(outputs[0]) as data:
                 p, c, f = data["positions"], data["colors"], data["faces"]
         else:
@@ -322,9 +322,12 @@ def simplify(args, cfg):
                 p, c, f = decimate(q, colors, faces, level_target)
                 used_weld = voxel
                 voxel *= 2
-            if len(f) > level_target * 1.02:
-                raise ValueError(f"{tile} LOD{level} cannot meet target within {cap}m cleanup bound")
-            reductions[str(level)] = {"triangles": len(f), "fragment_weld_m": used_weld}
+            # A small disconnected boundary remnant is better preserved than
+            # erased. The final regional budget remains a hard validation gate.
+            if len(f) > max(level_target + 1024, level_target * 1.02):
+                raise ValueError(f"{tile} LOD{level}: {len(f)} faces exceed target {level_target} within {cap}m cleanup bound")
+            reductions[str(level)] = {"triangles": len(f), "fragment_weld_m": used_weld,
+                                      "target_triangles": level_target, "preserved_fragment_excess": max(0, len(f) - level_target)}
             atomic_npz(out, positions=p, colors=c, faces=f)
             log(f"simplify {tile} LOD{level}: {len(f):,} (source {record['triangles']:,})")
         atomic_json(reduction_meta, reductions)

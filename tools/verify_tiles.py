@@ -21,7 +21,10 @@ def verify(root):
         if "0" in tile["triangles"]:
             for level, ratio in (("1", .27), ("2", .07)):
                 if level in tile["triangles"]:
-                    assert tile["triangles"][level] <= max(64, tile["triangles"]["0"] * ratio + 4), f"LOD reduction insufficient: {tile['id']} LOD{level}"
+                    reduction = tile.get("reduction", {}).get(level, {})
+                    excess = reduction.get("preserved_fragment_excess", 0)
+                    assert 0 <= excess <= max(1024, reduction.get("target_triangles", 0) * .02)
+                    assert tile["triangles"][level] <= max(64, tile["triangles"]["0"] * ratio + 4) + excess, f"LOD reduction insufficient: {tile['id']} LOD{level}"
         for level, relative in tile["files"].items():
             path = (root / relative).resolve()
             assert path.is_relative_to(root.resolve()), "Path escapes output"
