@@ -1,0 +1,8 @@
+dataset/
+work/twin/
+work/logs/
+work/tmp/
+work/*.log
+__pycache__/
+*.pyc
+.venv/

@@ -1,0 +1,205 @@
+% ETH Zurich  - 3D Photography 2015
+% http://www.cvg.ethz.ch/teaching/3dphoto/
+% Template for project proposals
+
+\documentclass[11pt,a4paper,oneside,onecolumn]{IEEEtran}
+\usepackage{graphicx}
+\usepackage{array}
+% Enter the project title and your project supervisor here
+\newcommand{\ProjectTitle}{Inspection and Refinement of Mesh Digital Twins}
+\newcommand{\ProjectSupervisor}{Anusha Krishnan, Nicole Damblon}
+\newcommand{\DateOfReport}{October 5, 2026}
+
+% Enter the team members' names and path to their photos. Comment / uncomment related definitions if the number of members are different than 2.
+% Including photographs are optional. Photos are there to help us to evaluate your group more effectively. If you wish not to include your photos, please comment the following line.
+\newcommand{\PutPhotos}{}
+% Please include a clear photo of each member. (use pdf or png files for Latex to embed them in the document well)
+\newcommand{\memberone}{Michelle Bösiger}
+\newcommand{\memberonepicture}{pic_michelle.jpg}
+\newcommand{\membertwo}{Zhenmei Hao}
+\newcommand{\membertwopicture}{pic_zhenmei.jpg}
+\newcommand{\memberthree}{Hongrui Wu}
+\newcommand{\memberthreepicture}{pic_hongrui.jpg}
+\newcommand{\memberfour}{Haizhou Zheng}
+\newcommand{\memberfourpicture}{pic_haizhou.png}
+% \newcommand{\memberfive}{Member Name}
+% \newcommand{\memberfivepicture}{pic2.png}
+
+
+%%%% DO NOT EDIT THE PART BELOW %%%%
+\title{\ProjectTitle}
+\author{Mixed Reality Project Proposal\\Supervised by: \ProjectSupervisor\\ \DateOfReport}
+\begin{document}
+\maketitle
+\vspace{-1.5cm}\section*{Group Members}\vspace{0.3cm}
+\begin{center}\begin{minipage}{\linewidth}\begin{center}
+\begin{minipage}{3 cm}\begin{center}\memberone\ifdefined\PutPhotos\\\vspace{0.2cm}\includegraphics[height=3cm]{\memberonepicture}\fi\end{center}\end{minipage}
+\ifdefined\membertwo\begin{minipage}{3 cm}\begin{center}\membertwo\ifdefined\PutPhotos\\\vspace{0.2cm}\includegraphics[height=3cm]{\membertwopicture}\fi\end{center}\end{minipage}\fi
+\ifdefined\memberthree\begin{minipage}{3 cm}\begin{center}\memberthree\ifdefined\PutPhotos\\\vspace{0.2cm}\includegraphics[height=3cm]{\memberthreepicture}\fi\end{center}\end{minipage}\fi
+\ifdefined\memberfour\begin{minipage}{3 cm}\begin{center}\memberfour\ifdefined\PutPhotos\\\vspace{0.2cm}\includegraphics[height=3cm]{\memberfourpicture}\fi\end{center}\end{minipage}\fi
+\ifdefined\memberfive\begin{minipage}{3 cm}\begin{center}\memberfive\ifdefined\PutPhotos\\\vspace{0.2cm}\includegraphics[height=3cm]{\memberfivepicture}\fi\end{center}\end{minipage}\fi
+\end{center}\end{minipage}\end{center}\vspace{0.3cm}
+%%%% END OF PROTECTED LINES %%%%
+
+
+%%%% BEGIN WRITING THE DOCUMENT HERE %%%%
+
+\section{Description of the Project}
+
+\iffalse
+LiDAR-based reconstructions provide detailed geometric representations of physical environments and are increasingly used as digital twins for visualization, inspection, and spatial computing applications \cite{behroozpour2017lidar}. However, a digital twin represents the environment only at the time of acquisition. As objects are moved, infrastructure is modified, or parts of the environment are added or removed, the reconstructed model gradually becomes inconsistent with the physical scene.
+
+This project investigates how mixed reality can support the inspection and refinement of such outdated digital twins directly within the corresponding physical environment. Starting from a NavVis LiDAR scan, we will reconstruct and prepare a high-quality geometric model of the environment and convert it into a representation suitable for real-time XR rendering. The reconstruction will then be registered with the coordinate system of a Samsung Galaxy XR headset, allowing the virtual model and the current physical environment to be observed in the same spatial reference frame.
+
+The mixed-reality application will provide several complementary visualization modes for comparing the reconstruction with reality, including reconstruction-only, passthrough, overlay, and blended views. Users will be able to inspect the environment in real time and spatially annotate regions where the digital twin no longer corresponds to the real scene, for example, when a geometry is missing, outdated, or no longer present.
+
+Refinement will therefore be implemented as a human-in-the-loop workflow: discrepancies identified during inspection are represented as spatially registered annotations that indicate where the digital twin should subsequently be updated. The project combines four technical components: reconstruction and geometric optimization, spatial registration, XR visualization, and interactive discrepancy annotation.
+\fi
+
+LiDAR is widely used to capture detailed geometric information about physical environments \cite{behroozpour2017lidar}, which can be used to create digital twins. However, these digital twins represent the environment at a specific point in time and can become outdated as the physical environment changes. This project explores how mixed reality can support the inspection of such outdated digital twins directly in the real environment.
+
+Starting from a NavVis LiDAR scan, we will prepare an XR based digital twin, align it with the physical environment, and allow users to compare the virtual model with reality. Users will then be able to identify and annotate regions where the digital twin no longer matches the real scene.
+
+\section{Technical Work Packages}
+
+% The project is organized into four closely connected technical work packages. Each work package is jointly developed by two team members in order to maintain overlap between the reconstruction, registration, XR, and interaction components.
+
+\subsection*{WP1: Digital Twin Reconstruction and XR-Friendly Representation}
+
+\textbf{Team: Haizhou Zheng and Hongrui Wu}
+
+This work package focuses on transforming the NavVis LiDAR data into an accurate and computationally efficient digital twin.
+
+\iffalse
+We will investigate modern reconstruction pipelines such as NKSR and sparse volumetric processing using fVDB \cite{williams2024fvdb}. The resulting geometry will be converted into a mesh representation suitable for interactive XR rendering.
+
+Because LiDAR-based reconstructions can contain very large numbers of vertices and triangles, the mesh will be optimized using techniques such as geometric simplification, spatial partitioning, and level-of-detail representations where appropriate. The objective is to reduce rendering and memory requirements while preserving geometric structures that are important for visual inspection and registration.
+
+The output of this work package will be an XR-ready digital twin together with a reproducible preprocessing pipeline from the original scan data.
+\fi
+
+We will investigate reconstruction pipelines such as NKSR and fVDB \cite{williams2024fvdb} and convert the resulting geometry into a mesh that is ready for XR. Geometric simplification, spatial partitioning, and level-of-detail techniques will be explored to reduce rendering and memory requirements while preserving key geometric structures.
+
+\subsection*{WP2: Registration and Spatial Alignment}
+
+\textbf{Team: Hongrui Wu and Michelle Bösiger}
+
+\iffalse
+This work package addresses the alignment between the coordinate system of the reconstructed digital twin and the coordinate system observed by the XR headset.
+
+We will investigate image- and geometry-based registration methods for estimating the transformation between the reconstructed environment and the physical scene. Depending on the available headset data, candidate approaches may include visual feature matching, camera pose estimation, geometric correspondences, and manually initialized registration followed by automatic refinement.
+
+The registration system should provide sufficiently accurate and stable alignment for virtual geometry to remain spatially consistent with the corresponding physical structures during inspection.
+
+Alignment quality will be evaluated quantitatively where possible and visually through repeated overlay experiments at different locations and viewpoints.
+\fi
+
+This work package addresses the alignment between the reconstructed digital twin and the XR headset coordinate system.
+
+We will first use GPS information for coarse localization, such as identifying the building and approximate location. The alignment will then be refined using stable structural features in the environment. We assume that large building structures, especially walls, remain mostly unchanged over time. Wall geometry, corners, and edges can therefore be used as reference features for registration. The objective is to achieve accurate and stable alignment between the virtual model and the physical environment.
+
+\subsection*{WP3: Mixed-Reality Visualization and Interaction}
+
+\textbf{Team: Michelle Bösiger and Zhenmei Hao}
+
+\iffalse
+This work package develops the mixed-reality application using Unity and C\# for the Samsung Galaxy XR platform.
+
+The application will integrate the optimized reconstruction and the estimated spatial transformation and provide several visualization modes for inspecting the digital twin:
+
+\begin{itemize}
+    \item real-world passthrough,
+    \item reconstruction-only visualization,
+    \item reconstruction overlay on the physical environment,
+    \item adjustable blending between reconstruction and passthrough.
+\end{itemize}
+
+The visualization system will support interactive switching between these modes while maintaining a consistent spatial alignment.
+
+A major engineering challenge is rendering a large reconstructed environment at interactive frame rates on the headset. The application will therefore integrate the spatial partitioning and mesh optimization developed in WP1 and load or render only the geometry required for the user's current viewpoint and inspection region.
+\fi
+
+This work package focuses on developing the mixed-reality application for the Samsung Galaxy XR headset. 
+
+The application will support three visualization modes: 1. real-world passthrough, 2. reconstruction-only, and 3. overlay visualization with adjustable blending. We will also integrate the mesh optimization and spatial partitioning from WP1 to support smooth and interactive rendering on the headset.
+
+\subsection*{WP4: Digital Twin Inspection and Refinement Workflow}
+
+\textbf{Team: Zhenmei Hao and Haizhou Zheng}
+
+\iffalse
+This work package develops the interaction mechanisms required to identify and record discrepancies between the digital reconstruction and the current physical environment.
+
+Users will be able to select or mark regions where the digital twin is inconsistent with reality. We will distinguish common discrepancy types such as missing geometry, geometry that is no longer present in the physical environment, and geometry whose shape or position has changed.
+
+Annotations will be stored in the coordinate system of the digital twin so that detected discrepancies can later be revisited, visualized, or used as input to a subsequent reconstruction or mesh-refinement process.
+\fi
+
+This work package focuses on identifying and recording differences between the digital twin and the physical environment. 
+
+Users will mark regions where the model no longer matches reality, such as missing, outdated, or changed geometry. The annotations will be stored in the digital twin coordinate system to support later inspection and refinement. The core implementation will focus on robust spatial selection and annotation. If time permits, we will investigate image-based segmentation or object-level selection as an extension to make the annotation process more intuitive and efficient.
+
+\section{Integration, Milestones, and Timeline}
+
+The work packages are not intended to form a strictly sequential pipeline. Development will proceed in parallel, with intermediate versions of the reconstruction, registration, and XR application integrated throughout the project.
+
+\begin{center}
+\begin{tabular}{
+>{\centering\arraybackslash}p{1.2cm}
+>{\centering\arraybackslash}p{1.6cm}
+p{12.2cm}
+}
+\hline
+\textbf{Milestone} & \textbf{Weeks} & \textbf{Target} \\
+\hline
+
+M1 & 1--3 &
+NavVis data successfully processed and an initial high-quality digital twin reconstructed. Baseline mesh visualization and preprocessing pipeline available. \\
+
+M2 & 4--6 &
+XR-friendly mesh representation available and initial transformation between the reconstruction and headset coordinate systems established. \\
+
+M3 & 7--9 &
+Integrated XR prototype supporting passthrough, reconstruction-only, and overlay visualization with adjustable blending. \\
+
+M4 & 10--11 &
+Interactive discrepancy selection and spatial annotation integrated into the mixed-reality application. \\
+
+M5 & 12--13 &
+Complete system integration, quantitative and qualitative evaluation, performance optimization, and final demonstration preparation. 
+
+%If the demo location differs from the one in the existing mesh, the demo location will be rescanned using LiDAR and a new reconstruction will be generated. 
+\\
+
+\hline
+\end{tabular}
+\end{center}
+
+\section{Expected Outcomes and Evaluation}
+
+The final outcome will be an integrated mixed-reality prototype that supports the complete workflow from LiDAR reconstruction to in-situ digital twin inspection.
+
+In the final demonstration, a user wearing a Samsung Galaxy XR headset will enter an environment for which a previous NavVis reconstruction is available. After spatial alignment, the user will be able to visualize the prepared reconstruction along with the current physical environment, switch between different comparison modes, identify discrepancies, and create spatial annotations directly at the affected locations.
+
+The evaluation will address four aspects of the system:
+
+\begin{itemize}
+    \item \textbf{Reconstruction and representation:} preservation of relevant geometric detail under mesh simplification and optimization;
+    \item \textbf{Registration:} spatial accuracy, stability, and repeatability of the alignment between the digital twin and the physical environment;
+    \item \textbf{XR performance:} rendering frame rate, responsiveness, and scalability with respect to reconstruction size;
+    \item \textbf{Inspection workflow:} accuracy, usability, and efficiency of identifying and spatially marking discrepancies.
+\end{itemize}
+
+The final prototype will demonstrate how mixed reality can transform digital twin inspection from an offline comparison task into a spatially grounded workflow in which users directly compare the digital model with the corresponding physical environment and record where updates are required.
+
+
+
+
+
+
+{%\singlespace
+{\small
+\bibliography{refs}
+\bibliographystyle{plain}}}
+
+\end{document}
