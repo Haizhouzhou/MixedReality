@@ -1,6 +1,6 @@
 # TwinInspector design system
 
-Swiss / International Typographic Style: opaque paper, ink typography, square controls, explicit words, one active red accent and a consistent 8 mm rhythm. This document records implementation decisions; the Editor contact sheet will be added after rendering the finished panels.
+Swiss / International Typographic Style: opaque paper, ink typography, square controls, explicit words, one active red accent and a consistent 8 mm rhythm. The contact sheet below contains actual captures of the running Editor simulator.
 
 ## Tokens and physical scale
 
@@ -37,4 +37,10 @@ Colour style renders the dataset's sampled vertex colour. Technical style uses b
 
 ## Verification
 
-Contact sheet, actual font assets and rendered panel checks are pending the Unity implementation. This is not a claim of completed visual QA.
+![Six panels captured from the Unity simulator](images/contact-sheet.png)
+
+Verified the running setup, view-mode, alignment, type-picker, annotation-list and diagnostics panels. The blend handle is 12 mm square, two complete annotation rows occupy the scroll viewport, and the tool strip is 560 × 64 mm to keep all four action names legible. The Inter SDF assets are bundled; numeric glyph advances are explicitly equalized because this TextMeshPro version does not apply the font's OpenType tabular substitution at runtime.
+
+![Hall loaded in the XR Device Simulator](images/hall-simulator.png)
+
+The hall capture uses the real Region A tiles and simulated controllers. It verifies a useful initial viewpoint and scene rendering, not headset tracking, surface accuracy, readability through headset optics or frame rate. Capture helpers are in `tools/unity/`; `tools/contact_sheet.py` assembles the six unchanged panel images.

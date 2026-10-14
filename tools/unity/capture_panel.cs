@@ -1,0 +1,14 @@
+var app=TwinInspector.AppBootstrap.Instance;
+if(app==null || !app.Ready) return "App not ready";
+var panel=app.UI.Panel;
+foreach(var t in panel.GetComponentsInChildren<UnityEngine.Transform>(true)) t.gameObject.layer=14;
+UnityEngine.Canvas.ForceUpdateCanvases();
+var go=new UnityEngine.GameObject("Documentation camera");
+var camera=go.AddComponent<UnityEngine.Camera>(); camera.orthographic=true; camera.orthographicSize=.19f; camera.clearFlags=UnityEngine.CameraClearFlags.SolidColor; camera.backgroundColor=app.Tokens.Paper2; camera.cullingMask=1<<14;
+camera.transform.SetPositionAndRotation(panel.transform.position-panel.transform.forward, panel.transform.rotation);
+var target=new UnityEngine.RenderTexture(1440,1000,24); var previous=UnityEngine.RenderTexture.active;
+camera.targetTexture=target; camera.Render(); UnityEngine.RenderTexture.active=target;
+var picture=new UnityEngine.Texture2D(1440,1000,UnityEngine.TextureFormat.RGB24,false); picture.ReadPixels(new UnityEngine.Rect(0,0,1440,1000),0,0); picture.Apply();
+System.IO.Directory.CreateDirectory("docs/images"); string path="docs/images/"+app.UI.Page+".png"; System.IO.File.WriteAllBytes(path,picture.EncodeToPNG());
+UnityEngine.RenderTexture.active=previous; camera.targetTexture=null; target.Release(); UnityEngine.Object.Destroy(picture); UnityEngine.Object.Destroy(target); UnityEngine.Object.Destroy(go);
+return path;

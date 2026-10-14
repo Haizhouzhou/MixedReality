@@ -1,0 +1,2 @@
+id,index,type,x_twin,y_twin,z_twin,nx,ny,nz,created_utc,label,comment
+"a-000005",5,"changed",18,10,1.36144,0,0,1,"2026-10-14T20:51:14.5293106Z","Changed","Editor QA fixture; removed after verification"

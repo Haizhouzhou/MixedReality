@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cda644641ed00347a9d2194963d2a03, type: 3}
+  m_Name: Settings
+  m_EditorClassIdentifier: TwinInspector.Runtime::TwinInspector.Settings
+  scan: navvis_2022-02-06_12.55.11
+  dataFolder: HGE_2022-02-06
+  editorDataPath: E:/MixedReality/work/twin/HGE_2022-02-06/region_a
+  lodDistances:
+  - 12
+  - 30
+  - 80
+  maxTriangles: 1200000
+  loadConcurrency: 2
+  targetRefreshRate: 90
+  loadingRefreshRate: 72

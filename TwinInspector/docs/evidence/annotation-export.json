@@ -1,0 +1,41 @@
+{
+  "schema": "twin-annotations/1",
+  "scan": "navvis_2022-02-06_12.55.11",
+  "exported_utc": "2026-10-14T20:51:14.6459139Z",
+  "next_index": 6,
+  "items": [
+    {
+      "id": "a-000005",
+      "type": "changed",
+      "label": "Changed",
+      "created_utc": "2026-10-14T20:51:14.5293106Z",
+      "screenshot": "",
+      "comment": "Editor QA fixture; removed after verification",
+      "index": 5,
+      "position_twin": [
+        18.0,
+        10.0,
+        1.36144
+      ],
+      "normal_twin": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "device_pose_twin": {
+        "position": [
+          20.0,
+          10.0,
+          1.36144
+        ],
+        "rotation_quat_xyzw": [
+          0.0,
+          0.0,
+          0.7071068,
+          0.7071068
+        ]
+      },
+      "Kind": 2
+    }
+  ]
+}

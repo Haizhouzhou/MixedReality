@@ -16,9 +16,9 @@ From `E:\MixedReality`, use the provided `mr` environment:
 
 Repeat with `--region b` and `--out work\twin\HGE_2022-02-06\region_b` for the floor. The bounding boxes are the brief's measured A/B extents, not semantic indoor segmentation. Centroid clipping deliberately retains complete boundary triangles; a triangle can extend outside its cell or region.
 
-The pipeline reads fixed-size PLY batches through read-only memory maps. Checkpointed batches and completed tiles are skipped on rerun. The `config.json` fingerprint rejects a different source/configuration in an existing output. Choose a new output directory for changed settings. `--force` reruns the selected stage; `all --force` rebuilds all stages. Do not run two writers against the same output directory. `--target-ratio` defaults to 0.013 and is reduced automatically if the region triangle budget would be exceeded. Large chunks are simplified in bounded face runs and welded before the final target pass.
+The pipeline reads fixed-size PLY batches through read-only memory maps. Checkpointed batches and completed tiles are skipped on rerun. The `config.json` fingerprint rejects a different source/configuration in an existing output. Choose a new output directory for changed settings. `--force` reruns the selected stage; `all --force` rebuilds all stages. Do not run two writers against the same output directory. `--target-ratio` defaults to 0.013 and is reduced automatically if the region triangle budget would be exceeded.
 
-Each compact tile is simplified as a whole up to eight million triangles (measured 2.57 GB peak for a 6.33 M triangle tile). Larger tiles use spatial median splits that preserve surface connectivity. Initial welding is 1 mm. When a target cannot be reached, the pipeline tries progressively coarser spatial welding followed by QEM, with maximum cell widths 80 / 160 / 320 mm for LOD0 / 1 / 2. Actual per-tile tolerances are recorded in `reduction` in the manifest. These are cleanup bounds, **not measured reconstruction accuracy**. Tiny boundary slivers retain up to 64 triangles at lower LODs. Inspect previews and structural landmarks for seams, thin-structure loss and shifted edges before inspection use. The pipeline fails if a larger target cannot be met within its cleanup bound.
+Each compact tile is simplified as a whole up to eight million triangles (measured 2.57 GB peak for a 6.33 M triangle tile). Larger tiles use spatial median splits that preserve surface connectivity. Initial welding is 1 mm. When a target cannot be reached, the pipeline tries progressively coarser spatial welding followed by QEM, with maximum cell widths 80 / 160 / 320 mm for LOD0 / 1 / 2. Actual per-tile tolerances are recorded in `reduction` in the manifest. These are cleanup bounds, **not measured reconstruction accuracy**. Tiny boundary slivers retain up to 64 triangles at lower LODs; disconnected remnants may retain up to 1,024 excess triangles per tile/LOD, explicitly recorded and independently checked. Region budgets remain hard limits. Inspect previews and structural landmarks for seams, thin-structure loss and shifted edges before inspection use.
 
 Stages can be run separately: `chunk`, `simplify`, `export`, `manifest`, `preview`. Raw data and intermediate chunks stay outside the APK. The only bundled data is Region A LOD2, packaged with:
 
@@ -47,7 +47,82 @@ Only runtime GLBs, marker configuration and the manifest are transferred. Tiles 
 
 **[HUMAN]** Grant the camera, scene-understanding and hand-tracking permission prompts. Print `tools/markers/marker_00.png` on A4 at 100%, check the black square is 150 mm, and place it at a surveyed pose. Follow [marker measurement instructions](../tools/markers/README.md). Shipped coordinates are examples with `measured:false`; automatic headset alignment deliberately rejects them. A marker must remain tracked for one second before confirmation.
 
-Build, simulator, interaction and export commands will be completed alongside the verified Unity implementation.
+## Build, install and launch
+
+Open `Assets/_TwinInspector/Scenes/Inspector.unity`. The scene uses the imported XRI Hands rig and an Editor-only XR Device Simulator. The generated assets are committed; `TwinInspector → Rebuild application assets and Inspector` reproduces them through Editor APIs if needed. This command replaces Inspector, so save any intentional scene edits first.
+
+From PowerShell at the repository root:
+
+```powershell
+$env:UNITY_NO_BANNER='1'
+$env:UNITY_NON_INTERACTIVE='1'
+$env:UNITY_NO_PAGER='1'
+$unity='C:\Users\zackz\AppData\Local\Unity\bin\unity.exe'
+$project='E:\MixedReality\TwinInspector'
+& $unity recompile --project-path $project --timeout 300 --format json
+& $unity command eval_file E:\MixedReality\tools\unity\validate.cs 60000 --timeout 120 --project-path $project --result-only
+& $unity command build --target Android --outputPath Builds/TwinInspector-0.1.0.apk --confirm true --project-path $project --result-only
+& $unity command build_status --project-path $project --result-only
+```
+
+Wait for the build status to complete successfully. Vulkan, IL2CPP, ARM64, GameActivity and the existing .NET Framework compatibility setting are retained. Forward+, Render Graph, 4× MSAA, foveation, GPU Resident Drawer and GPU occlusion are configured; HDR, shadows, post-processing and optional camera copies are disabled. Transparent overlay rendering is not eligible for every GPU Resident Drawer optimization; performance still requires headset measurement.
+
+```powershell
+$adb='E:\Unity\Editor\6000.3.26f1\Editor\Data\PlaybackEngines\AndroidPlayer\SDK\platform-tools\adb.exe'
+& $adb devices -l
+& $adb install -r TwinInspector\Builds\TwinInspector-0.1.0.apk
+& $adb shell am start -n com.mrtwin.inspector/com.unity3d.player.UnityPlayerGameActivity
+& $adb logcat -s Unity
+```
+
+## Use and Editor simulation
+
+Enter Play mode in Inspector. The Editor loads Region A from `Settings.editorDataPath` and substitutes neutral grey for camera passthrough. The packaged LOD2 demo is used when external data is absent. The simulator is excluded from Android builds.
+
+Focus the Game view for keyboard input. **Tab** cycles the simulated left controller, right controller and headset. **W/A/S/D** move on the horizontal plane, **Q/E** move vertically, **R** toggles mouse translation/rotation, and **V** resets the selected device. Hold **right mouse** to manipulate the headset, **left Shift** for the left controller, or **Space** for the right controller. **H** switches hand/controller simulation. The complete bindings remain editable in the imported `XR Device Simulator Controls` input asset. Ordinary mouse clicks also operate the inspection panels.
+
+| Action | Input |
+|---|---|
+| Summon the inspection panel | Left palm up, controller menu, or **F1** in Editor |
+| Compare | Mode → Reality (passthrough) / Twin / Overlay; drag the blend slider; switch Technical / Colour |
+| Align manually | Align → hold both grips or pinch both hands; translate and turn together; height stays locked |
+| Adjust precisely | Fine adjustment: ±1 cm / ±0.5°, or coarse ±5 cm / ±2° |
+| Set height | Height / floor: unlock, nudge height, or snap to a tracked horizontal floor |
+| Align by marker | Use marker, hold it in view for one second, inspect the overlay, Confirm |
+| Simulate a marker | **F2** in Editor; no physical camera or measured pose claim |
+| Annotate | Annotate, then right-hand pinch/controller trigger on a twin or detected surface; choose one of four types |
+| Editor annotation shortcut | **F3**, then **Alt + left click** on a visible mesh surface |
+| Cycle view mode | **F4** in Editor |
+| Select, retype or delete | List → select a row; the surface marker highlights and a directional prompt appears |
+| Export | List → Export writes JSON and CSV, including original twin coordinates |
+| Inspect performance | Setup → Diagnostics; unavailable CPU/GPU values say `n/a` |
+
+Panels remain where summoned; the left palm strip follows the hand only while the palm faces upward. Controller/Editor use has a world-locked strip below the panel. Save alignment explicitly after manual adjustments. JSON fallback restores a pose in the previous session's world frame and must be checked after tracking-origin changes; a successfully restored persistent spatial anchor is the preferred path. The marker catalog intentionally rejects unmeasured example poses on the headset.
+
+On first launch, an **unaligned** preview puts the hall's open interior around the viewer. Setup displays the alignment state. This initial placement is only for viewing; use a measured marker or manual registration before inspecting correspondence with the real building. Both faces of scanned triangles accept annotation rays, and annotation labels face the selecting viewer.
+
+Data lives below `/sdcard/Android/data/com.mrtwin.inspector/files/`: `alignment/`, `annotations/`, `exports/`, and `logs/`. Annotation IDs remain stable, and deleting the highest index does not reuse its number. Exports do not leave the device automatically.
+
+```powershell
+& $adb pull /sdcard/Android/data/com.mrtwin.inspector/files/exports .\work\exports
+& $adb pull /sdcard/Android/data/com.mrtwin.inspector/files/logs .\work\device-logs
+& $unity command run_tests --mode editor --filter TwinInspector.Tests --filter_type assembly --async_tests true --project-path $project --result-only
+& $unity command test_status --project-path $project --result-only
+```
+
+See [DEVLOG](docs/DEVLOG.md) for verified results and device-only checks, [DESIGN](docs/DESIGN.md) for visual tokens, and `docs/evidence/` for recorded validation outputs. Editor frame rates are not headset performance results.
+
+## Device acceptance run
+
+After the two **[HUMAN]** steps above, install the APK, push Region A, restart, and use this sequence to finish the device-only acceptance checks:
+
+1. Confirm camera passthrough around the opaque Setup panel and inspect the loaded hall. Open Diagnostics; record FPS, CPU/GPU time, tile/triangle counts and display rate before loading and after 60 seconds of steady viewing. Acceptance is at least 72 FPS, with 90 as the target. Record draw calls from the Unity profiler when connected; the budget is 300.
+2. Switch Reality, Twin and Overlay, then test 0%, 45% and 100% blend and both styles. Confirm both eyes render consistently.
+3. Try two-hand adjustment, fine/coarse nudges, locked/unlocked height and floor snap. Save and restart; record whether Setup reports a persistent anchor or the JSON fallback, and check the overlay against the physical building.
+4. Survey and enter the marker pose, set `measured:true`, push again, and confirm stable detection followed by explicit confirmation. Check the west rotunda to detect a coordinate reflection.
+5. Create each annotation type, select/retype/delete one, restart, and export. Pull the JSON/CSV and logs with the commands above. Confirm original twin coordinates and stable IDs.
+
+Record the actual device model/runtime, test date, measurements and failures in `docs/DEVLOG.md`. The app's local logs distinguish Editor metrics from device metrics. A configured refresh rate or passing Editor test alone does not satisfy the device FPS requirement.
 
 ## Attribution and dependencies
 

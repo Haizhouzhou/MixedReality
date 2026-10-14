@@ -1,0 +1,10 @@
+TILE               LOD   TRIANGLES      BYTES  COLOUR  BOUNDS
+x0_y0                0           4      1,060      OK      OK
+x0_y0                1           4      1,060      OK      OK
+x0_y0                2           4      1,060      OK      OK
+PASS: 1 tiles; LOD0 4 triangles / 1,060 bytes
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 110.213s
+
+OK

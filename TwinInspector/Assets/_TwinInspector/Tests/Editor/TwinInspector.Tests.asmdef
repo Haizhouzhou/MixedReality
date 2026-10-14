@@ -1,0 +1,1 @@
+{"name":"TwinInspector.Tests","rootNamespace":"TwinInspector.Tests","references":["TwinInspector.Runtime","Unity.Newtonsoft.Json"],"includePlatforms":["Editor"],"optionalUnityReferences":["TestAssemblies"]}

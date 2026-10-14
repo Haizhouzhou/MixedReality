@@ -7,4 +7,6 @@ var settings = UnityEngine.XR.OpenXR.OpenXRSettings.GetSettingsForBuildTargetGro
 foreach (var feature in settings.GetFeatures())
     if (feature.enabled) result.AppendLine("Enabled: " + feature.GetType().FullName);
 result.AppendLine("Compiling: " + UnityEditor.EditorApplication.isCompiling);
+System.IO.Directory.CreateDirectory("docs/evidence");
+System.IO.File.WriteAllText("docs/evidence/openxr.txt",result.ToString());
 return result.ToString();

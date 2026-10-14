@@ -1,0 +1,4 @@
+Captured six running simulator panels.
+PASS: LOD2 mesh raycasts and temporary annotation markers.
+PASS: alignment JSON save and restore.
+QA annotations removed after capture. No physical headset claim.

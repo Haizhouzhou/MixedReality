@@ -1,0 +1,25 @@
+OpenXR Android issues: 0
+Enabled: UnityEngine.XR.OpenXR.Features.Interactions.HandInteractionProfile
+Enabled: UnityEngine.XR.OpenXR.Features.Interactions.KHRSimpleControllerProfile
+Enabled: UnityEngine.XR.OpenXR.Features.Interactions.PalmPoseInteraction
+Enabled: UnityEngine.XR.OpenXR.Features.Interactions.HandCommonPosesInteraction
+Enabled: UnityEngine.XR.OpenXR.Features.CompositionLayers.OpenXRCompositionLayersFeature
+Enabled: UnityEngine.XR.OpenXR.Features.FoveatedRenderingFeature
+Enabled: UnityEngine.XR.Hands.OpenXR.HandTracking
+Enabled: UnityEngine.XR.OpenXR.Features.Android.OpenXRLifeCycleFeature
+Enabled: UnityEngine.XR.OpenXR.Features.Android.ARCameraFeature
+Enabled: UnityEngine.XR.OpenXR.Features.Android.AROcclusionFeature
+Enabled: UnityEngine.XR.OpenXR.Features.Android.AndroidXRSupportFeature
+Enabled: UnityEngine.XR.OpenXR.Features.Android.DisplayUtilitiesFeature
+Enabled: UnityEngine.XR.OpenXR.Features.Android.AndroidXRPerformanceMetrics
+Enabled: UnityEngine.XR.OpenXR.Features.Android.ARRaycastFeature
+Enabled: UnityEngine.XR.OpenXR.Features.Android.ARMeshFeature
+Enabled: UnityEngine.XR.OpenXR.Features.Android.ARAnchorFeature
+Enabled: UnityEngine.XR.OpenXR.Features.Android.ARPlaneFeature
+Enabled: UnityEngine.XR.OpenXR.Features.Android.ARSessionFeature
+Enabled: Google.XR.Extensions.XRUnboundedRefSpaceFeature
+Enabled: Google.XR.Extensions.XRQrCodeTrackingFeature
+Enabled: Google.XR.Extensions.XRPassthroughFeature
+Enabled: Google.XR.Extensions.XRSessionFeature
+Enabled: Google.XR.Extensions.XRMarkerTrackingFeature
+Compiling: False

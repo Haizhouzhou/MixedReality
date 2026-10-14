@@ -1,0 +1,10 @@
+PASS: TwinInspector.AlignmentState public fields and default constructor retained
+PASS: TwinInspector.MarkerCatalog public fields and default constructor retained
+PASS: TwinInspector.MarkerDefinition public fields and default constructor retained
+PASS: TwinInspector.Annotation public fields and default constructor retained
+PASS: TwinInspector.AnnotationDocument public fields and default constructor retained
+PASS: TwinInspector.TwinManifest public fields and default constructor retained
+PASS: TwinInspector.Annotation/DevicePose public fields and default constructor retained
+PASS: TwinInspector.TwinManifest/Region public fields and default constructor retained
+PASS: TwinInspector.TwinManifest/Tile public fields and default constructor retained
+PASS: 9 JSON data types survive Android managed stripping.
