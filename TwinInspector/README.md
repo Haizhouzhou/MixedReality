@@ -1,16 +1,20 @@
-# TwinInspector v1.2
+# TwinInspector — setup and development
 
-Mixed-reality architectural inspection of the LaMAR HGE scan on Samsung Galaxy XR. The existing Unity 6000.3.26f1 / XRI 3.6.1 / OpenXR / URP / glTFast application now includes architectural rendering, a spatial inspection Lens, readable geometric annotations and complete single-hand controls. Package versions, application identity (`com.mrtwin.inspector`) and annotation/alignment schemas are retained.
+This guide covers the Unity project, controls, Android deployment and external scan data. For an illustrated overview, see the [repository README](../README.md).
 
-The Android application version is **1.2.0**. The repository's delivery filename remains [Builds/TwinInspector-0.1.0.apk](Builds/TwinInspector-0.1.0.apk). It contains the 32-tile hall demo and can update an existing installation with `adb install -r`, preserving saved data. Only this APK is tracked; external scans, caches and other build outputs remain excluded. This release is committed locally; it is not automatically pushed to GitHub.
+TwinInspector v1.2 uses Unity **6000.3.26f1**, XRI **3.6.1**, OpenXR, URP and glTFast. The Android application version is **1.2.0**, with package ID `com.mrtwin.inspector`. The [tracked APK](Builds/TwinInspector-0.1.0.apk) includes a 32-tile hall demo and can update an existing installation with `adb install -r`, preserving saved data. The existing filename is retained by the delivery scripts. External scans, caches and other build outputs are excluded from Git.
 
-See [DEVLOG](docs/DEVLOG.md) for actual build and verification results. Editor and synthetic input checks do not establish physical tracking, stereo correctness or headset frame rate.
+![Numbered inspection panel and tool strip in the HGE hall](docs/screenshots/v12-mode.png)
+
+*Unity Editor capture. The panel and strip share a world-space dock.*
+
+See [DEVLOG](docs/DEVLOG.md) for build and verification results. Editor and synthetic input checks do not establish physical tracking, stereo correctness or headset frame rate.
 
 Verified v1.2 APK: **66,366,495 bytes (63.29 MiB)**; SHA-256 `bf4e2daafa8afc507413752684df6590251254ec5eac60e537de70de593e6030`. Compilation has zero errors/warnings, all 16 Unity tests pass, and Android OpenXR project validation has zero issues. No headset was connected for device acceptance.
 
 ## Prepare the data
 
-From `E:\MixedReality`, use the provided `mr` environment:
+The packaged demo is sufficient to try the application. Process external data only when a full region is needed. The commands below use the development laptop's checkout and `mr` Python environment; adjust those paths on another machine. Python dependencies are listed in [requirements-twin.txt](../tools/requirements-twin.txt).
 
 ```powershell
 & 'D:\miniforge3\envs\mr\python.exe' -I tools\tests\test_twin_pipeline.py
@@ -19,7 +23,7 @@ From `E:\MixedReality`, use the provided `mr` environment:
 & 'D:\miniforge3\envs\mr\python.exe' -I tools\verify_tiles.py work\twin\HGE_2022-02-06\region_a
 ```
 
-Repeat with `--region b` and `--out work\twin\HGE_2022-02-06\region_b` for the floor. The bounding boxes are the brief's measured A/B extents, not semantic indoor segmentation. Centroid clipping deliberately retains complete boundary triangles; a triangle can extend outside its cell or region.
+Repeat with `--region b` and `--out work\twin\HGE_2022-02-06\region_b` for the floor. Regions A and B use fixed measured extents rather than semantic indoor segmentation. Centroid clipping retains complete boundary triangles; a triangle can extend outside its cell or region.
 
 The pipeline reads fixed-size PLY batches through read-only memory maps. Checkpointed batches and completed tiles are skipped on rerun. The `config.json` fingerprint rejects a different source/configuration in an existing output. Choose a new output directory for changed settings. `--force` reruns the selected stage; `all --force` rebuilds all stages. Do not run two writers against the same output directory. `--target-ratio` defaults to 0.013 and is reduced automatically if the region triangle budget would be exceeded.
 
@@ -41,7 +45,7 @@ Annotations and measured marker coordinates always use the original twin frame, 
 
 ## Headset setup and data transfer
 
-**[HUMAN]** On the headset: Settings → About headset → Software information → tap Build number seven times → enable USB debugging in Developer options. Connect USB-C and accept the RSA prompt. `adb devices` must show one authorized device.
+On the headset, open Settings → About headset → Software information, tap Build number seven times, then enable USB debugging in Developer options. Connect USB-C and accept the RSA prompt. `adb devices` must show an authorized device.
 
 After installing and first launching the APK, push a verified region:
 
@@ -52,13 +56,13 @@ After installing and first launching the APK, push a verified region:
 
 Only runtime GLBs, marker configuration and the manifest are transferred. Tiles go into a manifest-hash revision directory; the manifest is activated last, so interrupted transfers cannot replace files referenced by the previous manifest. Device destination: `/sdcard/Android/data/com.mrtwin.inspector/files/twin/HGE_2022-02-06/`. Previous tile revisions are retained. Restart the app after replacing a dataset. A missing external dataset uses a packaged selection of complete nearby Region A LOD2 tiles, capped below 15 MB. External data retains the entire region.
 
-**[HUMAN]** Grant the camera, scene-understanding and hand-tracking permission prompts. Print `tools/markers/marker_00.png` on A4 at 100%, check the black square is 150 mm, and place it at a surveyed pose. Follow [marker measurement instructions](../tools/markers/README.md). Shipped coordinates are examples with `measured:false`; automatic headset alignment deliberately rejects them. A marker must remain tracked for one second before confirmation.
+Grant the camera, scene-understanding and hand-tracking permissions. For marker alignment, print `tools/markers/marker_00.png` on A4 at 100%, check the black square is 150 mm, and place it at a surveyed pose. Follow the [marker measurement instructions](../tools/markers/README.md). Shipped coordinates are examples with `measured:false`; automatic headset alignment rejects them. A marker must remain tracked for one second before confirmation.
 
 ## Build, install and launch
 
 Open `Assets/_TwinInspector/Scenes/Inspector.unity`. The scene uses the XRI modality manager with two hand groups and two optional controller groups. The Editor-only XR Device Simulator is disabled by default. The generated assets are committed; `TwinInspector → Rebuild application assets and Inspector` reproduces them through Editor APIs if needed. This command replaces Inspector, so save any intentional scene edits first.
 
-From PowerShell at the repository root:
+From PowerShell at the repository root, using the development laptop's paths:
 
 ```powershell
 $env:UNITY_NO_BANNER='1'
@@ -123,7 +127,7 @@ Current rendered comparisons and interaction evidence are in [docs/screenshots](
 
 ## Device acceptance run
 
-After the two **[HUMAN]** steps above, install the APK, push Region A, restart, and use this sequence to finish the device-only acceptance checks:
+After authorizing USB debugging and granting the app permissions, install the APK, push Region A and restart. Use this sequence for device acceptance:
 
 1. Confirm camera passthrough around the opaque Setup panel and inspect the loaded hall. Open Diagnostics; record FPS, CPU/GPU time, tile/triangle counts and display rate before loading and after 60 seconds of steady viewing. Acceptance is at least 72 FPS, with 90 as the target. Record draw calls from the Unity profiler when connected; the budget is 300.
 2. Switch Reality, Twin and Overlay; test opacity, both styles, contours and datum grid. Enable Lens and test 0.5 / 1.5 / 5 m radii at near and far hits, UI hold and no-hit fade. Confirm both eyes match and peripheral passthrough is unchanged.
