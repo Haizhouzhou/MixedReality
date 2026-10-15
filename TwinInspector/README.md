@@ -6,11 +6,13 @@ Mixed-reality inspection of the LaMAR HGE NavVis scan on Samsung Galaxy XR. Mous
 
 ## Download for teammate testing
 
-Repository members can download the APK above while signed into GitHub, or obtain it by cloning/pulling this private repository. It is **66,014,471 bytes (62.96 MiB)** and was built from application source commit `55d82ce`. The Android package version and filename remain `0.1.0`; the implementation is TwinInspector v1.1. The APK contains the 32-tile hall demo, so a first headset test does not require the external dataset or a local Unity build.
+Repository members can download the APK above while signed into GitHub, or obtain it by cloning/pulling this private repository. It is **66,012,611 bytes (62.95 MiB)** and was built from application source commit `5dc7fd7`, including the panel docking improvement. The Android package version and filename remain `0.1.0`; the implementation is TwinInspector v1.1. The APK contains the 32-tile hall demo, so a first headset test does not require the external dataset or a local Unity build.
 
-SHA-256: `23e08596c75b053ca28634cab7a8bb326e3bec14d3c6d08608fa80f21ff2b189`.
+SHA-256: `82b1fcb4efe99a5268388bb246c8facdafbc0ac3a6987dbb03bd5aaf64602fde`.
 
 Download to `TwinInspector/Builds/TwinInspector-0.1.0.apk` and follow [Build, install and launch](#build-install-and-launch) from the install commands onward. Adjust the example Unity SDK/ADB paths for your computer. This APK is the sole exception to the ignored build outputs; raw scans, full external datasets, caches and other builds remain excluded.
+
+To update an existing headset installation, download the new APK and use `adb install -r`; the package identity is unchanged, so the update retains the app's saved data.
 
 ## Prepare the data
 

@@ -1,10 +1,10 @@
 {
   "status": "completed",
-  "buildId": "build_95cb8c8ceb95",
+  "buildId": "build_62e2c7ae021f",
   "result": "Succeeded",
   "platform": "Android",
   "outputPath": "E:/MixedReality/TwinInspector/Builds/TwinInspector-0.1.0.apk",
-  "buildTimeMs": 192020,
+  "buildTimeMs": 608283,
   "totalWarnings": 1,
   "totalErrors": 0,
   "warnings": [

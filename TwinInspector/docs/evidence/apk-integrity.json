@@ -1,8 +1,8 @@
 {
   "status": "PASS",
   "apk": "TwinInspector-0.1.0.apk",
-  "bytes": 66014471,
-  "sha256": "23e08596c75b053ca28634cab7a8bb326e3bec14d3c6d08608fa80f21ff2b189",
+  "bytes": 66012611,
+  "sha256": "82b1fcb4efe99a5268388bb246c8facdafbc0ac3a6987dbb03bd5aaf64602fde",
   "abis": [
     "arm64-v8a"
   ],
