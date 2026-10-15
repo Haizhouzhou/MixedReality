@@ -35,15 +35,27 @@ System.Func<System.Threading.Tasks.Task> run=async()=>
   check(modality.leftController.GetComponentsInChildren<UnityEngine.MeshRenderer>(true).Length==0 && modality.rightController.GetComponentsInChildren<UnityEngine.MeshRenderer>(true).Length==0,"controller meshes stripped");
   var strip=UnityEngine.Object.FindFirstObjectByType<TwinInspector.ToolStrip>();
   check(strip && strip.GetComponent<UnityEngine.Canvas>().renderMode==UnityEngine.RenderMode.WorldSpace && !strip.transform.IsChildOf(camera.transform),"ToolStrip independently anchored in world space");
+  System.Action<string> checkDock=label=>
+  {
+   var panelCorners=new UnityEngine.Vector3[4];var stripCorners=new UnityEngine.Vector3[4];
+   ((UnityEngine.RectTransform)app.UI.Panel.transform).GetWorldCorners(panelCorners);
+   ((UnityEngine.RectTransform)strip.transform).GetWorldCorners(stripCorners);
+   var separation=(panelCorners[0]+panelCorners[3]-stripCorners[1]-stripCorners[2])*.5f;
+   check(UnityEngine.Mathf.Abs(UnityEngine.Vector3.Dot(separation,strip.transform.up)-.024f)<.0001f && UnityEngine.Mathf.Abs(UnityEngine.Vector3.Dot(separation,strip.transform.forward))<.0001f && UnityEngine.Mathf.Abs(UnityEngine.Vector3.Dot(separation,strip.transform.right))<.0001f,"panel centered 24 mm above strip at same depth: "+label);
+  };
+  checkDock("initial setup");
+  var panelStart=app.UI.Panel.transform.position;
   var start=strip.transform.position;
   camera.transform.rotation=initialRotation*UnityEngine.Quaternion.Euler(0,15,0);await wait(300);
   check(UnityEngine.Vector3.Distance(start,strip.transform.position)<.001f,"15 degree look leaves ToolStrip stationary");
+  check(UnityEngine.Vector3.Distance(panelStart,app.UI.Panel.transform.position)<.001f,"15 degree look leaves the full panel stationary");
   camera.transform.rotation=initialRotation*UnityEngine.Quaternion.Euler(0,50,0);await wait(500);
   check(UnityEngine.Vector3.Distance(start,strip.transform.position)>.15f,"50 degree turn recenters ToolStrip");
+  checkDock("after shared recenter");
   camera.transform.rotation=initialRotation;strip.Recenter(true);await wait(200);
   foreach(var label in new[]{"MODE","ALIGN","LIST"})
   {
-   await click(find(label));check(app.UI.Page==label.ToLowerInvariant(),"left mouse opens "+label);
+   await click(find(label));check(app.UI.Page==label.ToLowerInvariant(),"left mouse opens "+label);checkDock(label);
   }
   await click(find("MODE"));
   var slider=app.UI.Panel.GetComponentInChildren<UnityEngine.UI.Slider>();
@@ -64,6 +76,7 @@ System.Func<System.Threading.Tasks.Task> run=async()=>
   point(surfacePixel,true);await wait(150);point(surfacePixel,false);await wait(200);
   if(app.Annotations.Items.Count>count) created.Add(app.Annotations.Selected.id);
   check(app.Annotations.Items.Count==count+1 && app.UI.Page=="picker","one mouse click creates one annotation and opens picker");
+  checkDock("annotation type picker");
   UnityEngine.InputSystem.InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState(UnityEngine.InputSystem.Key.Digit1));await wait(120);
   UnityEngine.InputSystem.InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState());await wait(120);
   check(app.UI.Page=="mode","keyboard 1 opens Mode");

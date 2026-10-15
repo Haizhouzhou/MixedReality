@@ -25,10 +25,11 @@ namespace TwinInspector
         {
             app = application;
             panel = Instantiate(app.Tokens.PanelPrefab).GetComponent<PanelBase>();
-            panel.name = "Inspection panel"; panel.Initialize(app.Tokens,app.Viewer); panel.Summon(app.Viewer);
+            panel.name = "Inspection panel"; panel.Initialize(app.Tokens,app.Viewer);
             strip = Instantiate(app.Tokens.PanelPrefab).GetComponent<PanelBase>();
             strip.name = "Spatial tool strip"; strip.Initialize(app.Tokens,app.Viewer);
             spatialStrip=strip.gameObject.AddComponent<ToolStrip>(); spatialStrip.Initialize(app,strip);
+            spatialStrip.Dock(panel);
             Subscribe();
         }
         void Subscribe()
@@ -54,9 +55,10 @@ namespace TwinInspector
             if(spatialStrip) spatialStrip.Select(target=="mode"?0:target=="align"||target=="nudge"||target=="height"||target=="marker"?1:target=="picker"?2:target=="list"?3:-1);
             if (app.Manual) app.Manual.SetActive(target == "align" || target == "nudge" || target == "height");
             if (app.Performance) app.Performance.Visible = target == "diagnostics";
+            if(spatialStrip && spatialStrip.PalmAnchored) spatialStrip.Recenter();
             panel.gameObject.SetActive(true); Render();
         }
-        public void Summon() { if(!app.Placer || !app.Placer.Active) panel.gameObject.SetActive(true); panel.Summon(app.Viewer); if(spatialStrip) spatialStrip.Recenter(); }
+        public void Summon() { if(!app.Placer || !app.Placer.Active) panel.gameObject.SetActive(true); if(spatialStrip) spatialStrip.Recenter(); }
         public void BeginAnnotation()
         {
             if (!app.Ready) return;

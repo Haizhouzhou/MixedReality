@@ -112,3 +112,10 @@ All device performance, passthrough, physical marker alignment and anchor reloca
 
 - At the owner's request, added the verified `Builds/TwinInspector-0.1.0.apk` to the private GitHub repository and linked it from the README. Its 66,014,471 bytes are below GitHub's 100 MiB Git-file limit. This is an explicit exception to the original build-output exclusion; all other build outputs and external data remain ignored.
 - The binary and SHA-256 are unchanged from the accepted v1.1 build above. Android package version remains 0.1.0; application source is commit `55d82ce`. Repository access is required to download it. Physical headset verification remains outstanding.
+
+### Panel docking improvement
+
+- Settings and all tool pages now sit centered 24 mm above the four-cell strip at the same depth. They share a world anchor and the 150 ms comfort-cone recenter, so the panel stays close to the buttons without becoming a head-locked HUD.
+- Palm mode moves only the compact strip. The full panel keeps its world pose; opening a page from the palm summons a reachable world panel, and lowering the palm restores the shared layout. Annotation placement still hides the panel. Feedback toasts appear above the panel and do not cover the tool buttons.
+- Compilation passes with **0 errors and 0 warnings**. Actual queued mouse/keyboard checks pass tool-page clicks, the opacity slider, annotation placement, flight and shortcuts. Layout checks confirm the 24 mm gap on Setup, Mode, Align, List and the annotation picker, no motion within 15°, and shared recenter after a 50° turn.
+- Simulated palm transitions through the production spatial update confirm that the full panel does not follow hand motion, opening a page recenters it, and returning to world mode restores the gap. Physical palm tracking has not been re-tested for this patch. Refreshed screenshots include `docs/screenshots/panel-docked.png`; detailed evidence is in `docs/evidence/panel-dock.txt` and `desktop-v11.txt`.

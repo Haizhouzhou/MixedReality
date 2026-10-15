@@ -1,0 +1,8 @@
+PASS: full panel remains world-space, outside camera hierarchy
+PASS: simulated palm transition moves the compact strip
+PASS: full panel stays at its world anchor when palm rises
+PASS: moving the palm does not drag the full panel
+PASS: opening a tool from palm mode summons its panel to a reachable world anchor
+PASS: lowering palm restores the 24 mm panel/strip gap and shared depth
+PASS: feedback appears above the panel, leaving tool buttons unobstructed
+Palm poses are simulated through the same spatial update; physical tracking still requires headset acceptance.

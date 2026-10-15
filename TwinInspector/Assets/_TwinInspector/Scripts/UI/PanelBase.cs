@@ -31,7 +31,8 @@ namespace TwinInspector
             title = Text("Title",24,48,432,40,DesignTokens.Title,true,rect);
             meta = Text("",300,24,156,20,DesignTokens.Caption,false,rect); meta.alignment = TextAlignmentOptions.TopRight;
             content = Rectangle("Content",rect,0,0,480,320);
-            var footer = Rectangle("Toast",rect,0,320,480,48); var surface = footer.gameObject.AddComponent<Image>(); surface.color = tokens.Paper; surface.raycastTarget = false;
+            // Put transient feedback above the panel so it cannot cover the docked tool strip.
+            var footer = Rectangle("Toast",rect,0,-56,480,48); var surface = footer.gameObject.AddComponent<Image>(); surface.color = tokens.Paper; surface.raycastTarget = false;
             toast = Text("",24,8,432,32,DesignTokens.Body,false,footer); toast.transform.parent.gameObject.SetActive(false);
         }
         public void Header(string label, string heading, string status = "") { section.text = label.ToUpperInvariant(); title.text = heading; meta.text = status; }
