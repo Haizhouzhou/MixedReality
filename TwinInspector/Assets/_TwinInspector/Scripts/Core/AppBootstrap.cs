@@ -43,6 +43,8 @@ namespace TwinInspector
         public InspectorUI UI { get; private set; }
         public PerfHud Performance { get; private set; }
         public InputRouter Input { get; private set; }
+        public HandLocomotion Roam { get; private set; }
+        public MicroFeedback Feedback { get; private set; }
 
         void Awake()
         {
@@ -93,7 +95,8 @@ namespace TwinInspector
                 await Markers.InitializeAsync(Root,Anchors,imageManager,Loader.DataRoot,settings.Scan,lifetime.Token);
                 Placer = gameObject.AddComponent<AnnotationPlacer>(); Placer.Initialize(Root,Annotations,viewer,Input);
                 gameObject.AddComponent<SwissReticle>().Initialize(this);
-                gameObject.AddComponent<HandLocomotion>().Initialize(this);
+                Roam=gameObject.AddComponent<HandLocomotion>(); Roam.Initialize(this);
+                Feedback=gameObject.AddComponent<MicroFeedback>(); Feedback.Initialize();
                 Performance = gameObject.AddComponent<PerfHud>(); Performance.Initialize(Loader,settings);
                 Ready = true; Status = Loader.Manifest.demo ? "Built-in hall · low detail" : "Region "+Loader.Manifest.region.name+" · external data";
                 EnsureUI(); UI.Show("setup");

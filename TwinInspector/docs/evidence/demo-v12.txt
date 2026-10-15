@@ -1,0 +1,6 @@
+PASS: three view modes and global alpha
+PASS: manual nudge and height lock
+PASS: marker simulation and cancel
+PASS: annotation create/select/retype/reload/delete and JSON/CSV export
+PASS: 32 loaded tiles; 1133706 resident triangles; 0 load failures
+Editor checks only; no headset performance or physical tracking claim.

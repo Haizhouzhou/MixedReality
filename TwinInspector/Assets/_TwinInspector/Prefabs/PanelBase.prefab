@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 3663447468279486615}
   - component: {fileID: 7031537564372955433}
   - component: {fileID: 8534294079552083845}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: PanelBase
   m_TagString: Untagged
   m_Icon: {fileID: 0}

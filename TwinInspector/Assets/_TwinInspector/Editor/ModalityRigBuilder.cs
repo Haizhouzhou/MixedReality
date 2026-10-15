@@ -38,10 +38,17 @@ namespace TwinInspector.Editor
                 if(!pose) throw new InvalidOperationException("Hand aim pose missing");
                 var follow=ray.GetComponent<TrackedRayPose>() ?? ray.gameObject.AddComponent<TrackedRayPose>(); follow.Source=pose;
             }
+            var filtered=ray.GetComponent<TrackedRayPose>() ?? ray.gameObject.AddComponent<TrackedRayPose>();
+            if(!hand) filtered.Source=group.transform;
+            filtered.Hand=hand;
+            // The sample stabilizes its separate pinch-grab pose. Never stack that
+            // filter on our raw aim chain; only TrackedRayPose filters this ray.
+            foreach(var stabilizer in ray.GetComponents<XRTransformStabilizer>()) stabilizer.enabled=false;
+            ray.rayOriginTransform=ray.transform;
             ray.handedness=near.handedness;
             ray.selectInput=hand ? near.selectInput : near.uiPressInput;
             ray.uiPressInput=near.uiPressInput;
-            ray.enableUIInteraction=true; ray.raycastMask=InputRouter.SurfaceMask; ray.maxRaycastDistance=80;
+            ray.enableUIInteraction=true; ray.raycastMask=InputRouter.SurfaceMask | (1<<5); ray.maxRaycastDistance=80;
             ray.hitDetectionType=XRRayInteractor.HitDetectionType.Raycast;
             ray.lineType=XRRayInteractor.LineType.StraightLine;
             near.enabled=false;

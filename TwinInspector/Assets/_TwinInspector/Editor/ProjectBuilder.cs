@@ -30,7 +30,8 @@ namespace TwinInspector.Editor
             if(EditorApplication.isPlaying) throw new InvalidOperationException("Stop Play mode before authoring Main");
             foreach(var folder in new[]{"Resources","Prefabs","Materials","Scenes","Fonts"}) Directory.CreateDirectory(Root+"/"+folder);
             AssetDatabase.Refresh();
-            PlayerSettings.companyName="MR Twin Team"; PlayerSettings.productName="TwinInspector"; PlayerSettings.bundleVersion="0.1.0";
+            PlayerSettings.companyName="MR Twin Team"; PlayerSettings.productName="TwinInspector"; PlayerSettings.bundleVersion="1.2.0";
+            PlayerSettings.Android.bundleVersionCode=2;
             PlayerSettings.SetApplicationIdentifier(UnityEditor.Build.NamedBuildTarget.Android,"com.mrtwin.inspector");
             PlayerSettings.Android.targetSdkVersion=AndroidSdkVersions.AndroidApiLevelAuto;
             PlayerSettings.Android.targetArchitectures=AndroidArchitecture.ARM64;
@@ -50,8 +51,10 @@ namespace TwinInspector.Editor
             Set(tokens,"twinMaterial",Material("Twin","TwinInspector/Twin"));
             Set(tokens,"annotationMaterial",Material("Annotation","TwinInspector/Annotation"));
             Set(tokens,"gridMaterial",Material("FloorGrid","TwinInspector/FloorGrid"));
+            Set(tokens,"edgeMaterial",Material("ArchitecturalEdges","TwinInspector/ArchitecturalEdges"));
             var ink=Material("Ink","Universal Render Pipeline/Unlit"); ink.SetColor("_BaseColor",tokens.Ink); Set(tokens,"inkMaterial",ink);
             var paper=new GameObject("PanelBase",typeof(RectTransform),typeof(Canvas),typeof(CanvasGroup),typeof(Image),typeof(TrackedDeviceGraphicRaycaster),typeof(PanelBase));
+            paper.layer=5;
             paper.GetComponent<RectTransform>().sizeDelta=new Vector2(480,320);
             paper.GetComponent<Canvas>().renderMode=RenderMode.WorldSpace;
             Set(tokens,"panelPrefab",PrefabUtility.SaveAsPrefabAsset(paper,Root+"/Prefabs/PanelBase.prefab")); UnityEngine.Object.DestroyImmediate(paper);
@@ -144,18 +147,23 @@ namespace TwinInspector.Editor
         static TMP_FontAsset FontAsset(string name)
         {
             string path=Root+"/Fonts/"+name+" SDF.asset";
-            var font=AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(path); if(font) { TabularDigits(font); return font; }
+            var font=AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(path); if(font) { font.TryAddCharacters("0123456789Δ•−",true); TabularDigits(font); return font; }
             var source=AssetDatabase.LoadAssetAtPath<Font>(Root+"/Fonts/"+name+".otf");
             if(!source) throw new FileNotFoundException("Font missing: "+name);
             font=TMP_FontAsset.CreateFontAsset(source,64,8,GlyphRenderMode.SDFAA,2048,2048,AtlasPopulationMode.Dynamic,true); font.name=name+" SDF";
             AssetDatabase.CreateAsset(font,path);
-            font.TryAddCharacters(" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~°±−×·←→↑↓□■éèàüöä",true);
+            font.TryAddCharacters(" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~°±−×·←→↑↓□■éèàüöäΔ•",true);
             foreach(var atlas in font.atlasTextures) { atlas.name=name+" Atlas"; AssetDatabase.AddObjectToAsset(atlas,font); }
             font.material.name=name+" Material"; AssetDatabase.AddObjectToAsset(font.material,font);
             TabularDigits(font); EditorUtility.SetDirty(font); return font;
         }
         static void TabularDigits(TMP_FontAsset font)
         {
+            // Retain the bundled symbols and adjusted digit advances in players.
+            // Clearing dynamic data during build would silently discard these metrics.
+            var serialized=new SerializedObject(font);
+            serialized.FindProperty("m_ClearDynamicDataOnBuild").boolValue=false;
+            serialized.ApplyModifiedPropertiesWithoutUndo();
             // TMP exposes only a subset of OpenType tags. Give Inter's digit
             // glyphs equal advances explicitly, preserving centred outlines.
             float advance=0;

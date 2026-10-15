@@ -1,0 +1,6 @@
+Four real marker prefabs at forward distance 2 m, selected triangle retains its geometry. Controlled presentation fixture, not a claim of surveyed surface coordinates.
+Four real marker prefabs at forward distance 10 m, selected triangle retains its geometry. Controlled presentation fixture, not a claim of surveyed surface coordinates.
+Four real marker prefabs at forward distance 20 m, selected triangle retains its geometry. Controlled presentation fixture, not a claim of surveyed surface coordinates.
+Four real marker prefabs at forward distance 30 m, selected triangle retains its geometry. Controlled presentation fixture, not a claim of surveyed surface coordinates.
+Overlapping labels: selected triangle has presentation priority without changing its anchor or glyph identity.
+Overlapping labels: hovered note has presentation priority without changing its anchor or glyph identity.

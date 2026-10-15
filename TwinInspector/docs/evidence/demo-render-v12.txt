@@ -1,0 +1,63 @@
+PASS: all 32 packaged tiles load
+PASS: no controller mesh in Left Controller
+PASS: no controller mesh in Right Controller
+PASS: derived filtered ray owns the actual hit-test transform
+PASS: derived filtered ray owns the actual hit-test transform
+PASS: derived filtered ray owns the actual hit-test transform
+PASS: derived filtered ray owns the actual hit-test transform
+PASS: asset rebuild retains exactly four pointing filters
+PASS: sample beam disabled
+PASS: sample beam disabled
+PASS: sample beam disabled
+PASS: sample beam disabled
+PASS: sample beam disabled
+PASS: sample beam disabled
+PASS: Inter-Regular SDF tabular digit 0
+PASS: Inter-Regular SDF tabular digit 1
+PASS: Inter-Regular SDF tabular digit 2
+PASS: Inter-Regular SDF tabular digit 3
+PASS: Inter-Regular SDF tabular digit 4
+PASS: Inter-Regular SDF tabular digit 5
+PASS: Inter-Regular SDF tabular digit 6
+PASS: Inter-Regular SDF tabular digit 7
+PASS: Inter-Regular SDF tabular digit 8
+PASS: Inter-Regular SDF tabular digit 9
+PASS: Inter-Regular SDF contains Δ
+PASS: Inter-Regular SDF contains •
+PASS: Inter-Regular SDF contains −
+PASS: font metrics retained in player build
+PASS: Inter-Medium SDF tabular digit 0
+PASS: Inter-Medium SDF tabular digit 1
+PASS: Inter-Medium SDF tabular digit 2
+PASS: Inter-Medium SDF tabular digit 3
+PASS: Inter-Medium SDF tabular digit 4
+PASS: Inter-Medium SDF tabular digit 5
+PASS: Inter-Medium SDF tabular digit 6
+PASS: Inter-Medium SDF tabular digit 7
+PASS: Inter-Medium SDF tabular digit 8
+PASS: Inter-Medium SDF tabular digit 9
+PASS: Inter-Medium SDF contains Δ
+PASS: Inter-Medium SDF contains •
+PASS: Inter-Medium SDF contains −
+PASS: font metrics retained in player build
+PASS: Inter-SemiBold SDF tabular digit 0
+PASS: Inter-SemiBold SDF tabular digit 1
+PASS: Inter-SemiBold SDF tabular digit 2
+PASS: Inter-SemiBold SDF tabular digit 3
+PASS: Inter-SemiBold SDF tabular digit 4
+PASS: Inter-SemiBold SDF tabular digit 5
+PASS: Inter-SemiBold SDF tabular digit 6
+PASS: Inter-SemiBold SDF tabular digit 7
+PASS: Inter-SemiBold SDF tabular digit 8
+PASS: Inter-SemiBold SDF tabular digit 9
+PASS: Inter-SemiBold SDF contains Δ
+PASS: Inter-SemiBold SDF contains •
+PASS: Inter-SemiBold SDF contains −
+PASS: font metrics retained in player build
+PASS: cached hover audio has zero-ended envelope
+PASS: cached confirm audio has zero-ended envelope
+Editor rendered batches=34; not a headset measurement.
+PASS: reticle uses a real hall surface
+Reticle active=True placer=True position=(-4.54, 0.29, -2.04) normal=(0.64, 0.12, 0.76) pointer=(-4.54, 0.29, -2.04) distance=5,087181
+PASS: reticle follows the active building hit
+PASS: fresh Editor runtime has zero console errors and warnings

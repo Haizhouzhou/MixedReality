@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "apk": "TwinInspector-0.1.0.apk",
+  "bytes": 66366495,
+  "sha256": "bf4e2daafa8afc507413752684df6590251254ec5eac60e537de70de593e6030",
+  "abis": [
+    "arm64-v8a"
+  ],
+  "demo_tiles": 32,
+  "demo_uncompressed_bytes": 14048147,
+  "demo_lods": [
+    2
+  ],
+  "checks": [
+    "ZIP CRC",
+    "ARM64 IL2CPP",
+    "exact source demo GLB hashes",
+    "no full-detail GLBs",
+    "demo <=15 MB"
+  ]
+}

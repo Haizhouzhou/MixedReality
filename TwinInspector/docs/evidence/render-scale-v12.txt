@@ -1,0 +1,9 @@
+scale-100: center pixel RGBA(0.706, 0.722, 0.729, 1.000)
+scale-075: center pixel RGBA(0.706, 0.725, 0.733, 1.000)
+Same physical camera, same output dimensions; outline expansion uses unscaled eye dimensions.
+constant-datum-fixture: center pixel RGBA(0.753, 0.773, 0.784, 1.000)
+Synthetic horizontal datum surface verifies that an entire level plane does not become an Ink contour; measured data is untouched.
+TwinInspector/Twin: 0 shader messages
+TwinInspector/ArchitecturalEdges: 0 shader messages
+TwinInspector/FloorGrid: 0 shader messages
+TwinInspector/Annotation: 0 shader messages

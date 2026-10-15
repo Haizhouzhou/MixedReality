@@ -16,11 +16,12 @@ namespace TwinInspector
         public CancellationTokenSource Cancellation;
         public GltfImport VisualImport, ColliderImport;
         public GameObject Visual, Collision;
+        public ArchitecturalMesh[] Architecture;
         public int ResidentTriangles => (Visual ? Data.Count(Lod) : 0) + (Collision ? Data.Count(2) : 0);
         public void ReleaseVisual()
         {
             if (Visual) { Visual.SetActive(false); UnityEngine.Object.Destroy(Visual); }
-            VisualImport?.Dispose(); VisualImport = null; Visual = null; Lod = -1;
+            VisualImport?.Dispose(); VisualImport = null; Visual = null; Architecture=null; Lod = -1;
         }
         public void Dispose()
         {

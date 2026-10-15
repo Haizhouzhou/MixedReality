@@ -20,6 +20,9 @@ namespace TwinInspector
         TwinRoot root;
         Camera viewer;
         Material material;
+        Material softMaterial,edgeMaterial;
+        bool lens;
+        bool technical=true;
         Transform visuals, collisions;
         float nextPlan;
         int activeLoads, reserved;
@@ -35,6 +38,8 @@ namespace TwinInspector
         public async Task InitializeAsync(Settings config, TwinRoot twin, Camera camera, Material sharedMaterial)
         {
             settings = config; root = twin; viewer = camera; material = sharedMaterial;
+            softMaterial=new Material(sharedMaterial) { name="Twin Lens soft shell" }; softMaterial.SetFloat("_SoftReveal",1); softMaterial.SetFloat("_ZWrite",0);
+            edgeMaterial=Resources.Load<DesignTokens>("DesignTokens").EdgeMaterial;
             DataRoot = TwinPaths.Resolve(config);
             Manifest = JsonConvert.DeserializeObject<TwinManifest>(await TwinPaths.ReadTextAsync(DataRoot, "manifest.json", lifetime.Token));
             Manifest.Validate(config.Scan);
@@ -47,6 +52,18 @@ namespace TwinInspector
         }
 
         public void SetVisible(bool value) { if (visuals) visuals.gameObject.SetActive(value); }
+        public void SetTechnical(bool value)
+        {
+            if(technical==value) return; technical=value;
+            foreach(var tile in tiles) if(tile.Architecture!=null) foreach(var cached in tile.Architecture) if(cached) cached.SetVisible(value);
+        }
+        public void SetLens(bool value)
+        {
+            if(lens==value) return;
+            lens=value;
+            foreach(var tile in tiles) if(tile.Visual)
+                foreach(var soft in tile.Visual.GetComponentsInChildren<LensShell>(true)) soft.gameObject.SetActive(value);
+        }
 
         void Update()
         {
@@ -133,11 +150,21 @@ namespace TwinInspector
                     renderer.sharedMaterial = material;
                     renderer.shadowCastingMode = ShadowCastingMode.Off; renderer.receiveShadows = false;
                 }
-                foreach (var filter in visual.GetComponentsInChildren<MeshFilter>()) filter.sharedMesh.UploadMeshData(true);
+                foreach (var filter in visual.GetComponentsInChildren<MeshFilter>())
+                {
+                    ArchitecturalMesh.Prepare(filter,edgeMaterial);
+                    var shell=new GameObject("Lens soft shell",typeof(MeshFilter),typeof(MeshRenderer),typeof(LensShell)); shell.transform.SetParent(filter.transform,false);
+                    shell.GetComponent<MeshFilter>().sharedMesh=filter.sharedMesh;
+                    var shellRenderer=shell.GetComponent<MeshRenderer>(); shellRenderer.sharedMaterial=softMaterial; shellRenderer.shadowCastingMode=ShadowCastingMode.Off; shellRenderer.receiveShadows=false;
+                    shell.SetActive(lens); filter.sharedMesh.UploadMeshData(true);
+                    await Task.Yield(); token.ThrowIfCancellationRequested();
+                }
                 token.ThrowIfCancellationRequested();
                 if (tile.Wanted < 0) throw new OperationCanceledException();
                 tile.ReleaseVisual();
                 tile.Visual = visual; tile.VisualImport = visualImport; tile.Lod = lod;
+                tile.Architecture=visual.GetComponentsInChildren<ArchitecturalMesh>(true);
+                foreach(var cached in tile.Architecture) cached.SetVisible(technical);
                 visual.SetActive(true); visual = null; visualImport = null;
                 if (collision) { tile.Collision = collision; tile.ColliderImport = colliderImport; collision.SetActive(true); collision = null; colliderImport = null; }
                 tile.Failures = 0;
@@ -177,6 +204,7 @@ namespace TwinInspector
             lifetime.Cancel();
             foreach (var tile in tiles) tile.Dispose();
             lifetime.Dispose();
+            if(softMaterial) Destroy(softMaterial);
         }
     }
 }

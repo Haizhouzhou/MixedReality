@@ -14,6 +14,8 @@ namespace TwinInspector
         string scan, path;
         ARAnchor active;
         bool following, saving;
+        bool inspectionSuspended;
+        public void SuspendForRoaming(bool value) { inspectionSuspended=value; if(!value && following) Follow(); }
         AlignmentState state;
         public string Status { get; private set; } = "Not aligned";
 
@@ -96,6 +98,6 @@ namespace TwinInspector
             if (active && active.trackingState == TrackingState.Tracking)
                 root.transform.SetPositionAndRotation(active.transform.position, Quaternion.Euler(0, active.transform.eulerAngles.y, 0));
         }
-        void LateUpdate() { if (following) Follow(); }
+        void LateUpdate() { if (following && !inspectionSuspended) Follow(); }
     }
 }

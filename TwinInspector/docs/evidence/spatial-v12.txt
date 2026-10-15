@@ -1,0 +1,11 @@
+PASS: actual pointer release accepts Overlay
+PASS: real hall supplies a building target
+PASS: Lens acquires stabilized building hit
+PASS: UI holds Lens centre without moving its target
+PASS: outside-hall pointer has no building hit
+PASS: Lens briefly holds through no-hit
+PASS: no-hit fades Lens to zero without jumping to origin
+PASS: streaming after movement respects source triangle budget
+LOD0/1/2 visible tile counts before=5/0/0 after=13/3/0
+PASS: rendered coordinate matrix follows live alignment
+Editor console counts error/warning/log=0/0/141

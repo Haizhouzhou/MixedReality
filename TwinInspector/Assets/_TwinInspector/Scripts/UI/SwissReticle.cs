@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace TwinInspector
 {
-    /// <summary>Eight millimetre ink ring with a one millimetre paper outline; no beam.</summary>
+    /// <summary>Angular Ink/Paper pointer feedback on the actual hit, with continuous selection contraction.</summary>
     public sealed class SwissReticle : MonoBehaviour
     {
         AppBootstrap app; GameObject visual; Mesh mesh; Material ink,paper;
@@ -33,11 +33,18 @@ namespace TwinInspector
         void LateUpdate()
         {
             if(!app || !app.Input || !visual) return;
-            bool show=app.Input.HasPointer && (!app.Input.Desktop || app.Placer.Active);
+            bool accepted=app.Feedback && app.Feedback.SurfaceConfirmation && Time.unscaledTime-app.Feedback.ConfirmedAt<.12f;
+            bool show=app.Input.HasPointer && app.Input.Valid && (!app.Input.Desktop || app.Placer.Active) && (app.Input.OverUI || app.Style.Mode!=ViewMode.Passthrough && (!app.Placer.Active || app.Style.PlacementVisible(app.Input.PointerPosition)));
+            show|=accepted;
             visual.SetActive(show); if(!show) return;
-            var normal=app.Input.PointerNormal;
-            visual.transform.SetPositionAndRotation(app.Input.PointerPosition+normal*.002f,Quaternion.LookRotation(-normal));
-            ink.SetColor("_BaseColor",app.Input.Held || app.Placer.Active ? app.Tokens.Accent : app.Tokens.Ink);
+            var normal=accepted?app.Feedback.SurfaceNormal:app.Input.PointerNormal;
+            var position=accepted?app.Feedback.SurfacePoint:app.Input.PointerPosition;
+            visual.transform.SetPositionAndRotation(position+normal*.002f,Quaternion.LookRotation(-normal));
+            float distance=Vector3.Distance(app.Viewer.transform.position,position);
+            float diameter=AngularPresentation.Diameter(distance,.35f,.010f);
+            visual.transform.localScale=Vector3.one*(diameter/.010f*(accepted?1.18f:Mathf.Lerp(1,.65f,app.Input.Strength)));
+            ink.SetColor("_BaseColor",accepted?app.Tokens.Paper:app.Placer.Active?app.Tokens.Accent:app.Tokens.Ink);
+            paper.SetColor("_BaseColor",accepted?app.Tokens.Ink:app.Tokens.Paper);
         }
         void OnDestroy() { if(visual) Destroy(visual); if(mesh) Destroy(mesh); if(ink) Destroy(ink); if(paper) Destroy(paper); }
     }

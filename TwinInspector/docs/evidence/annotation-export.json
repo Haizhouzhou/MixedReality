@@ -1,17 +1,17 @@
 {
   "schema": "twin-annotations/1",
   "scan": "navvis_2022-02-06_12.55.11",
-  "exported_utc": "2026-10-15T05:14:12.0135002Z",
-  "next_index": 17,
+  "exported_utc": "2026-10-15T11:14:14.2998978Z",
+  "next_index": 64,
   "items": [
     {
-      "id": "a-000016",
+      "id": "a-000063",
       "type": "changed",
       "label": "Changed",
-      "created_utc": "2026-10-15T05:14:11.9695499Z",
+      "created_utc": "2026-10-15T11:14:14.2392335Z",
       "screenshot": "",
       "comment": "Editor QA fixture; removed after verification",
-      "index": 16,
+      "index": 63,
       "position_twin": [
         18.0,
         10.0,

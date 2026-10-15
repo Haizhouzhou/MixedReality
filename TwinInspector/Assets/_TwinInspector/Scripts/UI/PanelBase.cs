@@ -21,6 +21,7 @@ namespace TwinInspector
         public void Initialize(DesignTokens design, Camera viewer)
         {
             tokens = design;
+            gameObject.layer=5;
             var rect = GetComponent<RectTransform>(); rect.sizeDelta = new Vector2(480, 320);
             var canvas = GetComponent<Canvas>(); canvas.renderMode = RenderMode.WorldSpace; canvas.worldCamera = viewer; canvas.sortingOrder = 20;
             if(!GetComponent<GraphicRaycaster>()) gameObject.AddComponent<GraphicRaycaster>();
@@ -31,6 +32,8 @@ namespace TwinInspector
             title = Text("Title",24,48,432,40,DesignTokens.Title,true,rect);
             meta = Text("",300,24,156,20,DesignTokens.Caption,false,rect); meta.alignment = TextAlignmentOptions.TopRight;
             content = Rectangle("Content",rect,0,0,480,320);
+            foreach(var edge in new[]{new Vector4(0,0,480,1),new Vector4(0,319,480,1),new Vector4(0,0,1,320),new Vector4(479,0,1,320),new Vector4(8,8,8,1),new Vector4(8,8,1,8),new Vector4(464,311,8,1),new Vector4(471,304,1,8)})
+            { var rule=Rectangle("Registration rule",rect,edge.x,edge.y,edge.z,edge.w).gameObject.AddComponent<Image>(); rule.color=tokens.Ink; rule.raycastTarget=false; }
             // Put transient feedback above the panel so it cannot cover the docked tool strip.
             var footer = Rectangle("Toast",rect,0,-56,480,48); var surface = footer.gameObject.AddComponent<Image>(); surface.color = tokens.Paper; surface.raycastTarget = false;
             toast = Text("",24,8,432,32,DesignTokens.Body,false,footer); toast.transform.parent.gameObject.SetActive(false);
@@ -49,7 +52,7 @@ namespace TwinInspector
             shownAt = Time.unscaledTime;
         }
         public void StripLayout()
-        { ((RectTransform)transform).sizeDelta = new Vector2(560,64); content.sizeDelta = new Vector2(560,64); section.gameObject.SetActive(false); title.gameObject.SetActive(false); meta.gameObject.SetActive(false); }
+        { ((RectTransform)transform).sizeDelta = new Vector2(560,64); content.sizeDelta = new Vector2(560,64); section.gameObject.SetActive(false); title.gameObject.SetActive(false); meta.gameObject.SetActive(false); foreach(Transform child in transform) if(child.name=="Registration rule") child.gameObject.SetActive(false); }
         public void Notify(string message) { toast.text = message; toastUntil = Time.unscaledTime + 2.5f; toast.transform.parent.gameObject.SetActive(true); }
         void Update()
         {
@@ -58,7 +61,7 @@ namespace TwinInspector
         }
         public static RectTransform Rectangle(string name, Transform parent, float x, float y, float width, float height)
         {
-            var rect = new GameObject(name, typeof(RectTransform)).GetComponent<RectTransform>(); rect.SetParent(parent,false);
+            var rect = new GameObject(name, typeof(RectTransform)).GetComponent<RectTransform>(); rect.gameObject.layer=5; rect.SetParent(parent,false);
             rect.anchorMin = rect.anchorMax = new Vector2(0,1); rect.pivot = new Vector2(0,1); rect.anchoredPosition = new Vector2(x,-y); rect.sizeDelta = new Vector2(width,height); return rect;
         }
         public TMP_Text Text(string value, float x, float y, float width, float height, float size = DesignTokens.Body, bool emphasis = false, Transform parent = null)
@@ -78,19 +81,20 @@ namespace TwinInspector
             var inset = Rectangle("Fill",rect,1,1,width-2,46); var fill = inset.gameObject.AddComponent<Image>();
             var text = Text(label,12,8,width-24,32,DesignTokens.Body,false,rect); text.alignment = TextAlignmentOptions.MidlineLeft;
             var button = rect.gameObject.AddComponent<Button>(); button.targetGraphic = fill; button.transition = Selectable.Transition.None;
-            button.onClick.AddListener(() => action());
+            button.onClick.AddListener(() => { button.GetComponent<SwissButton>().Accepted(); action(); AppBootstrap.Instance?.Feedback?.Confirm(); });
             rect.gameObject.AddComponent<SwissButton>().Configure(fill,text,tokens,primary); return button;
         }
-        public void Slider(float value, Action<float> changed)
+        public void Slider(float value, Action<float> changed, float y=192, float min=0, float max=1, string suffix=" %")
         {
-            var root = Rectangle("Blend slider",content,24,192,352,40);
+            var root = Rectangle("Blend slider",content,24,y,352,40);
             root.gameObject.AddComponent<Image>().color=Color.clear;
             var line = Rectangle("One mm rule",root,0,19.5f,352,1); line.gameObject.AddComponent<Image>().color = tokens.Ink;
             var handleArea = Rectangle("Handle area",root,6,14,340,12);
             var handle = Rectangle("Square handle",handleArea,0,0,12,0); handle.pivot = new Vector2(.5f,.5f); handle.anchorMin = new Vector2(0,0); handle.anchorMax=new Vector2(0,1); handle.gameObject.AddComponent<Image>().color = tokens.Ink;
-            var slider = root.gameObject.AddComponent<Slider>(); slider.minValue = 0; slider.maxValue = 1; slider.handleRect = handle; slider.targetGraphic = handle.GetComponent<Image>(); slider.transition = Selectable.Transition.None; slider.value = value;
-            var readout = Text(Mathf.RoundToInt(value*100)+" %",392,196,64,32,DesignTokens.Body); readout.alignment = TextAlignmentOptions.TopRight;
-            slider.onValueChanged.AddListener(v => { readout.text = Mathf.RoundToInt(v*100)+" %"; changed(v); });
+            var slider = root.gameObject.AddComponent<Slider>(); slider.minValue = min; slider.maxValue = max; slider.handleRect = handle; slider.targetGraphic = handle.GetComponent<Image>(); slider.transition = Selectable.Transition.None; slider.value = value;
+            var readout = Text(suffix==" %"?Mathf.RoundToInt(value*100)+suffix:value.ToString("F1")+suffix,384,y+4,72,32,DesignTokens.Body); readout.alignment = TextAlignmentOptions.TopRight;
+            slider.onValueChanged.AddListener(v => { readout.text = suffix==" %"?Mathf.RoundToInt(v*100)+suffix:v.ToString("F1")+suffix; changed(v); });
+            root.gameObject.AddComponent<SliderFeedback>();
         }
         public RectTransform Scroll(float contentHeight)
         {
@@ -104,7 +108,7 @@ namespace TwinInspector
             var rect=Rectangle(label,parent,0,y,432,56); var fill=rect.gameObject.AddComponent<Image>();
             var text=Text(label,12,12,408,32,DesignTokens.Body,false,rect);
             var rule=Rectangle("Row rule",rect,0,55,432,1); rule.gameObject.AddComponent<Image>().color=tokens.Ink;
-            var button=rect.gameObject.AddComponent<Button>(); button.targetGraphic=fill; button.transition=Selectable.Transition.None; button.onClick.AddListener(()=>action());
+            var button=rect.gameObject.AddComponent<Button>(); button.targetGraphic=fill; button.transition=Selectable.Transition.None; button.onClick.AddListener(()=> { action(); AppBootstrap.Instance?.Feedback?.Confirm(); });
             rect.gameObject.AddComponent<SwissButton>().Configure(fill,text,tokens,selected);
         }
     }

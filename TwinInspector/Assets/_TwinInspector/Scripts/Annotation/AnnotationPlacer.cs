@@ -15,8 +15,11 @@ namespace TwinInspector
         void LateUpdate()
         {
             if(!Active || !input || !input.Pressed || input.OverUI) return;
-            if(!input.HasHit) { Feedback?.Invoke("Point at a twin or detected surface"); return; }
-            Place(input.Hit);
+            var app=AppBootstrap.Instance;
+            var hovered=GetComponent<AnnotationVisuals>().Hovered;
+            if(hovered && input.ConsumePress()) { store.Select(hovered.Id); app.Feedback.Confirm(); Placed?.Invoke(); return; }
+            if(!input.HasBuildingHit || !app.Style.PlacementVisible(input.BuildingHit.point)) { Feedback?.Invoke("Point at a visible twin surface"); return; }
+            if(input.ConsumePress()) Place(input.BuildingHit);
         }
         public void Place(RaycastHit hit)
         {
@@ -29,6 +32,7 @@ namespace TwinInspector
                 store.Add(root.WorldToTwin(hit.point),root.NormalToTwin(normal),root.WorldToTwin(viewer.transform.position),root.RotationToTwin(viewer.transform.rotation));
             }
             Placed?.Invoke();
+            AppBootstrap.Instance?.Feedback?.Confirm(true);
         }
     }
 }

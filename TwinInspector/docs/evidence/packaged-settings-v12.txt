@@ -1,0 +1,2 @@
+PASS: no temporary demo-test data folder in packaged serialized assets.
+PASS: HGE_2022-02-06 retained in assets/bin/Data/sharedassets0.assets.split5

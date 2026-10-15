@@ -1,0 +1,125 @@
+{
+  "status": "completed",
+  "duration": 0.26,
+  "summary": {
+    "total": 16,
+    "passed": 16,
+    "failed": 0,
+    "skipped": 0,
+    "inconclusive": 0
+  },
+  "results": [
+    {
+      "FullName": "TwinInspector.Tests.CoordinateAndPersistenceTests.AnnotationEditsSurviveRestartWithoutReusingDeletedIds",
+      "Status": "Passed",
+      "Duration": 0.1163648,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "TwinInspector.Tests.CoordinateAndPersistenceTests.GltfHandednessAndContainerRotationKeepWestNegative",
+      "Status": "Passed",
+      "Duration": 0.0104655,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "TwinInspector.Tests.CoordinateAndPersistenceTests.ManifestPathsCannotEscapeDataRoot(\"../secret\")",
+      "Status": "Passed",
+      "Duration": 0.0028514,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "TwinInspector.Tests.CoordinateAndPersistenceTests.ManifestPathsCannotEscapeDataRoot(\"C:/outside\")",
+      "Status": "Passed",
+      "Duration": 0.0005205,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "TwinInspector.Tests.CoordinateAndPersistenceTests.ManifestPathsCannotEscapeDataRoot(\"/absolute\")",
+      "Status": "Passed",
+      "Duration": 0.0002796,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "TwinInspector.Tests.CoordinateAndPersistenceTests.OriginalCoordinatesAndNormalsRoundTripAfterYawAndTranslation",
+      "Status": "Passed",
+      "Duration": 0.0051712,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "TwinInspector.Tests.HandLocomotionTests.WorldDragDoesNotChangeFloorHeightOrAddRoll",
+      "Status": "Passed",
+      "Duration": 0.0019926,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "TwinInspector.Tests.HandLocomotionTests.WorldDragKeepsPinchedPointFixedUnderTranslationAndYaw",
+      "Status": "Passed",
+      "Duration": 0.0014222,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "TwinInspector.Tests.SpatialInteractionTests.CoplanarNoiseIsNotACreaseButCornerIs",
+      "Status": "Passed",
+      "Duration": 0.0014452,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "TwinInspector.Tests.SpatialInteractionTests.EitherSingleHandOwnsWholeGestureRegardlessOfPreference(True)",
+      "Status": "Passed",
+      "Duration": 0.0009915,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "TwinInspector.Tests.SpatialInteractionTests.EitherSingleHandOwnsWholeGestureRegardlessOfPreference(False)",
+      "Status": "Passed",
+      "Duration": 0.0002874,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "TwinInspector.Tests.SpatialInteractionTests.GlyphAndIndependentTargetMeetAngularMinimum(10.0f)",
+      "Status": "Passed",
+      "Duration": 0.001654,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "TwinInspector.Tests.SpatialInteractionTests.GlyphAndIndependentTargetMeetAngularMinimum(20.0f)",
+      "Status": "Passed",
+      "Duration": 0.0004639,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "TwinInspector.Tests.SpatialInteractionTests.GlyphAndIndependentTargetMeetAngularMinimum(30.0f)",
+      "Status": "Passed",
+      "Duration": 0.000361,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "TwinInspector.Tests.SpatialInteractionTests.PrePinchHasTimeoutCancellationConfirmationAndHysteresis",
+      "Status": "Passed",
+      "Duration": 0.0067336,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "TwinInspector.Tests.SpatialInteractionTests.ShaderFrameRestoresOriginAndSurvivesAlignment",
+      "Status": "Passed",
+      "Duration": 0.0030102,
+      "Message": null,
+      "StackTrace": null
+    }
+  ]
+}

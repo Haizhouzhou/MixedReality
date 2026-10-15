@@ -1,0 +1,445 @@
+PASS: tracked HMD fixture selects the production XR path
+PASS: LEFT ONLY HAND: available hand overrides absent preferred hand
+PASS: LEFT ONLY HAND: qualified palm summons once into a world dock
+PASS: LEFT ONLY HAND: stabilized ray hits Preferences
+LEFT ONLY HAND: after Preferences page=preferences
+PASS: LEFT ONLY HAND: stabilized ray hits Left hand
+LEFT ONLY HAND: after Left hand page=preferences
+PASS: LEFT ONLY HAND: stabilized ray hits Feedback sound
+LEFT ONLY HAND: after Feedback sound page=sound
+PASS: LEFT ONLY HAND: stabilized ray hits Sound: on
+LEFT ONLY HAND: after Sound: on page=sound
+PASS: LEFT ONLY HAND: stabilized ray hits Sound: muted
+LEFT ONLY HAND: after Sound: muted page=sound
+PASS: LEFT ONLY HAND: stabilized ray hits Back
+LEFT ONLY HAND: after Back page=preferences
+PASS: LEFT ONLY HAND: stabilized ray hits Recenter / back
+LEFT ONLY HAND: after Recenter / back page=setup
+PASS: LEFT ONLY HAND: stabilized ray hits MODE
+LEFT ONLY HAND: after MODE page=mode
+PASS: LEFT ONLY HAND: stabilized ray hits Technical
+LEFT ONLY HAND: after Technical page=mode
+PASS: LEFT ONLY HAND: stabilized ray hits Colour
+LEFT ONLY HAND: after Colour page=mode
+PASS: LEFT ONLY HAND: stabilized ray hits Reality
+LEFT ONLY HAND: after Reality page=mode
+PASS: LEFT ONLY HAND: stabilized ray hits ALIGN
+LEFT ONLY HAND: after ALIGN page=align
+PASS: LEFT ONLY HAND: Align from Reality enters Overlay
+PASS: LEFT ONLY HAND: stabilized ray hits Fine adjustment
+LEFT ONLY HAND: after Fine adjustment page=nudge
+PASS: LEFT ONLY HAND: stabilized ray hits X +
+LEFT ONLY HAND: after X + page=nudge
+PASS: LEFT ONLY HAND: stabilized ray hits Back
+LEFT ONLY HAND: after Back page=align
+PASS: LEFT ONLY HAND: real building surface available
+PASS: LEFT ONLY HAND: one-hand fixed-reference drag keeps height locked
+PASS: LEFT ONLY HAND: release ends registration
+PASS: LEFT ONLY HAND: source loss cancels manipulation
+PASS: LEFT ONLY HAND: reacquisition mid-pinch does not click
+PASS: LEFT ONLY HAND: stabilized ray hits Height / floor
+LEFT ONLY HAND: after Height / floor page=height
+PASS: LEFT ONLY HAND: stabilized ray hits □ Height locked
+LEFT ONLY HAND: after □ Height locked page=height
+PASS: LEFT ONLY HAND: stabilized ray hits Up 1 cm
+LEFT ONLY HAND: after Up 1 cm page=height
+PASS: LEFT ONLY HAND: stabilized ray hits Snap to floor
+LEFT ONLY HAND: after Snap to floor page=height
+PASS: LEFT ONLY HAND: stabilized ray hits Back
+LEFT ONLY HAND: after Back page=align
+PASS: LEFT ONLY HAND: stabilized ray hits Save alignment
+LEFT ONLY HAND: after Save alignment page=setup
+PASS: LEFT ONLY HAND: saved alignment reloads
+PASS: LEFT ONLY HAND: stabilized ray hits Confirm
+LEFT ONLY HAND: after Confirm page=setup
+PASS: LEFT ONLY HAND: simulated marker confirmation accepted
+PASS: LEFT ONLY HAND: stabilized ray hits MODE
+LEFT ONLY HAND: after MODE page=mode
+PASS: LEFT ONLY HAND: stabilized ray hits Twin
+LEFT ONLY HAND: after Twin page=mode
+PASS: LEFT ONLY HAND: stabilized ray hits Roam
+LEFT ONLY HAND: after Roam page=roam
+PASS: LEFT ONLY HAND: one-hand hold moves viewer
+PASS: LEFT ONLY HAND: stabilized ray hits Return to room
+LEFT ONLY HAND: after Return to room page=roam
+PASS: LEFT ONLY HAND: return restores physical pose
+PASS: LEFT ONLY HAND: stabilized ray hits Turn +30°
+LEFT ONLY HAND: after Turn +30° page=roam
+PASS: LEFT ONLY HAND: stabilized ray hits Back
+LEFT ONLY HAND: after Back page=mode
+PASS: LEFT ONLY HAND: stabilized ray hits Overlay
+LEFT ONLY HAND: after Overlay page=mode
+PASS: LEFT ONLY HAND: leaving Twin removes roaming yaw
+PASS: LEFT ONLY HAND: stabilized ray hits Lens: off
+LEFT ONLY HAND: after Lens: off page=mode
+PASS: LEFT ONLY HAND: Lens toggle accepted
+PASS: LEFT ONLY HAND: stabilized ray hits Opacity / Lens
+LEFT ONLY HAND: after Opacity / Lens page=display
+PASS: LEFT ONLY HAND: stabilized ray hits Back
+LEFT ONLY HAND: after Back page=mode
+PASS: LEFT ONLY HAND: stabilized ray hits Lens: on
+LEFT ONLY HAND: after Lens: on page=mode
+PASS: LEFT ONLY HAND: stabilized ray hits ANNOTATE
+LEFT ONLY HAND: after ANNOTATE page=mode
+PASS: LEFT ONLY HAND: one pinch creates one annotation
+PASS: LEFT ONLY HAND: stabilized ray hits [−] MISSING
+LEFT ONLY HAND: after [−] MISSING page=picker
+PASS: LEFT ONLY HAND: stabilized ray hits [+] NEW
+LEFT ONLY HAND: after [+] NEW page=picker
+PASS: LEFT ONLY HAND: stabilized ray hits [Δ] CHANGED
+LEFT ONLY HAND: after [Δ] CHANGED page=picker
+PASS: LEFT ONLY HAND: stabilized ray hits [•] NOTE
+LEFT ONLY HAND: after [•] NOTE page=picker
+PASS: LEFT ONLY HAND: stabilized ray hits List
+LEFT ONLY HAND: after List page=list
+PASS: LEFT ONLY HAND: one-hand pinch drag scrolls the list
+PASS: LEFT ONLY HAND: a list row remains reachable
+PASS: LEFT ONLY HAND: stabilized ray hits 31  [•] NOTE   4,7 m
+Note
+LEFT ONLY HAND: after 31  [•] NOTE   4,7 m
+Note page=list
+PASS: LEFT ONLY HAND: stabilized ray hits Retype
+LEFT ONLY HAND: after Retype page=picker
+PASS: LEFT ONLY HAND: stabilized ray hits [Δ] CHANGED
+LEFT ONLY HAND: after [Δ] CHANGED page=picker
+PASS: LEFT ONLY HAND: stabilized ray hits List
+LEFT ONLY HAND: after List page=list
+PASS: LEFT ONLY HAND: stabilized ray hits Export
+LEFT ONLY HAND: after Export page=list
+PASS: LEFT ONLY HAND: stabilized ray hits Delete
+LEFT ONLY HAND: after Delete page=list
+PASS: LEFT ONLY HAND: row selection, retype, export and delete accessible
+LEFT ONLY HAND: complete synthetic aim/strength workflow passed; raw XR Hands tracking and stereo rendering still require hardware.
+PASS: RIGHT ONLY HAND: available hand overrides absent preferred hand
+PASS: RIGHT ONLY HAND: qualified palm summons once into a world dock
+PASS: RIGHT ONLY HAND: stabilized ray hits Preferences
+RIGHT ONLY HAND: after Preferences page=preferences
+PASS: RIGHT ONLY HAND: stabilized ray hits Right hand
+RIGHT ONLY HAND: after Right hand page=preferences
+PASS: RIGHT ONLY HAND: stabilized ray hits Feedback sound
+RIGHT ONLY HAND: after Feedback sound page=sound
+PASS: RIGHT ONLY HAND: stabilized ray hits Sound: on
+RIGHT ONLY HAND: after Sound: on page=sound
+PASS: RIGHT ONLY HAND: stabilized ray hits Sound: muted
+RIGHT ONLY HAND: after Sound: muted page=sound
+PASS: RIGHT ONLY HAND: stabilized ray hits Back
+RIGHT ONLY HAND: after Back page=preferences
+PASS: RIGHT ONLY HAND: stabilized ray hits Recenter / back
+RIGHT ONLY HAND: after Recenter / back page=setup
+PASS: RIGHT ONLY HAND: stabilized ray hits MODE
+RIGHT ONLY HAND: after MODE page=mode
+PASS: RIGHT ONLY HAND: stabilized ray hits Technical
+RIGHT ONLY HAND: after Technical page=mode
+PASS: RIGHT ONLY HAND: stabilized ray hits Colour
+RIGHT ONLY HAND: after Colour page=mode
+PASS: RIGHT ONLY HAND: stabilized ray hits Reality
+RIGHT ONLY HAND: after Reality page=mode
+PASS: RIGHT ONLY HAND: stabilized ray hits ALIGN
+RIGHT ONLY HAND: after ALIGN page=align
+PASS: RIGHT ONLY HAND: Align from Reality enters Overlay
+PASS: RIGHT ONLY HAND: stabilized ray hits Fine adjustment
+RIGHT ONLY HAND: after Fine adjustment page=nudge
+PASS: RIGHT ONLY HAND: stabilized ray hits X +
+RIGHT ONLY HAND: after X + page=nudge
+PASS: RIGHT ONLY HAND: stabilized ray hits Back
+RIGHT ONLY HAND: after Back page=align
+PASS: RIGHT ONLY HAND: real building surface available
+PASS: RIGHT ONLY HAND: one-hand fixed-reference drag keeps height locked
+PASS: RIGHT ONLY HAND: release ends registration
+PASS: RIGHT ONLY HAND: source loss cancels manipulation
+PASS: RIGHT ONLY HAND: reacquisition mid-pinch does not click
+PASS: RIGHT ONLY HAND: stabilized ray hits Height / floor
+RIGHT ONLY HAND: after Height / floor page=height
+PASS: RIGHT ONLY HAND: stabilized ray hits □ Height locked
+RIGHT ONLY HAND: after □ Height locked page=height
+PASS: RIGHT ONLY HAND: stabilized ray hits Up 1 cm
+RIGHT ONLY HAND: after Up 1 cm page=height
+PASS: RIGHT ONLY HAND: stabilized ray hits Snap to floor
+RIGHT ONLY HAND: after Snap to floor page=height
+PASS: RIGHT ONLY HAND: stabilized ray hits Back
+RIGHT ONLY HAND: after Back page=align
+PASS: RIGHT ONLY HAND: stabilized ray hits Save alignment
+RIGHT ONLY HAND: after Save alignment page=setup
+PASS: RIGHT ONLY HAND: saved alignment reloads
+PASS: RIGHT ONLY HAND: stabilized ray hits Confirm
+RIGHT ONLY HAND: after Confirm page=setup
+PASS: RIGHT ONLY HAND: simulated marker confirmation accepted
+PASS: RIGHT ONLY HAND: stabilized ray hits MODE
+RIGHT ONLY HAND: after MODE page=mode
+PASS: RIGHT ONLY HAND: stabilized ray hits Twin
+RIGHT ONLY HAND: after Twin page=mode
+PASS: RIGHT ONLY HAND: stabilized ray hits Roam
+RIGHT ONLY HAND: after Roam page=roam
+PASS: RIGHT ONLY HAND: one-hand hold moves viewer
+PASS: RIGHT ONLY HAND: stabilized ray hits Return to room
+RIGHT ONLY HAND: after Return to room page=roam
+PASS: RIGHT ONLY HAND: return restores physical pose
+PASS: RIGHT ONLY HAND: stabilized ray hits Turn +30°
+RIGHT ONLY HAND: after Turn +30° page=roam
+PASS: RIGHT ONLY HAND: stabilized ray hits Back
+RIGHT ONLY HAND: after Back page=mode
+PASS: RIGHT ONLY HAND: stabilized ray hits Overlay
+RIGHT ONLY HAND: after Overlay page=mode
+PASS: RIGHT ONLY HAND: leaving Twin removes roaming yaw
+PASS: RIGHT ONLY HAND: stabilized ray hits Lens: off
+RIGHT ONLY HAND: after Lens: off page=mode
+PASS: RIGHT ONLY HAND: Lens toggle accepted
+PASS: RIGHT ONLY HAND: stabilized ray hits Opacity / Lens
+RIGHT ONLY HAND: after Opacity / Lens page=display
+PASS: RIGHT ONLY HAND: stabilized ray hits Back
+RIGHT ONLY HAND: after Back page=mode
+PASS: RIGHT ONLY HAND: stabilized ray hits Lens: on
+RIGHT ONLY HAND: after Lens: on page=mode
+PASS: RIGHT ONLY HAND: stabilized ray hits ANNOTATE
+RIGHT ONLY HAND: after ANNOTATE page=mode
+PASS: RIGHT ONLY HAND: one pinch creates one annotation
+PASS: RIGHT ONLY HAND: stabilized ray hits [−] MISSING
+RIGHT ONLY HAND: after [−] MISSING page=picker
+PASS: RIGHT ONLY HAND: stabilized ray hits [+] NEW
+RIGHT ONLY HAND: after [+] NEW page=picker
+PASS: RIGHT ONLY HAND: stabilized ray hits [Δ] CHANGED
+RIGHT ONLY HAND: after [Δ] CHANGED page=picker
+PASS: RIGHT ONLY HAND: stabilized ray hits [•] NOTE
+RIGHT ONLY HAND: after [•] NOTE page=picker
+PASS: RIGHT ONLY HAND: stabilized ray hits List
+RIGHT ONLY HAND: after List page=list
+PASS: RIGHT ONLY HAND: one-hand pinch drag scrolls the list
+PASS: RIGHT ONLY HAND: a list row remains reachable
+PASS: RIGHT ONLY HAND: stabilized ray hits 38  [•] NOTE   4,7 m
+Note
+RIGHT ONLY HAND: after 38  [•] NOTE   4,7 m
+Note page=list
+PASS: RIGHT ONLY HAND: stabilized ray hits Retype
+RIGHT ONLY HAND: after Retype page=picker
+PASS: RIGHT ONLY HAND: stabilized ray hits [Δ] CHANGED
+RIGHT ONLY HAND: after [Δ] CHANGED page=picker
+PASS: RIGHT ONLY HAND: stabilized ray hits List
+RIGHT ONLY HAND: after List page=list
+PASS: RIGHT ONLY HAND: stabilized ray hits Export
+RIGHT ONLY HAND: after Export page=list
+PASS: RIGHT ONLY HAND: stabilized ray hits Delete
+RIGHT ONLY HAND: after Delete page=list
+PASS: RIGHT ONLY HAND: row selection, retype, export and delete accessible
+RIGHT ONLY HAND: complete synthetic aim/strength workflow passed; raw XR Hands tracking and stereo rendering still require hardware.
+PASS: LEFT ONLY CONTROLLER: available hand overrides absent preferred hand
+PASS: LEFT ONLY CONTROLLER: qualified palm summons once into a world dock
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Preferences
+LEFT ONLY CONTROLLER: after Preferences page=preferences
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Left hand
+LEFT ONLY CONTROLLER: after Left hand page=preferences
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Feedback sound
+LEFT ONLY CONTROLLER: after Feedback sound page=sound
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Sound: on
+LEFT ONLY CONTROLLER: after Sound: on page=sound
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Sound: muted
+LEFT ONLY CONTROLLER: after Sound: muted page=sound
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Back
+LEFT ONLY CONTROLLER: after Back page=preferences
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Recenter / back
+LEFT ONLY CONTROLLER: after Recenter / back page=setup
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits MODE
+LEFT ONLY CONTROLLER: after MODE page=mode
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Technical
+LEFT ONLY CONTROLLER: after Technical page=mode
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Colour
+LEFT ONLY CONTROLLER: after Colour page=mode
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Reality
+LEFT ONLY CONTROLLER: after Reality page=mode
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits ALIGN
+LEFT ONLY CONTROLLER: after ALIGN page=align
+PASS: LEFT ONLY CONTROLLER: Align from Reality enters Overlay
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Fine adjustment
+LEFT ONLY CONTROLLER: after Fine adjustment page=nudge
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits X +
+LEFT ONLY CONTROLLER: after X + page=nudge
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Back
+LEFT ONLY CONTROLLER: after Back page=align
+PASS: LEFT ONLY CONTROLLER: real building surface available
+PASS: LEFT ONLY CONTROLLER: one-hand fixed-reference drag keeps height locked
+PASS: LEFT ONLY CONTROLLER: release ends registration
+PASS: LEFT ONLY CONTROLLER: source loss cancels manipulation
+PASS: LEFT ONLY CONTROLLER: reacquisition mid-pinch does not click
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Height / floor
+LEFT ONLY CONTROLLER: after Height / floor page=height
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits □ Height locked
+LEFT ONLY CONTROLLER: after □ Height locked page=height
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Up 1 cm
+LEFT ONLY CONTROLLER: after Up 1 cm page=height
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Snap to floor
+LEFT ONLY CONTROLLER: after Snap to floor page=height
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Back
+LEFT ONLY CONTROLLER: after Back page=align
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Save alignment
+LEFT ONLY CONTROLLER: after Save alignment page=setup
+PASS: LEFT ONLY CONTROLLER: saved alignment reloads
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Confirm
+LEFT ONLY CONTROLLER: after Confirm page=setup
+PASS: LEFT ONLY CONTROLLER: simulated marker confirmation accepted
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits MODE
+LEFT ONLY CONTROLLER: after MODE page=mode
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Twin
+LEFT ONLY CONTROLLER: after Twin page=mode
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Roam
+LEFT ONLY CONTROLLER: after Roam page=roam
+PASS: LEFT ONLY CONTROLLER: one-hand hold moves viewer
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Return to room
+LEFT ONLY CONTROLLER: after Return to room page=roam
+PASS: LEFT ONLY CONTROLLER: return restores physical pose
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Turn +30°
+LEFT ONLY CONTROLLER: after Turn +30° page=roam
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Back
+LEFT ONLY CONTROLLER: after Back page=mode
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Overlay
+LEFT ONLY CONTROLLER: after Overlay page=mode
+PASS: LEFT ONLY CONTROLLER: leaving Twin removes roaming yaw
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Lens: off
+LEFT ONLY CONTROLLER: after Lens: off page=mode
+PASS: LEFT ONLY CONTROLLER: Lens toggle accepted
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Opacity / Lens
+LEFT ONLY CONTROLLER: after Opacity / Lens page=display
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Back
+LEFT ONLY CONTROLLER: after Back page=mode
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Lens: on
+LEFT ONLY CONTROLLER: after Lens: on page=mode
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits ANNOTATE
+LEFT ONLY CONTROLLER: after ANNOTATE page=mode
+PASS: LEFT ONLY CONTROLLER: one pinch creates one annotation
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits [−] MISSING
+LEFT ONLY CONTROLLER: after [−] MISSING page=picker
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits [+] NEW
+LEFT ONLY CONTROLLER: after [+] NEW page=picker
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits [Δ] CHANGED
+LEFT ONLY CONTROLLER: after [Δ] CHANGED page=picker
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits [•] NOTE
+LEFT ONLY CONTROLLER: after [•] NOTE page=picker
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits List
+LEFT ONLY CONTROLLER: after List page=list
+PASS: LEFT ONLY CONTROLLER: one-hand pinch drag scrolls the list
+PASS: LEFT ONLY CONTROLLER: a list row remains reachable
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits 45  [•] NOTE   4,7 m
+Note
+LEFT ONLY CONTROLLER: after 45  [•] NOTE   4,7 m
+Note page=list
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Retype
+LEFT ONLY CONTROLLER: after Retype page=picker
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits [Δ] CHANGED
+LEFT ONLY CONTROLLER: after [Δ] CHANGED page=picker
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits List
+LEFT ONLY CONTROLLER: after List page=list
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Export
+LEFT ONLY CONTROLLER: after Export page=list
+PASS: LEFT ONLY CONTROLLER: stabilized ray hits Delete
+LEFT ONLY CONTROLLER: after Delete page=list
+PASS: LEFT ONLY CONTROLLER: row selection, retype, export and delete accessible
+LEFT ONLY CONTROLLER: complete synthetic aim/strength workflow passed; raw XR Hands tracking and stereo rendering still require hardware.
+PASS: RIGHT ONLY CONTROLLER: available hand overrides absent preferred hand
+PASS: RIGHT ONLY CONTROLLER: qualified palm summons once into a world dock
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Preferences
+RIGHT ONLY CONTROLLER: after Preferences page=preferences
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Right hand
+RIGHT ONLY CONTROLLER: after Right hand page=preferences
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Feedback sound
+RIGHT ONLY CONTROLLER: after Feedback sound page=sound
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Sound: on
+RIGHT ONLY CONTROLLER: after Sound: on page=sound
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Sound: muted
+RIGHT ONLY CONTROLLER: after Sound: muted page=sound
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Back
+RIGHT ONLY CONTROLLER: after Back page=preferences
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Recenter / back
+RIGHT ONLY CONTROLLER: after Recenter / back page=setup
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits MODE
+RIGHT ONLY CONTROLLER: after MODE page=mode
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Technical
+RIGHT ONLY CONTROLLER: after Technical page=mode
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Colour
+RIGHT ONLY CONTROLLER: after Colour page=mode
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Reality
+RIGHT ONLY CONTROLLER: after Reality page=mode
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits ALIGN
+RIGHT ONLY CONTROLLER: after ALIGN page=align
+PASS: RIGHT ONLY CONTROLLER: Align from Reality enters Overlay
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Fine adjustment
+RIGHT ONLY CONTROLLER: after Fine adjustment page=nudge
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits X +
+RIGHT ONLY CONTROLLER: after X + page=nudge
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Back
+RIGHT ONLY CONTROLLER: after Back page=align
+PASS: RIGHT ONLY CONTROLLER: real building surface available
+PASS: RIGHT ONLY CONTROLLER: one-hand fixed-reference drag keeps height locked
+PASS: RIGHT ONLY CONTROLLER: release ends registration
+PASS: RIGHT ONLY CONTROLLER: source loss cancels manipulation
+PASS: RIGHT ONLY CONTROLLER: reacquisition mid-pinch does not click
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Height / floor
+RIGHT ONLY CONTROLLER: after Height / floor page=height
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits □ Height locked
+RIGHT ONLY CONTROLLER: after □ Height locked page=height
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Up 1 cm
+RIGHT ONLY CONTROLLER: after Up 1 cm page=height
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Snap to floor
+RIGHT ONLY CONTROLLER: after Snap to floor page=height
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Back
+RIGHT ONLY CONTROLLER: after Back page=align
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Save alignment
+RIGHT ONLY CONTROLLER: after Save alignment page=setup
+PASS: RIGHT ONLY CONTROLLER: saved alignment reloads
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Confirm
+RIGHT ONLY CONTROLLER: after Confirm page=setup
+PASS: RIGHT ONLY CONTROLLER: simulated marker confirmation accepted
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits MODE
+RIGHT ONLY CONTROLLER: after MODE page=mode
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Twin
+RIGHT ONLY CONTROLLER: after Twin page=mode
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Roam
+RIGHT ONLY CONTROLLER: after Roam page=roam
+PASS: RIGHT ONLY CONTROLLER: one-hand hold moves viewer
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Return to room
+RIGHT ONLY CONTROLLER: after Return to room page=roam
+PASS: RIGHT ONLY CONTROLLER: return restores physical pose
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Turn +30°
+RIGHT ONLY CONTROLLER: after Turn +30° page=roam
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Back
+RIGHT ONLY CONTROLLER: after Back page=mode
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Overlay
+RIGHT ONLY CONTROLLER: after Overlay page=mode
+PASS: RIGHT ONLY CONTROLLER: leaving Twin removes roaming yaw
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Lens: off
+RIGHT ONLY CONTROLLER: after Lens: off page=mode
+PASS: RIGHT ONLY CONTROLLER: Lens toggle accepted
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Opacity / Lens
+RIGHT ONLY CONTROLLER: after Opacity / Lens page=display
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Back
+RIGHT ONLY CONTROLLER: after Back page=mode
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Lens: on
+RIGHT ONLY CONTROLLER: after Lens: on page=mode
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits ANNOTATE
+RIGHT ONLY CONTROLLER: after ANNOTATE page=mode
+PASS: RIGHT ONLY CONTROLLER: one pinch creates one annotation
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits [−] MISSING
+RIGHT ONLY CONTROLLER: after [−] MISSING page=picker
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits [+] NEW
+RIGHT ONLY CONTROLLER: after [+] NEW page=picker
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits [Δ] CHANGED
+RIGHT ONLY CONTROLLER: after [Δ] CHANGED page=picker
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits [•] NOTE
+RIGHT ONLY CONTROLLER: after [•] NOTE page=picker
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits List
+RIGHT ONLY CONTROLLER: after List page=list
+PASS: RIGHT ONLY CONTROLLER: one-hand pinch drag scrolls the list
+PASS: RIGHT ONLY CONTROLLER: a list row remains reachable
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits 52  [•] NOTE   4,7 m
+Note
+RIGHT ONLY CONTROLLER: after 52  [•] NOTE   4,7 m
+Note page=list
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Retype
+RIGHT ONLY CONTROLLER: after Retype page=picker
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits [Δ] CHANGED
+RIGHT ONLY CONTROLLER: after [Δ] CHANGED page=picker
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits List
+RIGHT ONLY CONTROLLER: after List page=list
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Export
+RIGHT ONLY CONTROLLER: after Export page=list
+PASS: RIGHT ONLY CONTROLLER: stabilized ray hits Delete
+RIGHT ONLY CONTROLLER: after Delete page=list
+PASS: RIGHT ONLY CONTROLLER: row selection, retype, export and delete accessible
+RIGHT ONLY CONTROLLER: complete synthetic aim/strength workflow passed; raw XR Hands tracking and stereo rendering still require hardware.

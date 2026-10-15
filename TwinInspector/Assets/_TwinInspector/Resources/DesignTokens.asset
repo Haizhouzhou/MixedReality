@@ -31,3 +31,4 @@ MonoBehaviour:
   annotationMaterial: {fileID: 2100000, guid: 620f53f0c8487664082ebb1c2e7765c9, type: 2}
   inkMaterial: {fileID: 2100000, guid: 573672ed5984bf04eb1454b7bf78d0df, type: 2}
   gridMaterial: {fileID: 2100000, guid: a1b77d482e82f9e459851ccbede34319, type: 2}
+  edgeMaterial: {fileID: 2100000, guid: 2264b2edbe7f8254b996b97c59e304e1, type: 2}

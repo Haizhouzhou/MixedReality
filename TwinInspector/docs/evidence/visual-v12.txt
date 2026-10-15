@@ -1,0 +1,22 @@
+Captured hall-colour
+Captured hall-technical
+Captured setup
+Captured mode
+Captured display
+Captured preferences
+Captured sound
+Captured align
+Captured height
+Captured list
+Captured roam
+Captured picker
+Captured list
+Captured lens-near
+Lens target 4,025456 m; center=(-3.42, 0.02, 1.58); visibility=1; input valid=True
+Captured lens-far
+Lens target 18,16194 m; center=(-17.50, 6.65, 0.00); visibility=1; input valid=True
+TwinInspector/Twin shader messages=0
+TwinInspector/ArchitecturalEdges shader messages=0
+TwinInspector/FloorGrid shader messages=0
+TwinInspector/Annotation shader messages=0
+Tiles=29 failures=0 resident triangles=1199332

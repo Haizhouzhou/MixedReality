@@ -5,7 +5,7 @@ using UnityEngine.XR.ARSubsystems;
 
 namespace TwinInspector
 {
-    /// <summary>Rigid two-hand translation/yaw; no accidental building scaling.</summary>
+    /// <summary>Fixed-reference single-hand translation and optional two-hand yaw, with transition rebasing.</summary>
     public sealed class ManualAlignment : MonoBehaviour
     {
         TwinRoot root;
@@ -13,6 +13,9 @@ namespace TwinInspector
         ARPlaneManager planes;
         InputRouter input;
         bool dragging;
+        int handCount;
+        bool dragLeft;
+        public bool Dragging => dragging;
         Vector3 startMidpoint, startSpan, startPosition;
         Quaternion startRotation;
         public bool Active { get; private set; }
@@ -44,16 +47,23 @@ namespace TwinInspector
         }
         void LateUpdate()
         {
-            if (!Active || !input || input.OverUI || !input.TryTwoHandSelect(out var left,out var right)) { dragging=false; return; }
-            var midpoint = (left + right) * .5f;
-            var span = Vector3.ProjectOnPlane(right - left, Vector3.up);
+            if (!Active || !input || input.OverUI || !input.Valid) { dragging=false; return; }
+            bool two=input.TryTwoHandSelect(out var left,out var right);
+            bool one=input.TrySingleSelect(out var single);
+            if(!one && !two) { dragging=false; return; }
+            // A new drag starts only on the building, then uses fixed tracked poses.
+            if(!dragging && !input.HasBuildingHit) return;
+            int count=two?2:1;
+            var midpoint = two ? (left + right) * .5f : single;
+            var span = two ? Vector3.ProjectOnPlane(right - left, Vector3.up) : Vector3.right;
             if (span.sqrMagnitude < .0025f) { dragging = false; return; }
-            if (!dragging)
+            if (!dragging || handCount!=count || (count==1 && dragLeft!=input.ActiveLeft))
             {
                 dragging = true; startMidpoint = midpoint; startSpan = span;
                 startPosition = root.transform.position; startRotation = root.transform.rotation;
+                handCount=count; dragLeft=input.ActiveLeft;
             }
-            var delta = Quaternion.AngleAxis(Vector3.SignedAngle(startSpan, span, Vector3.up), Vector3.up);
+            var delta = two ? Quaternion.AngleAxis(Vector3.SignedAngle(startSpan, span, Vector3.up), Vector3.up) : Quaternion.identity;
             var position = midpoint + delta * (startPosition - startMidpoint);
             if (!HeightUnlocked) position.y = startPosition.y;
             root.transform.SetPositionAndRotation(position, delta * startRotation);

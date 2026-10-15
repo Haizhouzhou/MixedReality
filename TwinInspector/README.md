@@ -1,18 +1,12 @@
-# TwinInspector v1.1
+# TwinInspector v1.2
 
-Mixed-reality inspection of the LaMAR HGE NavVis scan on Samsung Galaxy XR. Mouse-first Editor inspection, bare-hand Galaxy XR interaction, optional controllers, marker/manual registration, persistent anchors, three comparison views and spatial discrepancy annotations. Unity 6000.3.26f1, URP, OpenXR, Android XR and glTFast.
+Mixed-reality architectural inspection of the LaMAR HGE scan on Samsung Galaxy XR. The existing Unity 6000.3.26f1 / XRI 3.6.1 / OpenXR / URP / glTFast application now includes architectural rendering, a spatial inspection Lens, readable geometric annotations and complete single-hand controls. Package versions, application identity (`com.mrtwin.inspector`) and annotation/alignment schemas are retained.
 
-**Build and device status:** [Download the test APK](https://github.com/Haizhouzhou/MixedReality/raw/refs/heads/main/TwinInspector/Builds/TwinInspector-0.1.0.apk). This ARM64 build contains the v1.1 implementation, with zero build errors and zero Android OpenXR validation issues. The hall data and Editor workflows are verified. Physical tracking, headset FPS and anchor relocalization still require device acceptance. See [docs/DEVLOG.md](docs/DEVLOG.md) for evidence and remaining device checks.
+The Android application version is **1.2.0**. The repository's delivery filename remains [Builds/TwinInspector-0.1.0.apk](Builds/TwinInspector-0.1.0.apk). It contains the 32-tile hall demo and can update an existing installation with `adb install -r`, preserving saved data. Only this APK is tracked; external scans, caches and other build outputs remain excluded. This release is committed locally; it is not automatically pushed to GitHub.
 
-## Download for teammate testing
+See [DEVLOG](docs/DEVLOG.md) for actual build and verification results. Editor and synthetic input checks do not establish physical tracking, stereo correctness or headset frame rate.
 
-Repository members can download the APK above while signed into GitHub, or obtain it by cloning/pulling this private repository. It is **66,012,611 bytes (62.95 MiB)** and was built from application source commit `5dc7fd7`, including the panel docking improvement. The Android package version and filename remain `0.1.0`; the implementation is TwinInspector v1.1. The APK contains the 32-tile hall demo, so a first headset test does not require the external dataset or a local Unity build.
-
-SHA-256: `82b1fcb4efe99a5268388bb246c8facdafbc0ac3a6987dbb03bd5aaf64602fde`.
-
-Download to `TwinInspector/Builds/TwinInspector-0.1.0.apk` and follow [Build, install and launch](#build-install-and-launch) from the install commands onward. Adjust the example Unity SDK/ADB paths for your computer. This APK is the sole exception to the ignored build outputs; raw scans, full external datasets, caches and other builds remain excluded.
-
-To update an existing headset installation, download the new APK and use `adb install -r`; the package identity is unchanged, so the update retains the app's saved data.
+Verified v1.2 APK: **66,366,495 bytes (63.29 MiB)**; SHA-256 `bf4e2daafa8afc507413752684df6590251254ec5eac60e537de70de593e6030`. Compilation has zero errors/warnings, all 16 Unity tests pass, and Android OpenXR project validation has zero issues. No headset was connected for device acceptance.
 
 ## Prepare the data
 
@@ -107,23 +101,33 @@ Enter Play mode in Inspector and focus the Game view. With no actively tracked H
 
 On Galaxy XR, point and pinch to activate UI or place an annotation; near UI also accepts poke. A tracked controller uses its trigger through the same XRI action readers. The modality manager activates the tracked hand or controller group automatically; no controller model or long sample beam is rendered.
 
-The strip uses opaque paper/ink cells with uppercase Inter Medium labels and one millimetre dividers. With hands down or in the Editor, it remains in world space 0.55 m ahead and 22° below eye level, recentering over 150 ms after a heading change beyond 25° or an explicit summon. The full settings/tool panel is centered **24 mm above the strip at the same depth** and shares its world anchor. Looking within the comfort cone leaves both stationary; Tab recenters them together. Transient feedback appears above the panel, clear of the buttons.
+The numbered ToolStrip and active panel share a world-space dock: 0.55 m forward, 22° below eye level, a 25° heading dead zone and a 150 ms recenter. The panel remains centered **24 mm above** the strip. Targeting or manipulating a control suspends automatic movement. Briefly raise either available palm to summon the dock, then turn the same hand over to operate it; lowering the palm re-arms the gesture. Tab and Setup → Preferences → Recenter provide explicit alternatives.
 
-Palm up moves only the compact strip near the left palm; the full panel stays at its world anchor. Opening a page from palm mode summons the panel in front of the viewer without attaching it to the hand. Lowering the palm reunites the panel and strip. Annotate hides the full panel for unobstructed placement and opens the type picker back above the strip after placement. See the [docked panel screenshot](docs/screenshots/panel-docked.png).
+- **00 Setup → Preferences:** persistent Left/Right dominant-hand preference, feedback sound and volume. The available hand always works when the preferred hand is absent. Visual feedback remains when muted.
+- **01 Mode:** Reality / Twin / Overlay, Technical / Colour, and the Lens toggle. Opacity / Lens opens the blend and 0.5–5 m radius controls. Lens defaults off and is available in Overlay. Its sphere follows the stabilized building hit; UI retains the last center, while no-hit holds briefly and fades out.
+- **01 Mode → Twin → Roam:** hold Forward / Backwards / Left / Right to move at 0.5 m/s; turn in 30° steps, or Return to room. Two-hand pinch world-drag remains available. Leaving Twin restores the physical inspection frame before comparison. Roaming never saves a building-registration offset.
+- **02 Align:** enters Overlay, including from Reality or a roamed Twin view. Point at the building and pinch/drag with one hand; a second pinch adds translation/yaw. Height starts locked. Fine/coarse nudges, height controls, floor snap, surveyed marker confirmation and Save Alignment remain available. The interface shows the original-frame datum.
+- **03 Annotate:** point at a visibly revealed building surface and select. Choose circle/minus Missing, square/plus New, triangle/delta Changed or diamond/dot Note. Geometry, high-contrast symbols and text identify types independently of color. Presentation faces the center-eye camera, while the stored surface anchor and normal remain unchanged.
+- **04 List:** scroll, select, retype, delete and export original-frame JSON/CSV. Selection prioritizes visible, best-aligned annotations, with building occlusion and stable tie-breaking.
+- **05 Diagnostics:** existing performance readings plus Editor-only corner key hints. Device metrics remain unavailable when no runtime supplies them.
 
-**Roam:** in Twin mode, pinch both hands in air and pull/turn to move the viewer rig horizontally. Release either pinch to stop. Tracking loss resets the gesture. UI, annotation placement and active registration take priority. **Register:** Align moves `TwinRoot` relative to the room; height remains locked until explicitly unlocked. In the Editor use Fine adjustment buttons. Save alignment or confirm a stable surveyed marker to persist it.
+The pointing filter acts on derived XRI ray transforms before hit testing, using the installed readers' continuous pinch/trigger value. A rising 0.4 strength crossing briefly increases angular damping; 0.3 re-arms it, and confirmation restores responsive dragging. These values and the 150 ms window are serialized tuning values on each inspection ray. Mouse pointing bypasses this filter.
 
-Annotation placement uses the same collider hit and persistence path for mouse, hand pinch and controller trigger. List supports selection, retyping, deletion and JSON/CSV export. `F1` summon, `F2` marker, `F3` annotate and `F4` mode cycling remain compatibility shortcuts.
+Technical rendering caches mesh adjacency, area-weighted normals and restrained concavity at tile/LOD import. Creases and view-dependent silhouettes use screen-expanded ink segments; unpaired cut edges are excluded so arbitrary zig-zag chunk seams are not treated as architectural edges. No vertex positions are changed. Contours use restored twin Z every 0.5 m, with a stronger zero datum. The existing datum grid uses 1 m crosshairs and 10 m major lines in the same original frame. Its depth-tested marks can be occluded by measured floor surfaces above the datum.
 
-Verified v1.1 captures are in [docs/screenshots](docs/screenshots/), including [the hall](docs/screenshots/hall-desktop.png), [Technical view](docs/screenshots/hall-technical.png), [reticle](docs/screenshots/reticle-surface.png) and [surface annotation](docs/screenshots/annotation-surface.png). Physical hand tracking, controller pickup, marker tracking, anchor relocalization and headset performance still require a connected device.
+The Lens uses a depth-writing inner region and a separately blended, non-depth-writing outer shell. Both explicitly discard excluded geometry, and the same physical sphere clips outlines, contours and the datum grid. Passthrough outside the reveal is untouched. The fill, edge cache and shell are released with their tile; there is no per-frame mesh processing. Colour mode disables the additional edge renderers.
+
+Glyphs use at least 1.5° angular height at 10–30 m, independent 2° selection targets and separately sized text. The reticle uses approximately 0.35° and contracts continuously with selection strength; only accepted actions produce confirmation. Hover/confirmation sounds are two cached synthesized clips, with a quiet non-spatial default.
+
+Current rendered comparisons and interaction evidence are in [docs/screenshots](docs/screenshots/) and [docs/evidence](docs/evidence/). Rebuilding application assets through the existing menu retains the scene wiring, materials, glyph prefab, UI layers and filtered modality rays.
 
 ## Device acceptance run
 
 After the two **[HUMAN]** steps above, install the APK, push Region A, restart, and use this sequence to finish the device-only acceptance checks:
 
 1. Confirm camera passthrough around the opaque Setup panel and inspect the loaded hall. Open Diagnostics; record FPS, CPU/GPU time, tile/triangle counts and display rate before loading and after 60 seconds of steady viewing. Acceptance is at least 72 FPS, with 90 as the target. Record draw calls from the Unity profiler when connected; the budget is 300.
-2. Switch Reality, Twin and Overlay, then test 0%, 45% and 100% blend and both styles. Confirm both eyes render consistently.
-3. Try two-hand adjustment, fine/coarse nudges, locked/unlocked height and floor snap. Save and restart; record whether Setup reports a persistent anchor or the JSON fallback, and check the overlay against the physical building.
+2. Switch Reality, Twin and Overlay; test opacity, both styles, contours and datum grid. Enable Lens and test 0.5 / 1.5 / 5 m radii at near and far hits, UI hold and no-hit fade. Confirm both eyes match and peripheral passthrough is unchanged.
+3. Independently with left only and right only, summon the dock, change preferences, roam/return, create and edit annotations, scroll and export. Repeat with an optional controller. Try one- and two-hand alignment, fine/coarse nudges, locked/unlocked height and floor snap. Save and restart; record whether Setup reports a persistent anchor or the JSON fallback, and check the overlay against the physical building.
 4. Survey and enter the marker pose, set `measured:true`, push again, and confirm stable detection followed by explicit confirmation. Check the west rotunda to detect a coordinate reflection.
 5. Create each annotation type, select/retype/delete one, restart, and export. Pull the JSON/CSV and logs with the commands above. Confirm original twin coordinates and stable IDs.
 

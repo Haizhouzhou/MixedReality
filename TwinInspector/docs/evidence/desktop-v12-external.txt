@@ -1,0 +1,46 @@
+PASS: desktop selected with no tracked HMD
+PASS: desktop eye height 1.6 m
+PASS: untracked controller nodes automatically inactive
+PASS: sample beam suppressed
+PASS: sample beam suppressed
+PASS: sample beam suppressed
+PASS: sample beam suppressed
+PASS: sample beam suppressed
+PASS: sample beam suppressed
+PASS: controller meshes stripped
+PASS: ToolStrip independently anchored in world space
+PASS: panel centered 24 mm above strip at same depth: initial setup
+PASS: 15 degree look leaves ToolStrip stationary
+PASS: 15 degree look leaves the full panel stationary
+PASS: 50 degree turn recenters ToolStrip
+PASS: panel centered 24 mm above strip at same depth: after shared recenter
+PASS: button visible: MODE (375.94, 120.08)
+PASS: left mouse opens MODE
+PASS: panel centered 24 mm above strip at same depth: MODE
+PASS: button visible: ALIGN (551.98, 120.08)
+PASS: left mouse opens ALIGN
+PASS: panel centered 24 mm above strip at same depth: ALIGN
+PASS: button visible: LIST (904.06, 120.08)
+PASS: left mouse opens LIST
+PASS: panel centered 24 mm above strip at same depth: LIST
+PASS: button visible: MODE (375.94, 120.08)
+PASS: button visible: Opacity / Lens (534.19, 251.09)
+PASS: ordinary mouse pointer adjusts the world-space opacity slider
+PASS: button visible: ANNOTATE (728.02, 120.08)
+PASS: left mouse enables annotation placement
+PASS: a visible LOD2 collider accepts the screen ray
+PASS: mouse previews actual surface hit: has=True ui=False valid=True pixel=(256.00, 240.00) mouse=(256.00, 240.00) aim=Origin: (-0.05, 1.59, -0.03), Dir: (-0.86, -0.20, -0.48)
+PASS: one mouse click creates one annotation and opens picker
+PASS: panel centered 24 mm above strip at same depth: annotation type picker
+PASS: keyboard 1 opens Mode
+PASS: keyboard 2 opens Align
+PASS: keyboard 3 enables Annotate
+PASS: keyboard 4 opens List and ends placement
+PASS: M simulates catalog marker zero
+PASS: Tab summons the active panel
+PASS: RMB + W moves the viewer rig
+PASS: releasing RMB restores the visible unlocked cursor
+PASS: RMB delta rotates the camera
+PASS: flight keeps camera roll zero
+PASS: E moves vertically in world space
+Editor Input System events exercised; physical headset hands and controllers require device acceptance.
