@@ -34,8 +34,16 @@ Shader "TwinInspector/Twin"
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
                 clip(_TwinAlpha - .0001);
                 float3 normal = normalize(cross(ddx(input.world), ddy(input.world)) + 1e-9);
-                float edge = saturate(length(fwidth(normal)) * 2.5);
-                half3 fill = lerp(SRGBToLinear(input.color.rgb), _TwinTint.rgb, _TwinTechnical);
+                // A second derivative of the reconstructed normal is undefined
+                // on some GPUs. Use first-derivative surface relief and grazing
+                // silhouette contrast, keeping Technical independent of lights.
+                float3 view = normalize(GetWorldSpaceViewDir(input.world));
+                float edge = pow(saturate(1 - abs(dot(normal, view))), 5);
+                float relief = .42 + .58 * abs(dot(normal, normalize(float3(-.35,.8,.48))));
+                half3 colour = SRGBToLinear(input.color.rgb);
+                half luminance = dot(colour, half3(.2126,.7152,.0722));
+                half3 technical = _TwinTint.rgb * relief * (.8 + .2 * luminance);
+                half3 fill = lerp(colour, technical, _TwinTechnical);
                 fill = lerp(fill, half3(.0056,.0056,.0056), edge * .7 * _TwinTechnical);
                 return half4(fill, _TwinAlpha);
             }

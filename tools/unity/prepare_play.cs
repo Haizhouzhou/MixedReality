@@ -19,4 +19,4 @@ foreach(var behaviour in UnityEngine.Object.FindObjectsByType<UnityEngine.MonoBe
 UnityEditor.SceneManagement.EditorSceneManager.SaveScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene());
 UnityEditor.AssetDatabase.SaveAssets();
 typeof(UnityEditor.Editor).Assembly.GetType("UnityEditor.LogEntries").GetMethod("Clear").Invoke(null,null);
-return "Streaming client automation disabled; enter Play mode to run the simulator";
+return "Streaming client automation disabled; enter Play mode for desktop verification";

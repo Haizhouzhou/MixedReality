@@ -1,4 +1,4 @@
 Derived from LaMAR HGE NavVis data (ETH Zurich / Microsoft). CC BY-SA 4.0.
 https://lamar.ethz.ch/
 https://creativecommons.org/licenses/by-sa/4.0/
-Changes: spatial clipping, 1 mm welding, quadric decimation, sampled vertex colours and axis conversion.
+Changes: centroid chunking, boundary-preserving quadric decimation, sampled vertex colours, fallback tile selection and axis conversion.

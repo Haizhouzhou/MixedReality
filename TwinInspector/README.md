@@ -1,6 +1,6 @@
-# TwinInspector v1
+# TwinInspector v1.1
 
-Mixed-reality inspection of the LaMAR HGE NavVis scan on Samsung Galaxy XR. The v1 scope is CPU mesh decimation, marker/manual registration, persistent anchors, three comparison views and spatial discrepancy annotations. Unity 6000.3.26f1, URP, OpenXR, Android XR and glTFast.
+Mixed-reality inspection of the LaMAR HGE NavVis scan on Samsung Galaxy XR. Mouse-first Editor inspection, bare-hand Galaxy XR interaction, optional controllers, marker/manual registration, persistent anchors, three comparison views and spatial discrepancy annotations. Unity 6000.3.26f1, URP, OpenXR, Android XR and glTFast.
 
 **Build and device status:** [TwinInspector 0.1.0 APK](Builds/TwinInspector-0.1.0.apk) builds successfully for ARM64, with zero build errors and zero Android OpenXR validation issues. The hall data and Editor workflows are verified. No headset is connected, so device FPS, physical tracking and anchor relocalization remain unverified. See [docs/DEVLOG.md](docs/DEVLOG.md) for evidence and remaining device checks. APKs are local build outputs and are intentionally excluded from git.
 
@@ -11,6 +11,7 @@ From `E:\MixedReality`, use the provided `mr` environment:
 ```powershell
 & 'D:\miniforge3\envs\mr\python.exe' -I tools\tests\test_twin_pipeline.py
 & 'D:\miniforge3\envs\mr\python.exe' -I tools\twin_pipeline.py all --session dataset\raw\HGE\sessions\navvis_2022-02-06_12.55.11 --region a --out work\twin\HGE_2022-02-06\region_a
+& 'D:\miniforge3\envs\mr\python.exe' -I tools\verify_seams.py work\twin\HGE_2022-02-06\region_a
 & 'D:\miniforge3\envs\mr\python.exe' -I tools\verify_tiles.py work\twin\HGE_2022-02-06\region_a
 ```
 
@@ -18,7 +19,9 @@ Repeat with `--region b` and `--out work\twin\HGE_2022-02-06\region_b` for the f
 
 The pipeline reads fixed-size PLY batches through read-only memory maps. Checkpointed batches and completed tiles are skipped on rerun. The `config.json` fingerprint rejects a different source/configuration in an existing output. Choose a new output directory for changed settings. `--force` reruns the selected stage; `all --force` rebuilds all stages. Do not run two writers against the same output directory. `--target-ratio` defaults to 0.013 and is reduced automatically if the region triangle budget would be exceeded.
 
-Each compact tile is simplified as a whole up to eight million triangles (measured 2.57 GB peak for a 6.33 M triangle tile). Larger tiles use spatial median splits that preserve surface connectivity. Initial welding is 1 mm. When a target cannot be reached, the pipeline tries progressively coarser spatial welding followed by QEM, with maximum cell widths 80 / 160 / 320 mm for LOD0 / 1 / 2. Actual per-tile tolerances are recorded in `reduction` in the manifest. These are cleanup bounds, **not measured reconstruction accuracy**. Tiny boundary slivers retain up to 64 triangles at lower LODs; disconnected remnants may retain up to 1,024 excess triangles per tile/LOD, explicitly recorded and independently checked. Region budgets remain hard limits. Inspect previews and structural landmarks for seams, thin-structure loss and shifted edges before inspection use.
+Each compact tile is simplified as a whole up to eight million triangles. Larger tiles use spatial median splits. v1.1 disables independent vertex welding and enables `fast_simplification` 0.2.0 `preserve_border=True` at every reduction. Centroid cuts create zig-zag shared edges that are not necessarily on a 10 m grid plane; preserving only modulo-grid vertices would miss them. Open boundary vertices and edges remain exact across all LODs. Lower LOD triangle ratios may therefore be exceeded; the manifest records the exact excess and boundary policy. The 1.5 M / 5 M regional LOD0 budgets remain hard limits.
+
+Run `tools/verify_seams.py <output>` before `tools/verify_tiles.py <output>`. The seam verifier independently compares every exported GLB against the source chunk's open edges, with a 20 micrometre export-rounding tolerance and zero missing edges. v1.1 reduction checkpoints are versioned by boundary policy; old reductions are rebuilt automatically. The original Region B baseline is verified for geometry and budgets but has not been regenerated with the new seam policy.
 
 Stages can be run separately: `chunk`, `simplify`, `export`, `manifest`, `preview`. Raw data and intermediate chunks stay outside the APK. The only bundled data is Region A LOD2, packaged with:
 
@@ -43,13 +46,13 @@ After installing and first launching the APK, push a verified region:
 # Or region_b; -Serial selects a device when more than one is connected.
 ```
 
-Only runtime GLBs, marker configuration and the manifest are transferred. Tiles go into a manifest-hash revision directory; the manifest is activated last, so interrupted transfers cannot replace files referenced by the previous manifest. Device destination: `/sdcard/Android/data/com.mrtwin.inspector/files/twin/HGE_2022-02-06/`. Previous tile revisions are retained. Restart the app after replacing a dataset. A missing external dataset uses the packaged hall LOD2 demo.
+Only runtime GLBs, marker configuration and the manifest are transferred. Tiles go into a manifest-hash revision directory; the manifest is activated last, so interrupted transfers cannot replace files referenced by the previous manifest. Device destination: `/sdcard/Android/data/com.mrtwin.inspector/files/twin/HGE_2022-02-06/`. Previous tile revisions are retained. Restart the app after replacing a dataset. A missing external dataset uses a packaged selection of complete nearby Region A LOD2 tiles, capped below 15 MB. External data retains the entire region.
 
 **[HUMAN]** Grant the camera, scene-understanding and hand-tracking permission prompts. Print `tools/markers/marker_00.png` on A4 at 100%, check the black square is 150 mm, and place it at a surveyed pose. Follow [marker measurement instructions](../tools/markers/README.md). Shipped coordinates are examples with `measured:false`; automatic headset alignment deliberately rejects them. A marker must remain tracked for one second before confirmation.
 
 ## Build, install and launch
 
-Open `Assets/_TwinInspector/Scenes/Inspector.unity`. The scene uses the imported XRI Hands rig and an Editor-only XR Device Simulator. The generated assets are committed; `TwinInspector → Rebuild application assets and Inspector` reproduces them through Editor APIs if needed. This command replaces Inspector, so save any intentional scene edits first.
+Open `Assets/_TwinInspector/Scenes/Inspector.unity`. The scene uses the XRI modality manager with two hand groups and two optional controller groups. The Editor-only XR Device Simulator is disabled by default. The generated assets are committed; `TwinInspector → Rebuild application assets and Inspector` reproduces them through Editor APIs if needed. This command replaces Inspector, so save any intentional scene edits first.
 
 From PowerShell at the repository root:
 
@@ -77,42 +80,30 @@ $adb='E:\Unity\Editor\6000.3.26f1\Editor\Data\PlaybackEngines\AndroidPlayer\SDK\
 & $adb logcat -s Unity
 ```
 
-## Use and Editor simulation
+## Use in the Editor and on Galaxy XR
 
-Enter Play mode in Inspector. The Editor loads Region A from `Settings.editorDataPath` and substitutes neutral grey for camera passthrough. The packaged LOD2 demo is used when external data is absent. The simulator is excluded from Android builds.
+Enter Play mode in Inspector and focus the Game view. With no actively tracked HMD, the Editor selects mouse and keyboard automatically. The simulator stays disabled. The Editor loads `Settings.editorDataPath`; the packaged LOD2 demo is used when external data is absent.
 
-Focus the Game view for keyboard input. **Tab** cycles the simulated left controller, right controller and headset. **W/A/S/D** move on the horizontal plane, **Q/E** move vertically, **R** toggles mouse translation/rotation, and **V** resets the selected device. Hold **right mouse** to manipulate the headset, **left Shift** for the left controller, or **Space** for the right controller. **H** switches hand/controller simulation. The complete bindings remain editable in the imported `XR Device Simulator Controls` input asset. Ordinary mouse clicks also operate the inspection panels.
-
-| Action | Input |
+| Action | Editor input |
 |---|---|
-| Summon the inspection panel | Left palm up, controller menu, or **F1** in Editor |
-| Compare | Mode → Reality (passthrough) / Twin / Overlay; drag the blend slider; switch Technical / Colour |
-| Align manually | Align → hold both grips or pinch both hands; translate and turn together; height stays locked |
-| Adjust precisely | Fine adjustment: ±1 cm / ±0.5°, or coarse ±5 cm / ±2° |
-| Set height | Height / floor: unlock, nudge height, or snap to a tracked horizontal floor |
-| Align by marker | Use marker, hold it in view for one second, inspect the overlay, Confirm |
-| Simulate a marker | **F2** in Editor; no physical camera or measured pose claim |
-| Annotate | Annotate, then right-hand pinch/controller trigger on a twin or detected surface; choose one of four types |
-| Editor annotation shortcut | **F3**, then **Alt + left click** on a visible mesh surface |
-| Cycle view mode | **F4** in Editor |
-| Select, retype or delete | List → select a row; the surface marker highlights and a directional prompt appears |
-| Export | List → Export writes JSON and CSV, including original twin coordinates |
-| Inspect performance | Setup → Diagnostics; unavailable CPU/GPU values say `n/a` |
+| Look | Hold right mouse; yaw/pitch with zero roll |
+| Move | W/A/S/D horizontally; E/Q or Space/Left Shift vertically |
+| Speed | Hold Alt for 3× speed; right mouse + wheel adjusts base speed |
+| Tool pages | 1 Mode, 2 Align, 3 Annotate, 4 List |
+| Interact | Left click world-space buttons, sliders or an annotation surface |
+| Recenter | Tab summons the active panel and recenters the strip |
+| Marker simulation | M uses `markers.json` entry zero; this is an Editor fixture |
+| Developer hints | Setup → Diagnostics shows PerfHud and the corner key guide |
 
-Panels remain where summoned; the left palm strip follows the hand only while the palm faces upward. Controller/Editor use has a world-locked strip below the panel. Save alignment explicitly after manual adjustments. JSON fallback restores a pose in the previous session's world frame and must be checked after tracking-origin changes; a successfully restored persistent spatial anchor is the preferred path. The marker catalog intentionally rejects unmeasured example poses on the headset.
+On Galaxy XR, point and pinch to activate UI or place an annotation; near UI also accepts poke. A tracked controller uses its trigger through the same XRI action readers. The modality manager activates the tracked hand or controller group automatically; no controller model or long sample beam is rendered.
 
-On first launch, an **unaligned** preview puts the hall's open interior around the viewer. Setup displays the alignment state. This initial placement is only for viewing; use a measured marker or manual registration before inspecting correspondence with the real building. Both faces of scanned triangles accept annotation rays, and annotation labels face the selecting viewer.
+The strip uses opaque paper/ink cells with uppercase Inter Medium labels and one millimetre dividers. Palm up anchors it near the left palm. With hands down or in the Editor, it remains in world space 0.55 m ahead and 22° below eye level, recentering over 150 ms after a heading change beyond 25° or an explicit summon. Looking within the comfort cone does not move it. Other panels remain world-locked until summoned.
 
-Data lives below `/sdcard/Android/data/com.mrtwin.inspector/files/`: `alignment/`, `annotations/`, `exports/`, and `logs/`. Annotation IDs remain stable, and deleting the highest index does not reuse its number. Exports do not leave the device automatically.
+**Roam:** in Twin mode, pinch both hands in air and pull/turn to move the viewer rig horizontally. Release either pinch to stop. Tracking loss resets the gesture. UI, annotation placement and active registration take priority. **Register:** Align moves `TwinRoot` relative to the room; height remains locked until explicitly unlocked. In the Editor use Fine adjustment buttons. Save alignment or confirm a stable surveyed marker to persist it.
 
-```powershell
-& $adb pull /sdcard/Android/data/com.mrtwin.inspector/files/exports .\work\exports
-& $adb pull /sdcard/Android/data/com.mrtwin.inspector/files/logs .\work\device-logs
-& $unity command run_tests --mode editor --filter TwinInspector.Tests --filter_type assembly --async_tests true --project-path $project --result-only
-& $unity command test_status --project-path $project --result-only
-```
+Annotation placement uses the same collider hit and persistence path for mouse, hand pinch and controller trigger. List supports selection, retyping, deletion and JSON/CSV export. `F1` summon, `F2` marker, `F3` annotate and `F4` mode cycling remain compatibility shortcuts.
 
-See [DEVLOG](docs/DEVLOG.md) for verified results and device-only checks, [DESIGN](docs/DESIGN.md) for visual tokens, and `docs/evidence/` for recorded validation outputs. Editor frame rates are not headset performance results.
+Verified v1.1 captures are in [docs/screenshots](docs/screenshots/), including [the hall](docs/screenshots/hall-desktop.png), [Technical view](docs/screenshots/hall-technical.png), [reticle](docs/screenshots/reticle-surface.png) and [surface annotation](docs/screenshots/annotation-surface.png). Physical hand tracking, controller pickup, marker tracking, anchor relocalization and headset performance still require a connected device.
 
 ## Device acceptance run
 

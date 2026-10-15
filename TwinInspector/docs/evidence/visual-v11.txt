@@ -1,0 +1,2 @@
+Unity rendered seven v1.1 frames at 1600 x 1000. No controller meshes or sample beams. ToolStrip retains a world anchor during an 18 degree camera turn. Desktop and Technical hall views use the loaded twin geometry.
+Visually inspected final Colour and Technical hall captures, Mode panel, actual reticle and annotation close-up. Technical relief makes structure readable; reticle front face and paper outline are visible. Refreshed hall captures use the boundary-preserving Region A.

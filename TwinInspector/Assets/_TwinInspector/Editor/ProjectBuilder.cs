@@ -78,6 +78,7 @@ namespace TwinInspector.Editor
             var rigPrefab=AssetDatabase.LoadAssetAtPath<GameObject>(Samples+"/Hands Interaction Demo/Prefabs/XR Origin Hands (XR Rig).prefab");
             if(!rigPrefab) throw new FileNotFoundException("Import the XRI Hands Interaction Demo first");
             var rig=(GameObject)PrefabUtility.InstantiatePrefab(rigPrefab); rig.name="XR Origin";
+            ModalityRigBuilder.Apply(rig);
             var origin=rig.GetComponent<XROrigin>(); var camera=origin.Camera;
             camera.clearFlags=CameraClearFlags.SolidColor; camera.backgroundColor=tokens.Paper2; camera.nearClipPlane=.05f; camera.farClipPlane=100;
             camera.allowHDR=false; camera.allowMSAA=true;
@@ -98,6 +99,7 @@ namespace TwinInspector.Editor
             Set(app,"cameraManager",cameraManager); Set(app,"anchorManager",anchor); Set(app,"planeManager",planes); Set(app,"imageManager",images); Set(app,"meshManager",meshes);
             var simulator=(GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(Samples+"/XR Device Simulator/XR Device Simulator.prefab"));
             simulator.tag="EditorOnly";
+            simulator.SetActive(false);
             foreach(var behaviour in simulator.GetComponents<MonoBehaviour>()) if(behaviour.GetType().Name=="XRDeviceSimulator")
             { var fields=new SerializedObject(behaviour); fields.FindProperty("m_DeviceSimulatorUI").objectReferenceValue=null; fields.ApplyModifiedPropertiesWithoutUndo(); }
             foreach(var canvas in simulator.GetComponentsInChildren<Canvas>(true)) canvas.gameObject.SetActive(false);

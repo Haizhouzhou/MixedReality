@@ -1,0 +1,16 @@
+var assembly=typeof(UnityEditor.Editor).Assembly;
+var sizesType=assembly.GetType("UnityEditor.GameViewSizes");
+var singleton=typeof(UnityEditor.ScriptableSingleton<>).MakeGenericType(sizesType);
+var sizes=singleton.GetProperty("instance").GetValue(null);
+var flags=System.Reflection.BindingFlags.Public|System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance;
+var groupType=sizesType.GetProperty("currentGroupType",flags).GetValue(sizes);
+var group=sizesType.GetMethod("GetGroup",flags).Invoke(sizes,new[]{groupType});
+var sizeType=assembly.GetType("UnityEditor.GameViewSize");
+var kind=System.Enum.Parse(assembly.GetType("UnityEditor.GameViewSizeType"),"FixedResolution");
+var size=System.Activator.CreateInstance(sizeType,flags,null,new object[]{kind,1280,800,"TwinInspector QA"},null);
+group.GetType().GetMethod("AddCustomSize",flags).Invoke(group,new[]{size});
+int builtin=(int)group.GetType().GetMethod("GetBuiltinCount",flags).Invoke(group,null);
+int custom=(int)group.GetType().GetMethod("GetCustomCount",flags).Invoke(group,null);
+var window=UnityEditor.EditorWindow.GetWindow(assembly.GetType("UnityEditor.GameView"));
+window.GetType().GetProperty("selectedSizeIndex",flags).SetValue(window,builtin+custom-1);window.Focus();
+return "QA viewport set to 1280 x 800";

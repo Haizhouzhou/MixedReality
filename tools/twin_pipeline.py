@@ -31,6 +31,7 @@ _spec.loader.exec_module(_overview)
 read_ply_layout, read_alignment = _overview.read_ply_layout, _overview.read_alignment
 
 VERSION = "twin_pipeline 0.1"
+BOUNDARY_POLICY = "exact-open-boundary-v1"
 REGIONS = {"a": [-20, 70, -5, 32, -1, 8], "b": [-40, 90, -80, 60, -1, 8]}
 FACE_DTYPE = np.dtype([("count", "u1"), ("indices", "<u4", (3,))])
 ORIGIN = np.array([20., 0., 0.])
@@ -46,7 +47,15 @@ def atomic_json(path, data):
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(path.suffix + ".tmp")
     tmp.write_text(json.dumps(data, indent=2, allow_nan=False), encoding="utf-8")
-    os.replace(tmp, path)
+    # Windows readers (including progress inspection) can briefly deny rename.
+    for attempt in range(10):
+        try:
+            os.replace(tmp, path)
+            break
+        except PermissionError:
+            if attempt == 9:
+                raise
+            time.sleep(.05)
 
 
 def atomic_npz(path, **arrays):
@@ -213,9 +222,12 @@ def clean_mesh(p, c, f, weld=True, weld_m=.001):
 def decimate(p, c, f, target):
     import fast_simplification
     from scipy.spatial import cKDTree
-    p, c, f = clean_mesh(p, c, f)
+    # Centroid chunks share a zig-zag edge, not necessarily vertices on x/y % 10.
+    # Do not quantize or weld their coordinates independently. Pin every open
+    # boundary, including intermediate spatial partitions, at every LOD.
+    p, c, f = clean_mesh(p, c, f, weld=False)
     if len(f) > target:
-        q, g = fast_simplification.simplify(p, f, target_count=max(4, target), agg=7.0)
+        q, g = fast_simplification.simplify(p, f, target_count=max(4, target), agg=7.0, preserve_border=True)
         # Sample up to one million original colours, with an exact nearest query.
         step = max(1, math.ceil(len(p) / 1_000_000))
         tree = cKDTree(p[::step])
@@ -250,12 +262,18 @@ def simplify(args, cfg):
     records = json.loads((args.out / "chunks.json").read_text())
     total = sum(r["triangles"] for r in records)
     cap = 1_500_000 if args.region.lower() == "a" else 5_000_000
-    ratio = min(args.target_ratio, cap * .98 / max(total, 1))
+    # Reserve room for irreducible pinned edges in tiny boundary tiles.
+    ratio = min(args.target_ratio, cap * .80 / max(total, 1))
+    def current(outputs, metadata):
+        if args.force or not all(p.exists() for p in outputs) or not metadata.exists():
+            return False
+        records = json.loads(metadata.read_text())
+        return all(records.get(str(i), {}).get("boundary_policy") == BOUNDARY_POLICY for i in range(args.lods))
     if args.workers > 1 and not args.tile:
         def run_tile(record):
             tile = record["id"]
             outputs = [args.out / "simplified" / tile / f"lod{i}.npz" for i in range(args.lods)]
-            if all(p.exists() for p in outputs) and (outputs[0].parent / "reduction.json").exists() and not args.force:
+            if current(outputs, outputs[0].parent / "reduction.json"):
                 return
             command = [sys.executable, "-I", str(Path(__file__).resolve()), "simplify",
                        "--session", str(args.session), "--region", args.region,
@@ -275,7 +293,7 @@ def simplify(args, cfg):
             continue
         outputs = [args.out / "simplified" / tile / f"lod{i}.npz" for i in range(args.lods)]
         reduction_meta = args.out / "simplified" / tile / "reduction.json"
-        if all(p.exists() for p in outputs) and reduction_meta.exists() and not args.force:
+        if current(outputs, reduction_meta):
             continue
         target = max(4, int(record["triangles"] * ratio))
         # A partial tile is rebuilt from its source chunk. Reusing reduced LOD0
@@ -310,21 +328,11 @@ def simplify(args, cfg):
                 # for a further legal collapse. Preserve up to 64 triangles.
                 level_target = max(64, int(target * multiplier))
                 p, c, f = decimate(*original, level_target)
-            # QEM cannot remove disconnected triangles. Spatial welding joins
-            # nearby fragments, then QEM runs again. Tolerance increases only
-            # if required and is recorded explicitly for visual/error review.
-            cap = [.08, .16, .32][level]
-            voxel = .005
-            while len(f) > level_target * 1.02 and voxel <= cap:
-                q, colors, faces = clean_mesh(*original, weld_m=voxel)
-                p, c, f = decimate(q, colors, faces, level_target)
-                used_weld = voxel
-                voxel *= 2
-            # A small disconnected boundary remnant is better preserved than
-            # erased. The final regional budget remains a hard validation gate.
-            if len(f) > max(level_target + 1024, level_target * 1.02):
-                raise ValueError(f"{tile} LOD{level}: {len(f)} faces exceed target {level_target} within {cap}m cleanup bound")
-            reductions[str(level)] = {"triangles": len(f), "fragment_weld_m": used_weld,
+            # Pinned boundaries take priority over an individual LOD ratio.
+            # Never fall back to destructive welding to meet a target. The
+            # independent seam check and hard regional budget remain gates.
+            reductions[str(level)] = {"triangles": len(f), "fragment_weld_m": 0,
+                                      "boundary_policy": BOUNDARY_POLICY,
                                       "target_triangles": level_target, "preserved_fragment_excess": max(0, len(f) - level_target)}
             atomic_npz(out, positions=p, colors=c, faces=f)
             log(f"simplify {tile} LOD{level}: {len(f):,} (source {record['triangles']:,})")
@@ -369,7 +377,8 @@ def export(args, cfg):
     for record in records:
         for level in range(args.lods):
             dest = args.out / "tiles" / record["id"] / f"lod{level}.glb"
-            if dest.exists() and not args.force:
+            source = args.out / "simplified" / record["id"] / f"lod{level}.npz"
+            if dest.exists() and dest.stat().st_mtime_ns >= source.stat().st_mtime_ns and not args.force:
                 continue
             with np.load(args.out / "simplified" / record["id"] / f"lod{level}.npz") as mesh:
                 write_glb(dest, mesh["positions"], mesh["colors"], mesh["faces"])
@@ -476,12 +485,16 @@ def main():
                     pass
             combined_peak = max(combined_peak, combined)
             filename = f"memory_{args.tile}.json" if args.tile else "memory.json"
-            atomic_json(args.out / filename, {"pid": os.getpid(), "peak_working_set_bytes": peak, "observed_peak_combined_bytes": combined_peak, "limit_bytes": 8_000_000_000, "checked_unix": time.time()})
             if max(peak, combined_peak) > 8_000_000_000:
                 log("ERROR: exceeded 8GB memory envelope; checkpoints retained")
                 for child in process.children(recursive=True):
                     child.terminate()
                 os._exit(8)
+            try:
+                atomic_json(args.out / filename, {"pid": os.getpid(), "peak_working_set_bytes": peak, "observed_peak_combined_bytes": combined_peak, "limit_bytes": 8_000_000_000, "checked_unix": time.time()})
+            except OSError as error:
+                # Telemetry publication must never stop limit enforcement.
+                log(f"Memory telemetry temporarily unavailable: {error}")
             stopped.wait(2)
     sampler = threading.Thread(target=monitor, daemon=True)
     sampler.start()

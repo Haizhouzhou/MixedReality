@@ -15,10 +15,9 @@ namespace TwinInspector
         PanelBase panel, strip;
         TMP_Text liveText;
         string page = "setup";
-        bool coarse, busy, subscribed, wasPalmUp;
+        bool coarse, busy, subscribed;
+        ToolStrip spatialStrip;
         float nextRefresh;
-        readonly List<XRHandSubsystem> hands = new List<XRHandSubsystem>();
-        InputAction menu;
         public string Page => page;
         public PanelBase Panel => panel;
 
@@ -28,12 +27,8 @@ namespace TwinInspector
             panel = Instantiate(app.Tokens.PanelPrefab).GetComponent<PanelBase>();
             panel.name = "Inspection panel"; panel.Initialize(app.Tokens,app.Viewer); panel.Summon(app.Viewer);
             strip = Instantiate(app.Tokens.PanelPrefab).GetComponent<PanelBase>();
-            strip.name = "Palm tool strip"; strip.Initialize(app.Tokens,app.Viewer); strip.StripLayout();
-            strip.Button("Mode",8,8,132,() => Show("mode"));
-            strip.Button("Align",148,8,132,() => Show("align"));
-            strip.Button("Annotate",288,8,132,BeginAnnotation);
-            strip.Button("List",428,8,124,() => Show("list"));
-            menu = new InputAction("Summon inspection panel",InputActionType.Button,"<XRController>{LeftHand}/menuButton"); menu.Enable();
+            strip.name = "Spatial tool strip"; strip.Initialize(app.Tokens,app.Viewer);
+            spatialStrip=strip.gameObject.AddComponent<ToolStrip>(); spatialStrip.Initialize(app,strip);
             Subscribe();
         }
         void Subscribe()
@@ -55,15 +50,17 @@ namespace TwinInspector
             if (!app.Ready) target = "setup";
             if (page == "marker" && target != "marker" && app.Markers) app.Markers.Cancel();
             page = target;
+            if(app.Placer) app.Placer.Active=false;
+            if(spatialStrip) spatialStrip.Select(target=="mode"?0:target=="align"||target=="nudge"||target=="height"||target=="marker"?1:target=="picker"?2:target=="list"?3:-1);
             if (app.Manual) app.Manual.SetActive(target == "align" || target == "nudge" || target == "height");
             if (app.Performance) app.Performance.Visible = target == "diagnostics";
             panel.gameObject.SetActive(true); Render();
         }
-        public void Summon() { panel.gameObject.SetActive(true); panel.Summon(app.Viewer); }
+        public void Summon() { if(!app.Placer || !app.Placer.Active) panel.gameObject.SetActive(true); panel.Summon(app.Viewer); if(spatialStrip) spatialStrip.Recenter(); }
         public void BeginAnnotation()
         {
             if (!app.Ready) return;
-            app.Manual.SetActive(false); app.Placer.Active = true;
+            app.Manual.SetActive(false); app.Placer.Active = true; if(spatialStrip) spatialStrip.Select(2);
             panel.gameObject.SetActive(false);
             Notify("Point at a surface and select");
         }
@@ -104,7 +101,7 @@ namespace TwinInspector
         }
         void ViewPage()
         {
-            panel.Header("02 / Compare","View mode");
+            panel.Header("02 / Compare","View mode",app.Style.Mode==ViewMode.Twin ? "PINCH BOTH TO ROAM" : "");
             var labels = new[] { "Reality", "Twin", "Overlay" };
             for (int i=0;i<3;i++)
             { var mode=(ViewMode)i; panel.Button(labels[i],24+i*144,104,144,() => { app.Style.SetMode(mode); Render(); },app.Style.Mode==mode); }
@@ -116,7 +113,7 @@ namespace TwinInspector
         void AlignPage()
         {
             panel.Header("03 / Register","Manual alignment");
-            panel.Text("Hold both grips or pinch both hands.\nMove together; turn to adjust yaw.",24,104,432,56);
+            panel.Text("Pinch both hands to move the twin.\nDesktop: use Fine adjustment.",24,104,432,56);
             panel.Button("Fine adjustment",24,168,208,() => Show("nudge"));
             panel.Button("Height / floor",248,168,208,() => Show("height"));
             panel.Button("Use marker",24,248,208,() => { app.Markers.Begin(); Show("marker"); });
@@ -198,7 +195,7 @@ namespace TwinInspector
         void Update()
         {
             if (!panel) return;
-            if(menu.WasPerformedThisFrame() || Keyboard.current?.f1Key.wasPressedThisFrame==true) Summon();
+            if(Keyboard.current?.f1Key.wasPressedThisFrame==true) Summon();
             if(app.Ready && Application.isEditor)
             {
                 if(Keyboard.current?.f2Key.wasPressedThisFrame==true) { app.Markers.SimulateFirst(); Show("marker"); }
@@ -211,35 +208,9 @@ namespace TwinInspector
                 if(liveText && page=="marker") liveText.text=app.Markers.Status;
                 if(liveText && page=="diagnostics") liveText.text=app.Performance.Readout;
             }
-            FollowPalm();
-        }
-        void FollowPalm()
-        {
-            SubsystemManager.GetSubsystems(hands);
-            foreach(var system in hands)
-            {
-                if(!system.running || !system.leftHand.isTracked || !system.leftHand.GetJoint(XRHandJointID.Palm).TryGetPose(out var palm)) continue;
-                var tracking=app.Origin.CameraFloorOffsetObject.transform;
-                var rotation=tracking.rotation*palm.rotation;
-                bool palmUp=Vector3.Dot(rotation*Vector3.down,Vector3.up)>.45f;
-                if(palmUp && !wasPalmUp) Summon();
-                wasPalmUp=palmUp;
-                strip.gameObject.SetActive(palmUp);
-                if(palmUp)
-                {
-                    var position=tracking.TransformPoint(palm.position)+Vector3.up*.10f;
-                    strip.transform.SetPositionAndRotation(position,Quaternion.LookRotation(position-app.Viewer.transform.position,Vector3.up));
-                    strip.transform.localScale=Vector3.one*.00075f;
-                }
-                return;
-            }
-            wasPalmUp=false;
-            strip.gameObject.SetActive(true); strip.transform.localScale=Vector3.one*.001f;
-            strip.transform.SetPositionAndRotation(panel.transform.position-panel.transform.up*.228f,panel.transform.rotation);
         }
         void OnDestroy()
         {
-            menu?.Disable(); menu?.Dispose();
             if(subscribed) { app.Annotations.Changed-=AnnotationChanged; app.Placer.Placed-=AnnotationPlaced; app.Placer.Feedback-=Notify; app.Markers.Changed-=MarkerChanged; }
             if(panel) Destroy(panel.gameObject); if(strip) Destroy(strip.gameObject);
         }

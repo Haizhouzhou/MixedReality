@@ -1,0 +1,18 @@
+{
+  "region_a_tiles": 45,
+  "lod_triangles": [
+    1293355,
+    820558,
+    815667
+  ],
+  "lod_bytes": [
+    29710628,
+    20264836,
+    20169364
+  ],
+  "verified_tile_lods": 135,
+  "maximum_boundary_displacement_m": 1.9073486328125e-06,
+  "missing_source_edges": 0,
+  "two_worker_peak_upper_bound_bytes": 5434110976,
+  "memory_limit_bytes": 8000000000
+}

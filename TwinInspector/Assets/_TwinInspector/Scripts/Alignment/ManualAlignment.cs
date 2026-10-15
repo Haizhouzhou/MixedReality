@@ -11,21 +11,16 @@ namespace TwinInspector
         TwinRoot root;
         AnchorPersistence persistence;
         ARPlaneManager planes;
-        Transform left, right;
-        InputAction leftGrab, rightGrab, leftTracked, rightTracked;
+        InputRouter input;
         bool dragging;
         Vector3 startMidpoint, startSpan, startPosition;
         Quaternion startRotation;
         public bool Active { get; private set; }
         public bool HeightUnlocked { get; set; }
 
-        public void Initialize(TwinRoot twin, AnchorPersistence anchors, ARPlaneManager planeManager, Transform leftPose, Transform rightPose, InputActionAsset actions)
+        public void Initialize(TwinRoot twin, AnchorPersistence anchors, ARPlaneManager planeManager, InputRouter router)
         {
-            root = twin; persistence = anchors; planes = planeManager; left = leftPose; right = rightPose;
-            leftGrab = actions.FindAction("XRI Left Interaction/Select", true);
-            rightGrab = actions.FindAction("XRI Right Interaction/Select", true);
-            leftTracked = actions.FindAction("XRI Left/Is Tracked", true);
-            rightTracked = actions.FindAction("XRI Right/Is Tracked", true);
+            root = twin; persistence = anchors; planes = planeManager; input=router;
         }
         public void SetActive(bool value) { Active = value; dragging = false; if (value) persistence.Detach(); }
         public void Nudge(float x, float z, float height, float yaw)
@@ -47,13 +42,11 @@ namespace TwinInspector
             if (!best) return false;
             persistence.Detach(); var p = root.transform.position; p.y = best.center.y + root.Origin.z; root.transform.position = p; return true;
         }
-        void Update()
+        void LateUpdate()
         {
-            if (!Active || !left || !right || leftGrab == null || rightGrab == null) return;
-            bool held = leftGrab.IsPressed() && rightGrab.IsPressed() && leftTracked.IsPressed() && rightTracked.IsPressed();
-            if (!held) { dragging = false; return; }
-            var midpoint = (left.position + right.position) * .5f;
-            var span = Vector3.ProjectOnPlane(right.position - left.position, Vector3.up);
+            if (!Active || !input || input.OverUI || !input.TryTwoHandSelect(out var left,out var right)) { dragging=false; return; }
+            var midpoint = (left + right) * .5f;
+            var span = Vector3.ProjectOnPlane(right - left, Vector3.up);
             if (span.sqrMagnitude < .0025f) { dragging = false; return; }
             if (!dragging)
             {

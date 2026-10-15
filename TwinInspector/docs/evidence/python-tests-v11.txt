@@ -1,0 +1,14 @@
+{"tile": "x0_y0", "lod": "0", "source_boundary_vertices": 0, "source_boundary_edges": 0, "max_displacement_m": 0.0, "missing_edges": 0}
+{"tile": "x0_y0", "lod": "1", "source_boundary_vertices": 0, "source_boundary_edges": 0, "max_displacement_m": 0.0, "missing_edges": 0}
+{"tile": "x0_y0", "lod": "2", "source_boundary_vertices": 0, "source_boundary_edges": 0, "max_displacement_m": 0.0, "missing_edges": 0}
+PASS: 3 tile LODs preserve all source open edges
+TILE               LOD   TRIANGLES      BYTES  COLOUR  BOUNDS
+x0_y0                0           4      1,060      OK      OK
+x0_y0                1           4      1,060      OK      OK
+x0_y0                2           4      1,060      OK      OK
+PASS: 1 tiles; LOD0 4 triangles / 1,060 bytes
+........
+----------------------------------------------------------------------
+Ran 8 tests in 32.150s
+
+OK

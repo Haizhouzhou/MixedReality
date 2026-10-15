@@ -1,0 +1,38 @@
+PASS: desktop selected with no tracked HMD
+PASS: desktop eye height 1.6 m
+PASS: untracked controller nodes automatically inactive
+PASS: sample beam suppressed
+PASS: sample beam suppressed
+PASS: sample beam suppressed
+PASS: sample beam suppressed
+PASS: sample beam suppressed
+PASS: sample beam suppressed
+PASS: controller meshes stripped
+PASS: ToolStrip independently anchored in world space
+PASS: 15 degree look leaves ToolStrip stationary
+PASS: 50 degree turn recenters ToolStrip
+PASS: button visible: MODE (375.94, 120.08)
+PASS: left mouse opens MODE
+PASS: button visible: ALIGN (551.98, 120.08)
+PASS: left mouse opens ALIGN
+PASS: button visible: LIST (904.06, 120.08)
+PASS: left mouse opens LIST
+PASS: button visible: MODE (375.94, 120.08)
+PASS: ordinary mouse pointer adjusts the world-space opacity slider
+PASS: button visible: ANNOTATE (728.02, 120.08)
+PASS: left mouse enables annotation placement
+PASS: a visible LOD2 collider accepts the screen ray
+PASS: mouse previews actual surface hit
+PASS: one mouse click creates one annotation and opens picker
+PASS: keyboard 1 opens Mode
+PASS: keyboard 2 opens Align
+PASS: keyboard 3 enables Annotate
+PASS: keyboard 4 opens List and ends placement
+PASS: M simulates catalog marker zero
+PASS: Tab summons the active panel
+PASS: RMB + W moves the viewer rig
+PASS: releasing RMB restores the visible unlocked cursor
+PASS: RMB delta rotates the camera
+PASS: flight keeps camera roll zero
+PASS: E moves vertically in world space
+Editor Input System events exercised; physical headset hands and controllers require device acceptance.

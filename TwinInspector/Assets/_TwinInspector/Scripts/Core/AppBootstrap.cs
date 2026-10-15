@@ -26,7 +26,6 @@ namespace TwinInspector
         [SerializeField] ARMeshManager meshManager;
         readonly CancellationTokenSource lifetime = new CancellationTokenSource();
         bool starting;
-        Transform poseContainer;
         public static AppBootstrap Instance { get; private set; }
         public bool Ready { get; private set; }
         public string Status { get; private set; } = "Starting TwinInspector";
@@ -43,6 +42,7 @@ namespace TwinInspector
         public AnnotationPlacer Placer { get; private set; }
         public InspectorUI UI { get; private set; }
         public PerfHud Performance { get; private set; }
+        public InputRouter Input { get; private set; }
 
         void Awake()
         {
@@ -55,6 +55,8 @@ namespace TwinInspector
             cameraManager.enabled = false; anchorManager.enabled = false; planeManager.enabled = false; imageManager.enabled = false; meshManager.enabled = false;
             session.enabled = !Application.isEditor;
             actions.Enable();
+            Input = gameObject.AddComponent<InputRouter>(); Input.Initialize(origin,viewer);
+            if(Application.isEditor) gameObject.AddComponent<EditorDesktopDriver>().Initialize(this);
         }
         async void Start() => await InitializeAsync();
 
@@ -86,13 +88,12 @@ namespace TwinInspector
                 var visuals = gameObject.AddComponent<AnnotationVisuals>(); visuals.Initialize(Annotations,Root,Tokens);
                 Style = gameObject.AddComponent<TwinStyle>(); Style.Initialize(Loader,Root,viewer,cameraManager,Tokens);
                 Manual = gameObject.AddComponent<ManualAlignment>();
-                var left = TrackingPose("XRI Left","Position","Rotation");
-                var right = TrackingPose("XRI Right","Position","Rotation");
-                var aim = TrackingPose("XRI Right","Aim Position","Aim Rotation");
-                Manual.Initialize(Root,Anchors,planeManager,left,right,actions);
+                Manual.Initialize(Root,Anchors,planeManager,Input);
                 Markers = gameObject.AddComponent<MarkerAlignment>();
                 await Markers.InitializeAsync(Root,Anchors,imageManager,Loader.DataRoot,settings.Scan,lifetime.Token);
-                Placer = gameObject.AddComponent<AnnotationPlacer>(); Placer.Initialize(Root,Annotations,viewer,aim,actions);
+                Placer = gameObject.AddComponent<AnnotationPlacer>(); Placer.Initialize(Root,Annotations,viewer,Input);
+                gameObject.AddComponent<SwissReticle>().Initialize(this);
+                gameObject.AddComponent<HandLocomotion>().Initialize(this);
                 Performance = gameObject.AddComponent<PerfHud>(); Performance.Initialize(Loader,settings);
                 Ready = true; Status = Loader.Manifest.demo ? "Built-in hall · low detail" : "Region "+Loader.Manifest.region.name+" · external data";
                 EnsureUI(); UI.Show("setup");
@@ -103,10 +104,9 @@ namespace TwinInspector
             {
                 Ready=false;
                 foreach(var service in GetComponents<MonoBehaviour>())
-                    if(service!=this && !(service is InspectorUI)) Destroy(service);
+                    if(service!=this && !(service is InspectorUI) && !(service is InputRouter) && !(service is EditorDesktopDriver)) Destroy(service);
                 if(Root) Destroy(Root.gameObject);
                 Root=null; Loader=null; Anchors=null; Style=null; Manual=null; Markers=null; Placer=null; Performance=null;
-                if(poseContainer) Destroy(poseContainer.gameObject);
                 Annotations=null;
                 Status = error is UnauthorizedAccessException ? "Permissions needed to continue" : "Setup needs attention";
                 DevLog.Write("Startup failed: "+error);
@@ -117,17 +117,6 @@ namespace TwinInspector
         }
 
         void EnsureUI() { if (!UI) { UI = gameObject.AddComponent<InspectorUI>(); UI.Initialize(this); } }
-        Transform TrackingPose(string map, string position, string rotation)
-        {
-            if(!poseContainer) { poseContainer=new GameObject("TwinInspector tracking poses").transform; poseContainer.SetParent(origin.CameraFloorOffsetObject.transform,false); }
-            var go = new GameObject(map+" "+position+" pose"); go.transform.SetParent(poseContainer,false);
-            var driver = go.AddComponent<TrackedPoseDriver>();
-            driver.positionInput = new InputActionProperty(actions.FindAction(map+"/"+position,true));
-            driver.rotationInput = new InputActionProperty(actions.FindAction(map+"/"+rotation,true));
-            driver.ignoreTrackingState = true;
-            return go.transform;
-        }
-
         async Task RequestPermissionsAsync()
         {
 #if UNITY_ANDROID && !UNITY_EDITOR
@@ -140,7 +129,8 @@ namespace TwinInspector
             var callbacks = new PermissionCallbacks();
             callbacks.PermissionGranted += value => pending.Remove(value);
             callbacks.PermissionDenied += value => { denied.Add(value); pending.Remove(value); };
-            callbacks.PermissionDeniedAndDontAskAgain += value => { denied.Add(value); pending.Remove(value); };
+            // PermissionDenied covers denial including the permanent-denial path.
+            // The deprecated DontAskAgain callback is unreliable on current Android.
             Permission.RequestUserPermissions(needed.ToArray(),callbacks);
             while (pending.Count > 0) { lifetime.Token.ThrowIfCancellationRequested(); await Task.Yield(); }
             if (denied.Count > 0) throw new UnauthorizedAccessException("Enable camera, scene and hand permissions in app settings, then retry.");

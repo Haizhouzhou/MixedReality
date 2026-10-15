@@ -1,0 +1,14 @@
+{"tile": "x0_y0", "lod": "0", "source_boundary_vertices": 0, "source_boundary_edges": 0, "max_displacement_m": 0.0, "missing_edges": 0, "glb_sha256": "f05ae6f9a7e1e9ef63cb7523dba3f0ae61be79e9f3d10258df61b9932166ce38"}
+{"tile": "x0_y0", "lod": "1", "source_boundary_vertices": 0, "source_boundary_edges": 0, "max_displacement_m": 0.0, "missing_edges": 0, "glb_sha256": "f05ae6f9a7e1e9ef63cb7523dba3f0ae61be79e9f3d10258df61b9932166ce38"}
+{"tile": "x0_y0", "lod": "2", "source_boundary_vertices": 0, "source_boundary_edges": 0, "max_displacement_m": 0.0, "missing_edges": 0, "glb_sha256": "f05ae6f9a7e1e9ef63cb7523dba3f0ae61be79e9f3d10258df61b9932166ce38"}
+PASS: 3 tile LODs preserve all source open edges
+TILE               LOD   TRIANGLES      BYTES  COLOUR  BOUNDS
+x0_y0                0           4      1,060      OK      OK
+x0_y0                1           4      1,060      OK      OK
+x0_y0                2           4      1,060      OK      OK
+PASS: 1 tiles; LOD0 4 triangles / 1,060 bytes
+..
+----------------------------------------------------------------------
+Ran 2 tests in 22.574s
+
+OK

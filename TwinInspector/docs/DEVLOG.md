@@ -70,3 +70,40 @@ All device performance, passthrough, physical marker alignment and anchor reloca
 - The APK contains exactly **45 Region A LOD2 GLBs**, with hashes matching their source files, and no higher-detail GLBs. The complete bundled fallback is **1,944,771 uncompressed bytes**. The build report's aggregate size includes intermediate files; it is not the APK size.
 - Final `adb devices -l`: **no devices attached**. Installation, headset launch, permissions, FPS, physical marker registration, hand/controller behavior and anchor relocalization remain unverified. The exact device acceptance sequence is in README.
 - Closed the verified batch-mode Editor normally to release memory. Preserved Unity's generated recovery scene outside the project under `work/scene_recovery_assets_20261015`. Resumed Region B with two workers and an enforced combined 8 GB working-set limit. Rebuilt boundary tile `x-1_y-6` from source so its actual 80 / 160 / 320 mm cleanup caps and retained fragments are recorded accurately.
+
+
+## 2026-10-15 — v1.1 interaction and spatial UI
+
+- Added `InputRouter` for active XRI ray hits and abstract Select/UI Press, with a direct screen-space mouse fallback when no HMD is tracked. Annotation placement and two-hand registration no longer depend on an active controller transform. Optional controllers use trigger confirmation.
+- Authored four inspection rays alongside the hand/controller modality groups, retaining XR Hands tracking, pinch action readers and poke interactors. Rebound sample poke/system-gesture suppression to the new rays. Disabled sample locomotion and simulator defaults, stripped controller mesh renderers, and suppressed every sample beam renderer.
+- Added Editor flight (RMB yaw/pitch, WASD, vertical E/Q or Space/Shift, Alt boost, wheel speed), direct mouse UGUI and annotation clicks, keys 1–4, M and Tab. The corner key hint appears only with PerfHud.
+- Added two-hand pinch world-drag in Twin mode. Tracking-space samples move XR Origin with inverse translation/yaw while preserving floor height; ManualAlignment still moves TwinRoot. UI, active annotation placement and registration suppress roaming.
+- Replaced the strip's panel-relative position with a separate world anchor: 0.55 m ahead, 22° below eye level, 25° heading comfort cone and 150 ms ease-out. Palm-up uses the left XR Hands palm pose. Full-height square paper/ink cells use 1 mm shared borders and Inter Medium uppercase labels with 6% tracking. Replaced sample rays with an 8 mm ink/accent reticle and paper outline.
+- Actual Input System QA passes mouse clicks on all four tools, screen-ray annotation creation, keys 1–4, marker M, Tab, RMB rotation/forward flight, zero roll, vertical E and cursor unlock. A 15° look leaves the strip stationary; 50° recenters it. QA annotations are deleted afterward. Eight Unity tests and eight Python tests pass. Android OpenXR validation reports zero issues.
+- Region B baseline completed: 172 tiles, 3,964,188 LOD0 triangles / 80,385,404 bytes. Its old boolean fragment allowances are interpreted as their exact bounded counts by the independent verifier; no threshold was relaxed. All 516 GLBs pass geometry/budget checks. This baseline has not been regenerated for the new seam policy.
+- The independent source-edge audit of old Region A tile x2_y0 found missing boundary edges at all LODs, with maximum nearest-vertex displacement 0.365 / 0.548 / 2.330 m. v1.1 now pins all open edges at every QEM pass and removes subsequent welding. The exact boundary policy invalidates old reduction checkpoints. Region A regeneration and complete exported-edge verification passed; results follow below.
+
+
+### v1.1 geometry acceptance
+
+- Rebuilt all 45 Region A tiles with exact source open boundaries at every LOD. Totals: LOD0 **1,293,355 triangles / 29,710,628 bytes**; LOD1 **820,558 / 20,264,836**; LOD2 **815,667 / 20,169,364**. The LOD0 budget passes. Lower LOD ratios are intentionally constrained by pinned source edges; no destructive welding is used to force a target.
+- Independently checked all **135 exported GLBs**: **zero missing source boundary edges**, maximum coordinate displacement **0.00000190735 m**, attributable to float32 export rounding. The proof is bound to exact GLB SHA-256 digests; stale proofs are rejected. Geometry, colour accessors, bounds, sizes and budgets pass `verify_tiles.py`.
+- Activated the result at `work/twin/HGE_2022-02-06/region_a`; retained the previous dataset as `region_a_v10`. Mixed LOD neighbours share the same preserved source boundary.
+- The fallback contains **32 complete nearby Region A LOD2 tiles**, **14,048,147 total bytes**, below the 15 MB limit. The complete 45-tile dataset remains external. The selection is recorded in the demo manifest.
+- A Windows progress-file reader briefly blocked telemetry-file replacement. Memory-limit enforcement now precedes telemetry publication, retries transient sharing locks and survives publication errors. A scoped watchdog guarded the ongoing run; the conservative two-worker peak bound from per-worker peaks plus parent allowance is **5,434,110,976 bytes**, below 8 GB. Added a regression test for the sharing-lock retry.
+
+
+### Final viewport refinements
+
+- Visually verified the red/paper reticle on an actual collider hit and the disc/leader/label annotation on regenerated geometry. Corrected the reticle ring winding so its visible face points toward the viewer.
+- Technical view previously relied on a second derivative of a reconstructed normal, which produced a flat blue silhouette in the actual capture. Added light-independent surface relief and grazing-angle edge contrast, retaining the monochrome tint and leaving Colour view unchanged.
+- The first Android v1.1 build exposed an Android-only obsolete `PermissionDeniedAndDontAskAgain` subscription. Removed it; Unity uses `PermissionDenied` as the fallback, as documented in its [permission callback reference](https://docs.unity3d.com/ja/6000.0/ScriptReference/Android.PermissionCallbacks.PermissionDeniedAndDontAskAgain.html). Final build results follow below.
+- With the complete new Region A active, the loader prioritizes 29 tiles at the initial view, **1,199,332 resident triangles including collision geometry**, zero load failures and no pending loads. It stays within the 1.2 M streaming budget and changes the selected tiles with the viewer.
+
+### v1.1 final build and acceptance
+
+- Final Android build `build_95cb8c8ceb95`: **Succeeded** in **192.020 seconds**, **0 errors**, **0 warnings from TwinInspector scripts**. The sole build warning says the Pipeline Editor control service is disabled in Player builds because no runtime control configuration is present. Post-build `recompile_status` completed without errors; Android OpenXR validation reports **0 issues**.
+- Rebuilt `Builds/TwinInspector-0.1.0.apk`: **66,014,471 bytes**, SHA-256 **23e08596c75b053ca28634cab7a8bb326e3bec14d3c6d08608fa80f21ff2b189**. Verified ZIP CRC, ARM64 IL2CPP, GameActivity, required camera/scene/hand permissions and preservation of all nine JSON data types through Android stripping.
+- The APK includes exactly **32 LOD2 GLBs**, each matching the regenerated source hash, no higher-detail GLBs, and **14,048,147 bytes** of uncompressed fallback data. The full 45-tile Region A remains available externally; lower LOD targets yield to exact boundary preservation.
+- Acceptance evidence: **8/8 Unity tests**, **8/8 Python tests**, additional seam-proof tamper regression, actual queued mouse/keyboard Play-mode checks, all 135 Region A exported-edge checks, and seven hall/panel captures plus reticle and annotation close-ups. See `docs/evidence/` and `docs/screenshots/`.
+- Final `adb devices -l` remains empty. Physical Galaxy XR pinch/poke, palm anchoring, controller pickup, world-drag, marker tracking, anchor relocalization and device frame rate require headset acceptance; no hardware result is inferred from Editor tests.

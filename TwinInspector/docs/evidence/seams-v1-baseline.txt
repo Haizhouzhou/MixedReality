@@ -1,0 +1,3 @@
+{"tile": "x2_y0", "lod": "0", "source_boundary_vertices": 19122, "source_boundary_edges": 19079, "max_displacement_m": 0.36516528683035115, "missing_edges": 14675}
+{"tile": "x2_y0", "lod": "1", "source_boundary_vertices": 19122, "source_boundary_edges": 19079, "max_displacement_m": 0.5483404445552347, "missing_edges": 15588}
+{"tile": "x2_y0", "lod": "2", "source_boundary_vertices": 19122, "source_boundary_edges": 19079, "max_displacement_m": 2.330383792742478, "missing_edges": 16730}

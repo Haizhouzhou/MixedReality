@@ -1,6 +1,7 @@
 """Independently validate every manifest GLB with trimesh and raw glTF metadata."""
 import argparse
 import json
+import hashlib
 from pathlib import Path
 import struct
 
@@ -13,6 +14,8 @@ def verify(root):
     m = json.loads((root / "manifest.json").read_text())
     assert m["schema"] == "twin-manifest/1"
     origin = np.array(m["origin_world"])
+    seam_report = json.loads((root / "seams.json").read_text()) if (root / "seams.json").exists() else None
+    seam_results = {(r["tile"], r["lod"]): r for r in seam_report["results"]} if seam_report else {}
     total, size, seen = 0, 0, set()
     print("TILE               LOD   TRIANGLES      BYTES  COLOUR  BOUNDS")
     for tile in m["tiles"]:
@@ -23,12 +26,26 @@ def verify(root):
                 if level in tile["triangles"]:
                     reduction = tile.get("reduction", {}).get(level, {})
                     excess = reduction.get("preserved_fragment_excess", 0)
-                    assert 0 <= excess <= max(1024, reduction.get("target_triangles", 0) * .02)
+                    if reduction.get("boundary_policy") == "exact-open-boundary-v1":
+                        proof = seam_results.get((tile["id"], level))
+                        assert proof and proof["max_displacement_m"] < 2e-5 and proof["missing_edges"] == 0, "Run verify_seams.py first"
+                        assert excess == max(0, tile["triangles"][level] - reduction["target_triangles"])
+                        assert tile["triangles"][level] <= tile["triangles"]["0"], "LOD cannot grow"
+                    else:
+                        # The first v1 checkpoints used a boolean for the same
+                        # bounded fragment allowance; derive its exact count.
+                        if reduction.get("small_fragment_allowance"):
+                            excess = max(0, tile["triangles"][level] - reduction["target_triangles"])
+                        assert 0 <= excess <= max(1024, reduction.get("target_triangles", 0) * .02)
                     assert tile["triangles"][level] <= max(64, tile["triangles"]["0"] * ratio + 4) + excess, f"LOD reduction insufficient: {tile['id']} LOD{level}"
         for level, relative in tile["files"].items():
             path = (root / relative).resolve()
             assert path.is_relative_to(root.resolve()), "Path escapes output"
             data = path.read_bytes()
+            if tile.get("reduction", {}).get(level, {}).get("boundary_policy") == "exact-open-boundary-v1":
+                proof=seam_results.get((tile["id"],level))
+                assert proof and proof["max_displacement_m"]<2e-5 and proof["missing_edges"]==0, "Missing valid seam proof"
+                assert proof.get("glb_sha256")==hashlib.sha256(data).hexdigest(), "Seam proof is stale; rerun verify_seams.py"
             magic, version, length = struct.unpack_from("<4sII", data)
             assert (magic, version, length) == (b"glTF", 2, len(data))
             jslen, kind = struct.unpack_from("<II", data, 12)

@@ -1,0 +1,69 @@
+{
+  "status": "completed",
+  "duration": 1.2,
+  "summary": {
+    "total": 8,
+    "passed": 8,
+    "failed": 0,
+    "skipped": 0,
+    "inconclusive": 0
+  },
+  "results": [
+    {
+      "FullName": "TwinInspector.Tests.CoordinateAndPersistenceTests.AnnotationEditsSurviveRestartWithoutReusingDeletedIds",
+      "Status": "Passed",
+      "Duration": 0.2390395,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "TwinInspector.Tests.CoordinateAndPersistenceTests.GltfHandednessAndContainerRotationKeepWestNegative",
+      "Status": "Passed",
+      "Duration": 0.0649233,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "TwinInspector.Tests.CoordinateAndPersistenceTests.ManifestPathsCannotEscapeDataRoot(\"../secret\")",
+      "Status": "Passed",
+      "Duration": 0.0039952,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "TwinInspector.Tests.CoordinateAndPersistenceTests.ManifestPathsCannotEscapeDataRoot(\"C:/outside\")",
+      "Status": "Passed",
+      "Duration": 0.0003684,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "TwinInspector.Tests.CoordinateAndPersistenceTests.ManifestPathsCannotEscapeDataRoot(\"/absolute\")",
+      "Status": "Passed",
+      "Duration": 0.0002905,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "TwinInspector.Tests.CoordinateAndPersistenceTests.OriginalCoordinatesAndNormalsRoundTripAfterYawAndTranslation",
+      "Status": "Passed",
+      "Duration": 0.0204025,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "TwinInspector.Tests.HandLocomotionTests.WorldDragDoesNotChangeFloorHeightOrAddRoll",
+      "Status": "Passed",
+      "Duration": 0.0037558,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "TwinInspector.Tests.HandLocomotionTests.WorldDragKeepsPinchedPointFixedUnderTranslationAndYaw",
+      "Status": "Passed",
+      "Duration": 0.0022236,
+      "Message": null,
+      "StackTrace": null
+    }
+  ]
+}

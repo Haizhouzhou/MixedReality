@@ -1,0 +1,11 @@
+twin_pipeline 0.1
+Scan: navvis_2022-02-06_12.55.11 | region B
+Axis: twin(x,y,z)-origin -> gltf(x,z,-y); glTFast reflects X; Unity adapter yaw=180deg -> local(x,z,y); inverse local(x,z,y)+origin
+Centroid clipping: triangles may extend beyond region/cell edges.
+Colour sampled from original vertices after QEM; no textures.
+LOD0: 3,964,188 triangles, 80,385,404 bytes
+  Maximum fragment cleanup weld: 0.08 m (quantization cell width; not an accuracy guarantee)
+LOD1: 988,947 triangles, 20,545,732 bytes
+  Maximum fragment cleanup weld: 0.16 m (quantization cell width; not an accuracy guarantee)
+LOD2: 237,000 triangles, 5,198,876 bytes
+  Maximum fragment cleanup weld: 0.32 m (quantization cell width; not an accuracy guarantee)

@@ -1,0 +1,1220 @@
+{
+  "policy": "exact-open-boundary-v1",
+  "results": [
+    {
+      "tile": "x-1_y-1",
+      "lod": "0",
+      "source_boundary_vertices": 10810,
+      "source_boundary_edges": 10718,
+      "max_displacement_m": 9.5367431640625e-07,
+      "missing_edges": 0,
+      "glb_sha256": "f035e77ea590f5bdeee51832f7e7a8d6e82825d034f7c5d08a00722e1c4a21c4"
+    },
+    {
+      "tile": "x-1_y-1",
+      "lod": "1",
+      "source_boundary_vertices": 10810,
+      "source_boundary_edges": 10718,
+      "max_displacement_m": 9.5367431640625e-07,
+      "missing_edges": 0,
+      "glb_sha256": "32bb79dc9c86f750a1a378b20fcc222f476e0504f88d1f754214d707d17372cd"
+    },
+    {
+      "tile": "x-1_y-1",
+      "lod": "2",
+      "source_boundary_vertices": 10810,
+      "source_boundary_edges": 10718,
+      "max_displacement_m": 9.5367431640625e-07,
+      "missing_edges": 0,
+      "glb_sha256": "4eabb2650c55611f7e191c79374046dee9c73ed3ee5d7250bfecde017b969408"
+    },
+    {
+      "tile": "x-1_y0",
+      "lod": "0",
+      "source_boundary_vertices": 22305,
+      "source_boundary_edges": 22201,
+      "max_displacement_m": 9.5367431640625e-07,
+      "missing_edges": 0,
+      "glb_sha256": "b754f7f00daba14b0605bcc5ec19af7b558033bd575cf9e1df98f3a059b9cd24"
+    },
+    {
+      "tile": "x-1_y0",
+      "lod": "1",
+      "source_boundary_vertices": 22305,
+      "source_boundary_edges": 22201,
+      "max_displacement_m": 9.5367431640625e-07,
+      "missing_edges": 0,
+      "glb_sha256": "4ea5f1d14245795596b972d07e5590c3348dd1110767d6fc2f963fe74b0c4a50"
+    },
+    {
+      "tile": "x-1_y0",
+      "lod": "2",
+      "source_boundary_vertices": 22305,
+      "source_boundary_edges": 22201,
+      "max_displacement_m": 9.5367431640625e-07,
+      "missing_edges": 0,
+      "glb_sha256": "3083f35f7b80c8f0c80c4383f12578baa2c48b943b103c4d9e857af8e1698181"
+    },
+    {
+      "tile": "x-1_y1",
+      "lod": "0",
+      "source_boundary_vertices": 20307,
+      "source_boundary_edges": 20245,
+      "max_displacement_m": 9.5367431640625e-07,
+      "missing_edges": 0,
+      "glb_sha256": "71aab1d165edccd922883dca5a808e41b08e43b2e117e045ca3f0eed55c42038"
+    },
+    {
+      "tile": "x-1_y1",
+      "lod": "1",
+      "source_boundary_vertices": 20307,
+      "source_boundary_edges": 20245,
+      "max_displacement_m": 9.5367431640625e-07,
+      "missing_edges": 0,
+      "glb_sha256": "fe3f7818b875885a788902161ef500d53048a70989f088f2fc6736daa2b369e8"
+    },
+    {
+      "tile": "x-1_y1",
+      "lod": "2",
+      "source_boundary_vertices": 20307,
+      "source_boundary_edges": 20245,
+      "max_displacement_m": 9.5367431640625e-07,
+      "missing_edges": 0,
+      "glb_sha256": "8d219a0c94002d3efe3a5c9d2c61356892885a703c13d37ac030a7446c62b56c"
+    },
+    {
+      "tile": "x-1_y2",
+      "lod": "0",
+      "source_boundary_vertices": 12372,
+      "source_boundary_edges": 12192,
+      "max_displacement_m": 9.5367431640625e-07,
+      "missing_edges": 0,
+      "glb_sha256": "525d7c66a61974b194daaffadbb1544bc66a94b08cb3203b9d01e072da22812f"
+    },
+    {
+      "tile": "x-1_y2",
+      "lod": "1",
+      "source_boundary_vertices": 12372,
+      "source_boundary_edges": 12192,
+      "max_displacement_m": 9.5367431640625e-07,
+      "missing_edges": 0,
+      "glb_sha256": "6d6becac56d25efa8b45eb963fc62a19e29201477d08e9d8a9266552cafe560e"
+    },
+    {
+      "tile": "x-1_y2",
+      "lod": "2",
+      "source_boundary_vertices": 12372,
+      "source_boundary_edges": 12192,
+      "max_displacement_m": 9.5367431640625e-07,
+      "missing_edges": 0,
+      "glb_sha256": "daf5adf9bb2018ff45cb1a4fe241f0b90f8cac748585dfd4fc13ee4c192a6a1b"
+    },
+    {
+      "tile": "x-1_y3",
+      "lod": "0",
+      "source_boundary_vertices": 39,
+      "source_boundary_edges": 39,
+      "max_displacement_m": 9.5367431640625e-07,
+      "missing_edges": 0,
+      "glb_sha256": "a8fab9565b86e12eeb6658963d50f84b03c85e265af72f865ae76695d78d9647"
+    },
+    {
+      "tile": "x-1_y3",
+      "lod": "1",
+      "source_boundary_vertices": 39,
+      "source_boundary_edges": 39,
+      "max_displacement_m": 9.5367431640625e-07,
+      "missing_edges": 0,
+      "glb_sha256": "a8fab9565b86e12eeb6658963d50f84b03c85e265af72f865ae76695d78d9647"
+    },
+    {
+      "tile": "x-1_y3",
+      "lod": "2",
+      "source_boundary_vertices": 39,
+      "source_boundary_edges": 39,
+      "max_displacement_m": 9.5367431640625e-07,
+      "missing_edges": 0,
+      "glb_sha256": "a8fab9565b86e12eeb6658963d50f84b03c85e265af72f865ae76695d78d9647"
+    },
+    {
+      "tile": "x-2_y-1",
+      "lod": "0",
+      "source_boundary_vertices": 458,
+      "source_boundary_edges": 454,
+      "max_displacement_m": 1.9073486328125e-06,
+      "missing_edges": 0,
+      "glb_sha256": "bacfbf300ab21f50d7fafead9a469e60945b7a87b779acfcbf211372baf3fb5c"
+    },
+    {
+      "tile": "x-2_y-1",
+      "lod": "1",
+      "source_boundary_vertices": 458,
+      "source_boundary_edges": 454,
+      "max_displacement_m": 1.9073486328125e-06,
+      "missing_edges": 0,
+      "glb_sha256": "0b5ff943b1e13eeb3a38bfb3af78979b540730bf6b23f50a7413da675e11a4f3"
+    },
+    {
+      "tile": "x-2_y-1",
+      "lod": "2",
+      "source_boundary_vertices": 458,
+      "source_boundary_edges": 454,
+      "max_displacement_m": 1.9073486328125e-06,
+      "missing_edges": 0,
+      "glb_sha256": "d7aae0baecde934d9adbbc797e1771879634ce3f10a331b94d4b8b57f4dc41e9"
+    },
+    {
+      "tile": "x-2_y0",
+      "lod": "0",
+      "source_boundary_vertices": 11604,
+      "source_boundary_edges": 11594,
+      "max_displacement_m": 1.9073486328125e-06,
+      "missing_edges": 0,
+      "glb_sha256": "428524d355e032e3ec4f86ffcdb151e6a7f07fae6fa7421090a1895c1b5c42af"
+    },
+    {
+      "tile": "x-2_y0",
+      "lod": "1",
+      "source_boundary_vertices": 11604,
+      "source_boundary_edges": 11594,
+      "max_displacement_m": 1.9073486328125e-06,
+      "missing_edges": 0,
+      "glb_sha256": "c8250d77f424ba00777a2525226a2b8cfa88da03f9e61a5b79b478d07a48c45c"
+    },
+    {
+      "tile": "x-2_y0",
+      "lod": "2",
+      "source_boundary_vertices": 11604,
+      "source_boundary_edges": 11594,
+      "max_displacement_m": 1.9073486328125e-06,
+      "missing_edges": 0,
+      "glb_sha256": "40b06a6150bc905340a158d148ee8aab61a4a8d4bb5e0569b497cd8ff7ef022c"
+    },
+    {
+      "tile": "x-2_y1",
+      "lod": "0",
+      "source_boundary_vertices": 10975,
+      "source_boundary_edges": 10904,
+      "max_displacement_m": 1.9073486328125e-06,
+      "missing_edges": 0,
+      "glb_sha256": "8f50fcbf987118d68277ef2a4ffc53b8aa5f85553ce293f7c7591dc13ee2f20e"
+    },
+    {
+      "tile": "x-2_y1",
+      "lod": "1",
+      "source_boundary_vertices": 10975,
+      "source_boundary_edges": 10904,
+      "max_displacement_m": 1.9073486328125e-06,
+      "missing_edges": 0,
+      "glb_sha256": "bf0b2c7a2f1861558fcbdde173e5b102881c1982cb18d9bd6918b0d5db2ae05a"
+    },
+    {
+      "tile": "x-2_y1",
+      "lod": "2",
+      "source_boundary_vertices": 10975,
+      "source_boundary_edges": 10904,
+      "max_displacement_m": 1.9073486328125e-06,
+      "missing_edges": 0,
+      "glb_sha256": "b4296110aa3f06d5d21ebdde702bceb4d8a44591905932f5012c94bbd5baa8e8"
+    },
+    {
+      "tile": "x-2_y2",
+      "lod": "0",
+      "source_boundary_vertices": 465,
+      "source_boundary_edges": 464,
+      "max_displacement_m": 1.9073486328125e-06,
+      "missing_edges": 0,
+      "glb_sha256": "bfe8955c3e24bcacb6575900e5583330d31029107eec999aa8aa1c40375e3929"
+    },
+    {
+      "tile": "x-2_y2",
+      "lod": "1",
+      "source_boundary_vertices": 465,
+      "source_boundary_edges": 464,
+      "max_displacement_m": 1.9073486328125e-06,
+      "missing_edges": 0,
+      "glb_sha256": "4f0ddb45e16c70c37f686607bb75df6cf7cb0ab25abc88eb481eedd1ea3fa68b"
+    },
+    {
+      "tile": "x-2_y2",
+      "lod": "2",
+      "source_boundary_vertices": 465,
+      "source_boundary_edges": 464,
+      "max_displacement_m": 1.9073486328125e-06,
+      "missing_edges": 0,
+      "glb_sha256": "dd80e3694b1a0364a41949535746d52ab3ca7c82b16eb354277e64938c30e0f0"
+    },
+    {
+      "tile": "x-2_y3",
+      "lod": "0",
+      "source_boundary_vertices": 216,
+      "source_boundary_edges": 216,
+      "max_displacement_m": 1.9073486328125e-06,
+      "missing_edges": 0,
+      "glb_sha256": "7f43fb5696abe2962b0c5b17581a7273d96723e86f25aaa9e74c02e936305af1"
+    },
+    {
+      "tile": "x-2_y3",
+      "lod": "1",
+      "source_boundary_vertices": 216,
+      "source_boundary_edges": 216,
+      "max_displacement_m": 1.9073486328125e-06,
+      "missing_edges": 0,
+      "glb_sha256": "7f43fb5696abe2962b0c5b17581a7273d96723e86f25aaa9e74c02e936305af1"
+    },
+    {
+      "tile": "x-2_y3",
+      "lod": "2",
+      "source_boundary_vertices": 216,
+      "source_boundary_edges": 216,
+      "max_displacement_m": 1.9073486328125e-06,
+      "missing_edges": 0,
+      "glb_sha256": "7f43fb5696abe2962b0c5b17581a7273d96723e86f25aaa9e74c02e936305af1"
+    },
+    {
+      "tile": "x0_y-1",
+      "lod": "0",
+      "source_boundary_vertices": 26445,
+      "source_boundary_edges": 26279,
+      "max_displacement_m": 9.5367431640625e-07,
+      "missing_edges": 0,
+      "glb_sha256": "db1e89582170f3dccfde3c62ddbeded4316f6d29a2dde31f4cd18ab1e37de289"
+    },
+    {
+      "tile": "x0_y-1",
+      "lod": "1",
+      "source_boundary_vertices": 26445,
+      "source_boundary_edges": 26279,
+      "max_displacement_m": 9.5367431640625e-07,
+      "missing_edges": 0,
+      "glb_sha256": "ea1420ef811b8399333d3bfa52355e9336b3dc7c412d24cb3a228ae64aa31301"
+    },
+    {
+      "tile": "x0_y-1",
+      "lod": "2",
+      "source_boundary_vertices": 26445,
+      "source_boundary_edges": 26279,
+      "max_displacement_m": 9.5367431640625e-07,
+      "missing_edges": 0,
+      "glb_sha256": "4b093418a7c22428c1561e317fa44df06ba4b18ac375e39a5b9e9b78240a59ca"
+    },
+    {
+      "tile": "x0_y0",
+      "lod": "0",
+      "source_boundary_vertices": 34702,
+      "source_boundary_edges": 34398,
+      "max_displacement_m": 9.5367431640625e-07,
+      "missing_edges": 0,
+      "glb_sha256": "ff9971a9b4b276d6e9c476807feddb714120ab01299826fcb64fc72940ac26a6"
+    },
+    {
+      "tile": "x0_y0",
+      "lod": "1",
+      "source_boundary_vertices": 34702,
+      "source_boundary_edges": 34398,
+      "max_displacement_m": 9.5367431640625e-07,
+      "missing_edges": 0,
+      "glb_sha256": "2a275ef7428fa16bf1e8ed02681425fa8a28b5cb627697a6be6d54e724855550"
+    },
+    {
+      "tile": "x0_y0",
+      "lod": "2",
+      "source_boundary_vertices": 34702,
+      "source_boundary_edges": 34398,
+      "max_displacement_m": 9.5367431640625e-07,
+      "missing_edges": 0,
+      "glb_sha256": "c0f2faebb676301efe3d864c798f3bbec80b6292aa50ac89c072d54a6119cf50"
+    },
+    {
+      "tile": "x0_y1",
+      "lod": "0",
+      "source_boundary_vertices": 25363,
+      "source_boundary_edges": 25114,
+      "max_displacement_m": 9.5367431640625e-07,
+      "missing_edges": 0,
+      "glb_sha256": "352280aa2ef2ca715bdbe3571eacc537a550138fc5cdaf97ebd297a3fca03505"
+    },
+    {
+      "tile": "x0_y1",
+      "lod": "1",
+      "source_boundary_vertices": 25363,
+      "source_boundary_edges": 25114,
+      "max_displacement_m": 9.5367431640625e-07,
+      "missing_edges": 0,
+      "glb_sha256": "815d054b2cbc562e419f3286a78e2f91a27a275b6e3882eb31ff9739b7f22c85"
+    },
+    {
+      "tile": "x0_y1",
+      "lod": "2",
+      "source_boundary_vertices": 25363,
+      "source_boundary_edges": 25114,
+      "max_displacement_m": 9.5367431640625e-07,
+      "missing_edges": 0,
+      "glb_sha256": "aba0f64427942a51eb362d35f283e26b7958905cb137885f90b9612163564c18"
+    },
+    {
+      "tile": "x0_y2",
+      "lod": "0",
+      "source_boundary_vertices": 24759,
+      "source_boundary_edges": 24582,
+      "max_displacement_m": 9.5367431640625e-07,
+      "missing_edges": 0,
+      "glb_sha256": "0a5fa2b74b57f0552b3c52bdf2e64afce2738ce3c874834416fb08ba35963150"
+    },
+    {
+      "tile": "x0_y2",
+      "lod": "1",
+      "source_boundary_vertices": 24759,
+      "source_boundary_edges": 24582,
+      "max_displacement_m": 9.5367431640625e-07,
+      "missing_edges": 0,
+      "glb_sha256": "dce8be8574659fa6645e5e80fa1690409ea8e40fcb29e69af6c8440bcd868a0b"
+    },
+    {
+      "tile": "x0_y2",
+      "lod": "2",
+      "source_boundary_vertices": 24759,
+      "source_boundary_edges": 24582,
+      "max_displacement_m": 9.5367431640625e-07,
+      "missing_edges": 0,
+      "glb_sha256": "4780a6b31815107a9ea2f9ac1adc797fdd8ad6349615b16960fb42ab626e5f6b"
+    },
+    {
+      "tile": "x0_y3",
+      "lod": "0",
+      "source_boundary_vertices": 13,
+      "source_boundary_edges": 13,
+      "max_displacement_m": 9.5367431640625e-07,
+      "missing_edges": 0,
+      "glb_sha256": "66468850156649cf736ca8a22f3b7d1110e7d972cde75e1ec4defcf359656c39"
+    },
+    {
+      "tile": "x0_y3",
+      "lod": "1",
+      "source_boundary_vertices": 13,
+      "source_boundary_edges": 13,
+      "max_displacement_m": 9.5367431640625e-07,
+      "missing_edges": 0,
+      "glb_sha256": "66468850156649cf736ca8a22f3b7d1110e7d972cde75e1ec4defcf359656c39"
+    },
+    {
+      "tile": "x0_y3",
+      "lod": "2",
+      "source_boundary_vertices": 13,
+      "source_boundary_edges": 13,
+      "max_displacement_m": 9.5367431640625e-07,
+      "missing_edges": 0,
+      "glb_sha256": "66468850156649cf736ca8a22f3b7d1110e7d972cde75e1ec4defcf359656c39"
+    },
+    {
+      "tile": "x1_y-1",
+      "lod": "0",
+      "source_boundary_vertices": 10480,
+      "source_boundary_edges": 10401,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "2281458922b3f7d5ba32eafbf75cf1291283c92faa63fc2de1202114304252e8"
+    },
+    {
+      "tile": "x1_y-1",
+      "lod": "1",
+      "source_boundary_vertices": 10480,
+      "source_boundary_edges": 10401,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "090f6aba924c42aa8e91673dd3ee90e4a1aa03debd480c223456396c8e60bc68"
+    },
+    {
+      "tile": "x1_y-1",
+      "lod": "2",
+      "source_boundary_vertices": 10480,
+      "source_boundary_edges": 10401,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "d597918dbaaf7a935310298f287f6084f393599a352fa9b2b89bd7d52ee23e34"
+    },
+    {
+      "tile": "x1_y0",
+      "lod": "0",
+      "source_boundary_vertices": 17342,
+      "source_boundary_edges": 17299,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "7070f1aee8051bcd862f1b93e08a46c290641b7f304d45496ff94c5f79314543"
+    },
+    {
+      "tile": "x1_y0",
+      "lod": "1",
+      "source_boundary_vertices": 17342,
+      "source_boundary_edges": 17299,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "e0a388e5a3338d74ec02472b1ada936290fb38bc4f1f02d5c7e240af993d31b3"
+    },
+    {
+      "tile": "x1_y0",
+      "lod": "2",
+      "source_boundary_vertices": 17342,
+      "source_boundary_edges": 17299,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "3a92b2eb7d39445c68802c3bd62dd8ae4024149d94908d6962cf4b14a0862b64"
+    },
+    {
+      "tile": "x1_y1",
+      "lod": "0",
+      "source_boundary_vertices": 16451,
+      "source_boundary_edges": 16369,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "2a0fc130a3e31e0f0eee183b2f10a6a4533137277e379610c4057e86d5805961"
+    },
+    {
+      "tile": "x1_y1",
+      "lod": "1",
+      "source_boundary_vertices": 16451,
+      "source_boundary_edges": 16369,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "e27060295e2b288fdbc0f9c9ba5bcaae3c80741962adc856a3e7f58d3631553e"
+    },
+    {
+      "tile": "x1_y1",
+      "lod": "2",
+      "source_boundary_vertices": 16451,
+      "source_boundary_edges": 16369,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "7b1d3253f7708f4307aaa33c42080dc64dabea2c90bcbeb10e9706ff2617ea33"
+    },
+    {
+      "tile": "x1_y2",
+      "lod": "0",
+      "source_boundary_vertices": 15770,
+      "source_boundary_edges": 15747,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "7828b06b47aa1eed9fe58610f2b06fe4e545c2762300df1e2cc038f3f88cd4b7"
+    },
+    {
+      "tile": "x1_y2",
+      "lod": "1",
+      "source_boundary_vertices": 15770,
+      "source_boundary_edges": 15747,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "74022d6b29d605af1248dff95c1538276d665f19986cc58489d6173a1468f8d3"
+    },
+    {
+      "tile": "x1_y2",
+      "lod": "2",
+      "source_boundary_vertices": 15770,
+      "source_boundary_edges": 15747,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "35567bb93506c900581828cfe11cfb4c159d76adbbf3aab707e57390818a3221"
+    },
+    {
+      "tile": "x1_y3",
+      "lod": "0",
+      "source_boundary_vertices": 1509,
+      "source_boundary_edges": 1512,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "814f5182c84eed3b1ae78d6a41a15893488ab56f8f8c15cc9cfb5fff7bb68ce1"
+    },
+    {
+      "tile": "x1_y3",
+      "lod": "1",
+      "source_boundary_vertices": 1509,
+      "source_boundary_edges": 1512,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "c3fb1881eac9eb5e9bb1c446aecef91eec414592f18b3c06c88cb7095b5902a6"
+    },
+    {
+      "tile": "x1_y3",
+      "lod": "2",
+      "source_boundary_vertices": 1509,
+      "source_boundary_edges": 1512,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "c0acf737b644b72e676905927861ddefd1f1e0f9d652f4789262f5ca2fcae2e6"
+    },
+    {
+      "tile": "x2_y-1",
+      "lod": "0",
+      "source_boundary_vertices": 21065,
+      "source_boundary_edges": 21027,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "7d3b520a8c99734a428e14846d963227e240b487051747fa22e788c21e922e02"
+    },
+    {
+      "tile": "x2_y-1",
+      "lod": "1",
+      "source_boundary_vertices": 21065,
+      "source_boundary_edges": 21027,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "7ae94d8a77c8b380b665f2b393be5909921a1565349a2ce122c1d1bafcfc2520"
+    },
+    {
+      "tile": "x2_y-1",
+      "lod": "2",
+      "source_boundary_vertices": 21065,
+      "source_boundary_edges": 21027,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "13c4d713a9c72d68bd17813c219509bae5b7076d1659451d1877b704a051b954"
+    },
+    {
+      "tile": "x2_y0",
+      "lod": "0",
+      "source_boundary_vertices": 19122,
+      "source_boundary_edges": 19079,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "a02a02d719c75cd5c35a2694d08050d27180374d11f774f16524a7f90a6765f2"
+    },
+    {
+      "tile": "x2_y0",
+      "lod": "1",
+      "source_boundary_vertices": 19122,
+      "source_boundary_edges": 19079,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "155540908e499f91bdb43dcbf9ef4ea62861fed5a8e2b51984d2267857bdd691"
+    },
+    {
+      "tile": "x2_y0",
+      "lod": "2",
+      "source_boundary_vertices": 19122,
+      "source_boundary_edges": 19079,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "7bff00f95b2614b0f0843b7e73a0481dae730bd40c13106870d540025604b8f1"
+    },
+    {
+      "tile": "x2_y1",
+      "lod": "0",
+      "source_boundary_vertices": 20931,
+      "source_boundary_edges": 20904,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "a61de09670913531b7350463085daab9dee3a6165c9e8cd2fecd9662685fc8d4"
+    },
+    {
+      "tile": "x2_y1",
+      "lod": "1",
+      "source_boundary_vertices": 20931,
+      "source_boundary_edges": 20904,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "43b03dd319004122c654ebb23a8ebb83ff4f130ada565110bff8c0938991877b"
+    },
+    {
+      "tile": "x2_y1",
+      "lod": "2",
+      "source_boundary_vertices": 20931,
+      "source_boundary_edges": 20904,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "c59aa29f7f2e76822c3e1e4b4ffffc0b6d29af9faedbb9f4547ae350bd2ca310"
+    },
+    {
+      "tile": "x2_y2",
+      "lod": "0",
+      "source_boundary_vertices": 26943,
+      "source_boundary_edges": 26622,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "7070d0fd38c83afe24eee37be88ca1c05d5960c9a81fd33a0fdbce782324f2ca"
+    },
+    {
+      "tile": "x2_y2",
+      "lod": "1",
+      "source_boundary_vertices": 26943,
+      "source_boundary_edges": 26622,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "46d1faa939d07f65f1ab4f6e4d113883924bfc587db9dd6ff098ba5f74c141de"
+    },
+    {
+      "tile": "x2_y2",
+      "lod": "2",
+      "source_boundary_vertices": 26943,
+      "source_boundary_edges": 26622,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "23ddb0e0217bf6abea5c715dc68cd8458f4cf059ee22aff59199ebb285e726b8"
+    },
+    {
+      "tile": "x2_y3",
+      "lod": "0",
+      "source_boundary_vertices": 4717,
+      "source_boundary_edges": 4725,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "e9f4a951545a1dab463e6478a7484eb5597d86963c48f23b26fb00071ac3a5e1"
+    },
+    {
+      "tile": "x2_y3",
+      "lod": "1",
+      "source_boundary_vertices": 4717,
+      "source_boundary_edges": 4725,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "2674b499427a6dcb95a78ce832c514425624f7719576ef16b36b9393abb89209"
+    },
+    {
+      "tile": "x2_y3",
+      "lod": "2",
+      "source_boundary_vertices": 4717,
+      "source_boundary_edges": 4725,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "2674b499427a6dcb95a78ce832c514425624f7719576ef16b36b9393abb89209"
+    },
+    {
+      "tile": "x3_y-1",
+      "lod": "0",
+      "source_boundary_vertices": 3040,
+      "source_boundary_edges": 3046,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "7eb154940f1060036598763a8db046468b63661f5cffac1337e5bb3dd08176f0"
+    },
+    {
+      "tile": "x3_y-1",
+      "lod": "1",
+      "source_boundary_vertices": 3040,
+      "source_boundary_edges": 3046,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "91bc0ee5e2e74f50e19d5e27f115d244aa2b24096ae4dd6b210013502b05b37c"
+    },
+    {
+      "tile": "x3_y-1",
+      "lod": "2",
+      "source_boundary_vertices": 3040,
+      "source_boundary_edges": 3046,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "91bc0ee5e2e74f50e19d5e27f115d244aa2b24096ae4dd6b210013502b05b37c"
+    },
+    {
+      "tile": "x3_y0",
+      "lod": "0",
+      "source_boundary_vertices": 9820,
+      "source_boundary_edges": 9753,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "2a7dbfb3d75b9d0631389e2a8b90c89566f228ece8382d059e9d38f25d3e5a5d"
+    },
+    {
+      "tile": "x3_y0",
+      "lod": "1",
+      "source_boundary_vertices": 9820,
+      "source_boundary_edges": 9753,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "d058c5febadf2ac7675e4b0218066081ff2e904409439ce9a8bb3161d972aaf4"
+    },
+    {
+      "tile": "x3_y0",
+      "lod": "2",
+      "source_boundary_vertices": 9820,
+      "source_boundary_edges": 9753,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "fae0531764fd79356eb5d8367360ef75aa64d61d3ab8652f723dd3713522c40d"
+    },
+    {
+      "tile": "x3_y1",
+      "lod": "0",
+      "source_boundary_vertices": 11009,
+      "source_boundary_edges": 11003,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "0f7ab705044cb62b553a0d00cd90ccc1d1e609ba8acb1e30f76348f3f3a27e6e"
+    },
+    {
+      "tile": "x3_y1",
+      "lod": "1",
+      "source_boundary_vertices": 11009,
+      "source_boundary_edges": 11003,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "9e0ab3883f12f0cd25f16bfd9cf14149686232b99074eae7142383f40eeccf36"
+    },
+    {
+      "tile": "x3_y1",
+      "lod": "2",
+      "source_boundary_vertices": 11009,
+      "source_boundary_edges": 11003,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "b6eed4d906590ba2f029907751fc8fb2d4c0f535556ab7392c73b083e7d5e9f5"
+    },
+    {
+      "tile": "x3_y2",
+      "lod": "0",
+      "source_boundary_vertices": 10825,
+      "source_boundary_edges": 10760,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "5e4833d8a343c879df1b83809ee0db18c294e44fe07eeb31c73b398791b0bed2"
+    },
+    {
+      "tile": "x3_y2",
+      "lod": "1",
+      "source_boundary_vertices": 10825,
+      "source_boundary_edges": 10760,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "fb492f366a3401385ea8551f55e0166902fb6e9fe2d8e094403d0317c3998982"
+    },
+    {
+      "tile": "x3_y2",
+      "lod": "2",
+      "source_boundary_vertices": 10825,
+      "source_boundary_edges": 10760,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "4f673f40948c23f105869cdcb9bed61fec33dd3791f82d24685130d0e442a13f"
+    },
+    {
+      "tile": "x3_y3",
+      "lod": "0",
+      "source_boundary_vertices": 5610,
+      "source_boundary_edges": 5613,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "03becf2432233984b25232ad3c0ad8f64b3e2702ecde2f7c912a0d9634f4759b"
+    },
+    {
+      "tile": "x3_y3",
+      "lod": "1",
+      "source_boundary_vertices": 5610,
+      "source_boundary_edges": 5613,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "3bcc7f0a0de2c7e554d784e2ff81bb7c4a65ba75eb77cb780836d63e310d58b8"
+    },
+    {
+      "tile": "x3_y3",
+      "lod": "2",
+      "source_boundary_vertices": 5610,
+      "source_boundary_edges": 5613,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "3bcc7f0a0de2c7e554d784e2ff81bb7c4a65ba75eb77cb780836d63e310d58b8"
+    },
+    {
+      "tile": "x4_y-1",
+      "lod": "0",
+      "source_boundary_vertices": 151,
+      "source_boundary_edges": 152,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "7e9ae0e3739198643b621e182d40ecccaaec9ba2ef000aaf03e37a8539b1845f"
+    },
+    {
+      "tile": "x4_y-1",
+      "lod": "1",
+      "source_boundary_vertices": 151,
+      "source_boundary_edges": 152,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "7e9ae0e3739198643b621e182d40ecccaaec9ba2ef000aaf03e37a8539b1845f"
+    },
+    {
+      "tile": "x4_y-1",
+      "lod": "2",
+      "source_boundary_vertices": 151,
+      "source_boundary_edges": 152,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "7e9ae0e3739198643b621e182d40ecccaaec9ba2ef000aaf03e37a8539b1845f"
+    },
+    {
+      "tile": "x4_y0",
+      "lod": "0",
+      "source_boundary_vertices": 10704,
+      "source_boundary_edges": 10716,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "3359c56b2d19c3d244cd1ea31e020590541aed4177125598f63104c9efef3e94"
+    },
+    {
+      "tile": "x4_y0",
+      "lod": "1",
+      "source_boundary_vertices": 10704,
+      "source_boundary_edges": 10716,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "178b1b6829fa3d1a2b4f24dc00ec3debb1fda2c512039580f263454422522d6f"
+    },
+    {
+      "tile": "x4_y0",
+      "lod": "2",
+      "source_boundary_vertices": 10704,
+      "source_boundary_edges": 10716,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "4b0163f78ee9b8d32aaea8446f7bb699ed95317f1ed8aad3a95459bcbc3c30b5"
+    },
+    {
+      "tile": "x4_y1",
+      "lod": "0",
+      "source_boundary_vertices": 10395,
+      "source_boundary_edges": 10407,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "e33b7a7a14021ef15e2dc4afc9a06400231cf1741d069b1cf05d1fd056aef133"
+    },
+    {
+      "tile": "x4_y1",
+      "lod": "1",
+      "source_boundary_vertices": 10395,
+      "source_boundary_edges": 10407,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "ba404a998f653ace4540e1c59ae3185f3ab715e54faa7b88ab0cf2385eeda84a"
+    },
+    {
+      "tile": "x4_y1",
+      "lod": "2",
+      "source_boundary_vertices": 10395,
+      "source_boundary_edges": 10407,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "9360d63a893fed490bfee2b90d7a6dd4aa8455da9b2efc5958785b8c98b109e9"
+    },
+    {
+      "tile": "x5_y-1",
+      "lod": "0",
+      "source_boundary_vertices": 13360,
+      "source_boundary_edges": 13342,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "a8b32fe51566eb2201c84418da592f2cb3f0050270d43996323e850853c7689b"
+    },
+    {
+      "tile": "x5_y-1",
+      "lod": "1",
+      "source_boundary_vertices": 13360,
+      "source_boundary_edges": 13342,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "30ccda8927aba0c78736252776be59bd2820fbc8328afae41385f49e8cf5ab15"
+    },
+    {
+      "tile": "x5_y-1",
+      "lod": "2",
+      "source_boundary_vertices": 13360,
+      "source_boundary_edges": 13342,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "6d2486d4462a7d231bb28c9cd61675753efa433ea05334ed80fc202175a85cbe"
+    },
+    {
+      "tile": "x5_y0",
+      "lod": "0",
+      "source_boundary_vertices": 13662,
+      "source_boundary_edges": 13647,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "7aeead6a8180c30a2d8f43b54a7196238142d29094ef5a4b353b4999fcb8c8de"
+    },
+    {
+      "tile": "x5_y0",
+      "lod": "1",
+      "source_boundary_vertices": 13662,
+      "source_boundary_edges": 13647,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "1836b93d2b1823f0caa8d8c9967ae3273a263eedc189adca48374534acf32e20"
+    },
+    {
+      "tile": "x5_y0",
+      "lod": "2",
+      "source_boundary_vertices": 13662,
+      "source_boundary_edges": 13647,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "2a1ddfde478ac9a4cafc043ed904a158588db76a4c2a352994329295e0fbb2d4"
+    },
+    {
+      "tile": "x5_y1",
+      "lod": "0",
+      "source_boundary_vertices": 16985,
+      "source_boundary_edges": 16845,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "afcfb4aa12ef02684239fb161f00f2482b2c230fe83ad5a784e95b414e81ee2c"
+    },
+    {
+      "tile": "x5_y1",
+      "lod": "1",
+      "source_boundary_vertices": 16985,
+      "source_boundary_edges": 16845,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "98109af88eff6e15346f1401766cfa92a7b7fcb1aa8f7241ec2ad74181804fd0"
+    },
+    {
+      "tile": "x5_y1",
+      "lod": "2",
+      "source_boundary_vertices": 16985,
+      "source_boundary_edges": 16845,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "aa34414ad6d27f99211441822f6fb4de3c43dae899d5ddff0e54295d7648e45f"
+    },
+    {
+      "tile": "x5_y2",
+      "lod": "0",
+      "source_boundary_vertices": 15533,
+      "source_boundary_edges": 15530,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "27f3d200221f39b51e72261991f1860f725051a8362fcf4ba31498ec6f511634"
+    },
+    {
+      "tile": "x5_y2",
+      "lod": "1",
+      "source_boundary_vertices": 15533,
+      "source_boundary_edges": 15530,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "149c7dabdf4f0673483d9c80ad9a4648590d89fba61be5790c5f9d8f370fe20b"
+    },
+    {
+      "tile": "x5_y2",
+      "lod": "2",
+      "source_boundary_vertices": 15533,
+      "source_boundary_edges": 15530,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "8dcdba4315c525c640df87bc668e51a8395356c989b6b3ea5912f3dc213641da"
+    },
+    {
+      "tile": "x5_y3",
+      "lod": "0",
+      "source_boundary_vertices": 5068,
+      "source_boundary_edges": 5069,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "6e17ead0f401bb9ec4edd02069db774c517257edce9e637a8731f4da6e58bbf6"
+    },
+    {
+      "tile": "x5_y3",
+      "lod": "1",
+      "source_boundary_vertices": 5068,
+      "source_boundary_edges": 5069,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "cff2a64de4e34806e9427a3e6d42d031b31091d5833c3866808a2730f880da8e"
+    },
+    {
+      "tile": "x5_y3",
+      "lod": "2",
+      "source_boundary_vertices": 5068,
+      "source_boundary_edges": 5069,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "34d3b70c0f3cd2909f44c0591b21d58931fafd1b745abba899c8ddaeed9cdac0"
+    },
+    {
+      "tile": "x6_y-1",
+      "lod": "0",
+      "source_boundary_vertices": 9455,
+      "source_boundary_edges": 9448,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "6023e3babf7fd698466f749ab8e1704622f455ed14dc8a1fba0cb13553cec29e"
+    },
+    {
+      "tile": "x6_y-1",
+      "lod": "1",
+      "source_boundary_vertices": 9455,
+      "source_boundary_edges": 9448,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "a9e9a46048beb95930fc45de89b96b40b8f7926ec1a6c78b2133078bbc07cd78"
+    },
+    {
+      "tile": "x6_y-1",
+      "lod": "2",
+      "source_boundary_vertices": 9455,
+      "source_boundary_edges": 9448,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "eab499b80541c3636dfc19943c0d10cb1e6fe09c840a18b02d18833b326a21e2"
+    },
+    {
+      "tile": "x6_y0",
+      "lod": "0",
+      "source_boundary_vertices": 21202,
+      "source_boundary_edges": 21105,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "374aea6e80d5dce9d7e53aa0b9606b21bdb800aed64be877c47cbce7d9c1272c"
+    },
+    {
+      "tile": "x6_y0",
+      "lod": "1",
+      "source_boundary_vertices": 21202,
+      "source_boundary_edges": 21105,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "c5f4e18f323aac7a7e1755133c3ba7480fe2dd7a25d65697c7c8288f89bafe73"
+    },
+    {
+      "tile": "x6_y0",
+      "lod": "2",
+      "source_boundary_vertices": 21202,
+      "source_boundary_edges": 21105,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "e32f4a0738c6b7168868a7516809785ac45d8fd1741ce873ffbd4e4a9d02e16c"
+    },
+    {
+      "tile": "x6_y1",
+      "lod": "0",
+      "source_boundary_vertices": 20564,
+      "source_boundary_edges": 20497,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "2e18c24d2685a0a0c3e7faf5cf682866e3ef3237979f2f939eec3cae2533cbad"
+    },
+    {
+      "tile": "x6_y1",
+      "lod": "1",
+      "source_boundary_vertices": 20564,
+      "source_boundary_edges": 20497,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "09a164c3699683065f8ff42f446baf22b1bf43743cadc772b48c594b6fca9b86"
+    },
+    {
+      "tile": "x6_y1",
+      "lod": "2",
+      "source_boundary_vertices": 20564,
+      "source_boundary_edges": 20497,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "388dcae4a2a749833a6db8e42c177ad42a696d8cbb8b41842bb4245e65d5875d"
+    },
+    {
+      "tile": "x6_y2",
+      "lod": "0",
+      "source_boundary_vertices": 12984,
+      "source_boundary_edges": 12948,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "b4c61bb9c06f5fa4ffd1d75823aa3abdf8d5c051b4b31f0f8ff14043fcd8f545"
+    },
+    {
+      "tile": "x6_y2",
+      "lod": "1",
+      "source_boundary_vertices": 12984,
+      "source_boundary_edges": 12948,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "3a972c02683046f9e6a0194d98fe3c6a4520d2ec7758a779cc875058c5dd7af9"
+    },
+    {
+      "tile": "x6_y2",
+      "lod": "2",
+      "source_boundary_vertices": 12984,
+      "source_boundary_edges": 12948,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "f0a91efb914d1ac8b6e5e44165f4cd1b614504350374fad64adb1953e62a6da6"
+    },
+    {
+      "tile": "x6_y3",
+      "lod": "0",
+      "source_boundary_vertices": 4544,
+      "source_boundary_edges": 4539,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "b6238ae44dac3e25b0193580db06b3dab6d9046f3ccb09af6bb1c962a12ab629"
+    },
+    {
+      "tile": "x6_y3",
+      "lod": "1",
+      "source_boundary_vertices": 4544,
+      "source_boundary_edges": 4539,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "d04745921925b3d1aab7830549a316764eab63f31aca40f3c466ee4e9c4e6b85"
+    },
+    {
+      "tile": "x6_y3",
+      "lod": "2",
+      "source_boundary_vertices": 4544,
+      "source_boundary_edges": 4539,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "b06489ded16a759b63da877557cc6cb9cdb7e7a2894bdf8f504bfb407ba238f3"
+    },
+    {
+      "tile": "x7_y0",
+      "lod": "0",
+      "source_boundary_vertices": 6,
+      "source_boundary_edges": 6,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "a950f4c4751c7d2eaca575fd7f1162a93a8da410fe7cdf2655ef51b9920b599d"
+    },
+    {
+      "tile": "x7_y0",
+      "lod": "1",
+      "source_boundary_vertices": 6,
+      "source_boundary_edges": 6,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "a950f4c4751c7d2eaca575fd7f1162a93a8da410fe7cdf2655ef51b9920b599d"
+    },
+    {
+      "tile": "x7_y0",
+      "lod": "2",
+      "source_boundary_vertices": 6,
+      "source_boundary_edges": 6,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "a950f4c4751c7d2eaca575fd7f1162a93a8da410fe7cdf2655ef51b9920b599d"
+    },
+    {
+      "tile": "x7_y1",
+      "lod": "0",
+      "source_boundary_vertices": 3,
+      "source_boundary_edges": 3,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "6a604754a2a8636c0dfb2951a328d35ff9a1841bedea697f9ba5c987a0346c1e"
+    },
+    {
+      "tile": "x7_y1",
+      "lod": "1",
+      "source_boundary_vertices": 3,
+      "source_boundary_edges": 3,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "6a604754a2a8636c0dfb2951a328d35ff9a1841bedea697f9ba5c987a0346c1e"
+    },
+    {
+      "tile": "x7_y1",
+      "lod": "2",
+      "source_boundary_vertices": 3,
+      "source_boundary_edges": 3,
+      "max_displacement_m": 0.0,
+      "missing_edges": 0,
+      "glb_sha256": "6a604754a2a8636c0dfb2951a328d35ff9a1841bedea697f9ba5c987a0346c1e"
+    }
+  ]
+}
