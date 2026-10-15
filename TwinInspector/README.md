@@ -2,7 +2,15 @@
 
 Mixed-reality inspection of the LaMAR HGE NavVis scan on Samsung Galaxy XR. Mouse-first Editor inspection, bare-hand Galaxy XR interaction, optional controllers, marker/manual registration, persistent anchors, three comparison views and spatial discrepancy annotations. Unity 6000.3.26f1, URP, OpenXR, Android XR and glTFast.
 
-**Build and device status:** [TwinInspector 0.1.0 APK](Builds/TwinInspector-0.1.0.apk) builds successfully for ARM64, with zero build errors and zero Android OpenXR validation issues. The hall data and Editor workflows are verified. No headset is connected, so device FPS, physical tracking and anchor relocalization remain unverified. See [docs/DEVLOG.md](docs/DEVLOG.md) for evidence and remaining device checks. APKs are local build outputs and are intentionally excluded from git.
+**Build and device status:** [Download the test APK](https://github.com/Haizhouzhou/MixedReality/raw/refs/heads/main/TwinInspector/Builds/TwinInspector-0.1.0.apk). This ARM64 build contains the v1.1 implementation, with zero build errors and zero Android OpenXR validation issues. The hall data and Editor workflows are verified. Physical tracking, headset FPS and anchor relocalization still require device acceptance. See [docs/DEVLOG.md](docs/DEVLOG.md) for evidence and remaining device checks.
+
+## Download for teammate testing
+
+Repository members can download the APK above while signed into GitHub, or obtain it by cloning/pulling this private repository. It is **66,014,471 bytes (62.96 MiB)** and was built from application source commit `55d82ce`. The Android package version and filename remain `0.1.0`; the implementation is TwinInspector v1.1. The APK contains the 32-tile hall demo, so a first headset test does not require the external dataset or a local Unity build.
+
+SHA-256: `23e08596c75b053ca28634cab7a8bb326e3bec14d3c6d08608fa80f21ff2b189`.
+
+Download to `TwinInspector/Builds/TwinInspector-0.1.0.apk` and follow [Build, install and launch](#build-install-and-launch) from the install commands onward. Adjust the example Unity SDK/ADB paths for your computer. This APK is the sole exception to the ignored build outputs; raw scans, full external datasets, caches and other builds remain excluded.
 
 ## Prepare the data
 

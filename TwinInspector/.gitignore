@@ -107,3 +107,8 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# Shared test APK explicitly published for teammates; other build outputs stay ignored.
+!/Builds/
+/Builds/*
+!/Builds/TwinInspector-0.1.0.apk

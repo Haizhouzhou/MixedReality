@@ -107,3 +107,8 @@ All device performance, passthrough, physical marker alignment and anchor reloca
 - The APK includes exactly **32 LOD2 GLBs**, each matching the regenerated source hash, no higher-detail GLBs, and **14,048,147 bytes** of uncompressed fallback data. The full 45-tile Region A remains available externally; lower LOD targets yield to exact boundary preservation.
 - Acceptance evidence: **8/8 Unity tests**, **8/8 Python tests**, additional seam-proof tamper regression, actual queued mouse/keyboard Play-mode checks, all 135 Region A exported-edge checks, and seven hall/panel captures plus reticle and annotation close-ups. See `docs/evidence/` and `docs/screenshots/`.
 - Final `adb devices -l` remains empty. Physical Galaxy XR pinch/poke, palm anchoring, controller pickup, world-drag, marker tracking, anchor relocalization and device frame rate require headset acceptance; no hardware result is inferred from Editor tests.
+
+### Shared APK for teammate testing
+
+- At the owner's request, added the verified `Builds/TwinInspector-0.1.0.apk` to the private GitHub repository and linked it from the README. Its 66,014,471 bytes are below GitHub's 100 MiB Git-file limit. This is an explicit exception to the original build-output exclusion; all other build outputs and external data remain ignored.
+- The binary and SHA-256 are unchanged from the accepted v1.1 build above. Android package version remains 0.1.0; application source is commit `55d82ce`. Repository access is required to download it. Physical headset verification remains outstanding.
