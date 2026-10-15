@@ -53,3 +53,11 @@ All device performance, passthrough, physical marker alignment and anchor reloca
 - Final Editor compilation: **0 errors / 0 warnings**. Six EditMode tests passed again in 0.54 seconds. Android OpenXR validation: **0 issues**. The CLI console history retains a resolved earlier QA raycast exception; the final live Unity console reports zero errors/warnings.
 - Paused only the identified Region B worker to give the first Android build sufficient RAM. Tile checkpoints are retained. On this 16 GB machine, simultaneous full Unity recompilation and mesh reduction caused paging; run large build and reduction stages sequentially.
 - Device results remain unavailable: no authorized headset is connected. No device FPS, permission-prompt, passthrough, physical marker, controller/hand interaction or persistent-anchor relocalization result is claimed.
+
+### Android build compatibility
+
+- The first full Vulkan/ARM64 IL2CPP compilation reached Gradle packaging. Both installed XR packages injected `android.software.xr.api.spatial`, with versions 1 and 3, into the same generated library manifest; Gradle rejected the duplicate feature. OpenXR Project Validation does not detect this package overlap.
+- Added post-generation normalization of duplicate XR features, permissions and native-library declarations, preserving the highest feature version and required capabilities. The package versions and Unsafe compatibility assembly remain unchanged.
+- Unity became unresponsive after the confirmed Gradle failure. Restarted only the task's Editor and restored the two AR Foundation simulation assets from its temporary build folder, preserving their contents and GUIDs. Native compiler outputs and downloaded dependencies remain cached for the retry.
+- Independently inspected the Android stripped assembly: all nine JSON DTOs retain public fields and default constructors. The installed Android XR documentation confirms the runtime CPU/GPU metric names used by PerfHud.
+- Recovery UI inspection could not proceed because Computer Use app approval timed out. Preserved the scene backup under `work/scene_recovery_20261015` and reopened via the Unity CLI in batch mode. The normalization fixture passes, including idempotence and retaining spatial API version 3. Fresh compilation has no errors and Android OpenXR validation remains at zero issues.

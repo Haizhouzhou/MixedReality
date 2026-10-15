@@ -1,0 +1,12 @@
+var file="Temp/twin-manifest-merge-test.xml";
+System.IO.File.WriteAllText(file,"<manifest xmlns:android='http://schemas.android.com/apk/res/android'><application><uses-native-library android:name='libopenxr.google.so' android:required='false'/><uses-native-library android:name='libopenxr.google.so' android:required='false'/></application><uses-feature android:name='android.software.xr.api.spatial' android:version='1' android:required='true'/><uses-feature android:name='android.software.xr.api.spatial' android:version='3' android:required='true'/><uses-permission android:name='android.permission.HAND_TRACKING'/><uses-permission android:name='android.permission.HAND_TRACKING'/></manifest>");
+TwinInspector.Editor.AndroidPermissions.NormalizeXrManifest(file);
+var document=new System.Xml.XmlDocument(); document.Load(file);
+if(document.SelectNodes("/manifest/uses-feature").Count!=1 || document.SelectSingleNode("/manifest/uses-feature").Attributes["version","http://schemas.android.com/apk/res/android"].Value!="3") throw new System.Exception("Spatial API version merge failed");
+if(document.SelectNodes("/manifest/uses-permission").Count!=1 || document.SelectNodes("/manifest/application/uses-native-library").Count!=1) throw new System.Exception("Duplicate declaration merge failed");
+var first=System.IO.File.ReadAllText(file); TwinInspector.Editor.AndroidPermissions.NormalizeXrManifest(file);
+if(first!=System.IO.File.ReadAllText(file)) throw new System.Exception("Manifest normalization is not idempotent");
+System.IO.File.Delete(file);
+var result="PASS: duplicate XR features, permissions and native libraries merged; highest spatial API version retained; normalization idempotent.";
+System.IO.File.WriteAllText("docs/evidence/android-manifest-merge.txt",result);
+return result;

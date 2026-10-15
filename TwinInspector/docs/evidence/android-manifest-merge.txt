@@ -1,0 +1,1 @@
+PASS: duplicate XR features, permissions and native libraries merged; highest spatial API version retained; normalization idempotent.
