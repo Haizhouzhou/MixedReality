@@ -1740,8 +1740,8 @@ MonoBehaviour:
   required: 0
   customRuntimeLoaderName: 
   _client: 0
-  _autoStartOnPlay: 1
-  _autoStopOnExit: 1
+  _autoStartOnPlay: 0
+  _autoStopOnExit: 0
 --- !u!114 &4303699805268759340
 MonoBehaviour:
   m_ObjectHideFlags: 0

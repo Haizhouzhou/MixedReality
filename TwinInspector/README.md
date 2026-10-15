@@ -2,7 +2,7 @@
 
 Mixed-reality inspection of the LaMAR HGE NavVis scan on Samsung Galaxy XR. The v1 scope is CPU mesh decimation, marker/manual registration, persistent anchors, three comparison views and spatial discrepancy annotations. Unity 6000.3.26f1, URP, OpenXR, Android XR and glTFast.
 
-**Build and device status:** implementation is in progress. Consult [docs/DEVLOG.md](docs/DEVLOG.md) for verified results. Do not infer a headset performance result from an Editor test.
+**Build and device status:** [TwinInspector 0.1.0 APK](Builds/TwinInspector-0.1.0.apk) builds successfully for ARM64, with zero build errors and zero Android OpenXR validation issues. The hall data and Editor workflows are verified. No headset is connected, so device FPS, physical tracking and anchor relocalization remain unverified. See [docs/DEVLOG.md](docs/DEVLOG.md) for evidence and remaining device checks. APKs are local build outputs and are intentionally excluded from git.
 
 ## Prepare the data
 
