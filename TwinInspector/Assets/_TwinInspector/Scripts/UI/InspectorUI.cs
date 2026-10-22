@@ -18,6 +18,8 @@ namespace TwinInspector
         bool coarse, busy, subscribed;
         ToolStrip spatialStrip;
         float nextRefresh;
+        readonly HashSet<string> freshAnnotations=new HashSet<string>();
+        string lastDiffSignature;
         public string Page => page;
         public PanelBase Panel => panel;
 
@@ -40,10 +42,18 @@ namespace TwinInspector
             app.Placer.Placed += AnnotationPlaced;
             app.Placer.Feedback += Notify;
             app.Markers.Changed += MarkerChanged;
+            app.Diff.Changed += DiffChanged;
             subscribed = true;
         }
         void AnnotationChanged() { if (page == "list" || page == "picker") Render(); }
-        void AnnotationPlaced() { app.Placer.Active = false; Show("picker"); }
+        void AnnotationPlaced() { app.Placer.Active = false; if(app.Annotations.Selected!=null)freshAnnotations.Add(app.Annotations.Selected.id); Show("picker"); }
+        void DiffChanged()
+        {
+            string signature=app.Diff.Visible+":"+app.Diff.Selected?.id+":"+app.Diff.Candidates.Count;
+            foreach(var c in app.Diff.Candidates)signature+="/"+c.id;
+            if(signature==lastDiffSignature)return;lastDiffSignature=signature;
+            if(page=="list"||page=="picker"||page=="display")Render();
+        }
         void MarkerChanged() { if (page == "marker") Render(); }
         public void Notify(string message) { if (panel) panel.Notify(message); }
         public void Show(string target)
@@ -106,7 +116,7 @@ namespace TwinInspector
             panel.Button(L.Get("Manual alignment"),24,168,208,() => Show("align"));
             panel.Button(L.Get("Preferences"),248,168,208,() => Show("preferences"));
             panel.Button(L.Get("View modes"),24,248,208,() => Show("mode"),true);
-            panel.Button(L.Get("Diagnostics"),248,248,208,() => Show("diagnostics"));
+            panel.Button(L.Get("Guide"),248,248,208,() => Show("guide"));
         }
         void ViewPage()
         {
@@ -122,17 +132,21 @@ namespace TwinInspector
         }
         void DisplayPage()
         {
-            panel.Header(L.Get("01 / Mode"),L.Get("Opacity and Lens"),app.Style.LensActive?L.Get("LENS ACTIVE"):L.Get("LENS OFF"));
+            panel.Header(L.Get("01 / Mode"),L.Get("Opacity and Lens"),L.Format("L{0} · D{1}",app.Style.LensActive?"+":"−",app.Diff.Visible?"+":"−"));
             panel.Text(L.Get("Twin opacity"),24,104,432,24); panel.Slider(app.Style.Blend,app.Style.SetBlend,128);
             panel.Text(L.Get("Lens radius"),24,184,432,24); panel.Slider(app.Style.LensRadius,app.Style.SetLensRadius,208,.5f,5," m");
-            panel.Button(L.Get("Back"),24,264,432,()=>Show("mode"));
+            panel.Button(L.Get("Diff on"),24,264,144,()=>app.Diff.Visible=true,app.Diff.Visible);
+            panel.Button(L.Get("Diff off"),168,264,144,()=>app.Diff.Visible=false,!app.Diff.Visible);
+            panel.Button(L.Get("Back"),312,264,144,()=>Show("mode"));
         }
         void PreferencesPage()
         {
             panel.Header(L.Get("00 / Setup"),L.Get("Preferences"),L.Get("DOMINANT HAND"));
             panel.Button(L.Get("Left hand"),24,104,208,()=>{ InteractionPreferences.LeftHand=true; Render(); },InteractionPreferences.LeftHand);
             panel.Button(L.Get("Right hand"),248,104,208,()=>{ InteractionPreferences.LeftHand=false; Render(); },!InteractionPreferences.LeftHand);
-            panel.Text(L.Get("Either available hand can summon and operate.\nPalm up briefly, then turn over to point."),24,168,432,56,18);
+            panel.Button(L.Get("Diagnostics"),24,168,208,()=>Show("diagnostics"));
+            panel.Button(L.Get("Language"),248,168,208,()=>Show("language"));
+            panel.Text(L.Get("EITHER HAND CAN SUMMON AND OPERATE"),24,224,432,20,DesignTokens.Label);
             panel.Button(L.Get("Feedback sound"),24,248,208,()=>Show("sound"));
             panel.Button(L.Get("Recenter / back"),248,248,208,()=>{ Show("setup"); Summon(); });
         }
@@ -197,19 +211,26 @@ namespace TwinInspector
         void PickerPage()
         {
             var item=app.Annotations.Selected;
-            panel.Header(L.Get("03 / Annotate"),item==null ? L.Get("Choose a surface") : L.Format("Annotation {0:D2}",item.index));
+            var candidate=app.Diff.Selected;
+            panel.Header(L.Get("03 / Annotate"),candidate!=null?L.Get("Candidate"):item==null ? L.Get("Choose a surface") : L.Format("Annotation {0:D2}",item.index),candidate==null?"":L.Format("{0:F1} m² · {1:F1} m",candidate.area_m2,Vector3.Distance(app.Viewer.transform.position,candidate.CentroidWorld(app.Root))));
             for(int i=0;i<4;i++)
-            { var type=(AnnotationType)i; var button=panel.Button(AnnotationTypes.Prefix(type),24+(i%2)*224,104+(i/2)*64,208,() => { app.Annotations.Retype(type); },item?.type==type.ToString().ToLowerInvariant());
+            { var type=(AnnotationType)i; var button=panel.Button(AnnotationTypes.Prefix(type),24+(i%2)*224,104+(i/2)*64,208,() => { if(app.Diff.Selected!=null){app.Diff.PendingType=type;Render();}else app.Annotations.Retype(type); },candidate!=null?app.Diff.PendingType==type:item?.type==type.ToString().ToLowerInvariant());
                 var text=button.GetComponentInChildren<TMP_Text>(); text.fontSize=16; text.rectTransform.anchoredPosition=new Vector2(48,-8); text.rectTransform.sizeDelta=new Vector2(150,32);
                 var glyph=PanelBase.Rectangle("Type glyph",button.transform,10,10,28,28).gameObject.AddComponent<AnnotationGlyph>(); glyph.Kind=type; glyph.raycastTarget=false; }
+            if(candidate!=null)
+            {
+                panel.Button(L.Get("Dismiss"),24,248,208,()=>{app.Diff.Dismiss();Show("list");});
+                panel.Button(L.Get("Confirm"),248,248,208,()=>{app.Diff.Confirm();Show("list");},true);return;
+            }
             panel.Button(L.Get("List"),24,248,208,() => Show("list"));
             panel.Button(L.Get("Done"),248,248,208,() => { app.Placer.Active=false; Show("setup"); },true);
         }
         void ListPage()
         {
-            panel.Header(L.Get("04 / List"),L.Get("Annotations"),L.Format("{0:D2} items",app.Annotations.Items.Count));
-            var rows=panel.Scroll(app.Annotations.Items.Count*56);
-            if(app.Annotations.Items.Count==0) panel.Text(L.Get("Select Annotate to mark a surface."),0,0,432,56,parent:rows);
+            int candidateCount=app.Diff.Candidates.Count;
+            panel.Header(L.Get("04 / List"),L.Get("Annotations"),L.Format("{0:D2} ITEMS · {1:D2} CAND",app.Annotations.Items.Count,candidateCount));
+            var rows=panel.Scroll((app.Annotations.Items.Count+candidateCount)*56);
+            if(app.Annotations.Items.Count+candidateCount==0) panel.Text(L.Get("Select Annotate to mark a surface."),0,0,432,56,parent:rows);
             int n=0;
             foreach(var item in app.Annotations.Items)
             {
@@ -218,6 +239,12 @@ namespace TwinInspector
                 panel.Row($"{item.index:D2}  {AnnotationTypes.Prefix(item.Kind)}   {distance:F1} m\n{L.Get(item.label)}",n*56,() => { app.Annotations.Select(captured.id); LookAt(captured); },app.Annotations.Selected==item,rows);
                 var row=rows.GetChild(rows.childCount-1); var text=row.GetComponentInChildren<TMP_Text>(); text.fontSize=15; text.rectTransform.anchoredPosition=new Vector2(48,-7); text.rectTransform.sizeDelta=new Vector2(372,44);
                 var glyph=PanelBase.Rectangle("Type glyph",row,10,14,28,28).gameObject.AddComponent<AnnotationGlyph>(); glyph.Kind=item.Kind; glyph.raycastTarget=false; n++;
+            }
+            foreach(var candidate in app.Diff.Candidates)
+            {
+                var captured=candidate;float distance=Vector3.Distance(app.Viewer.transform.position,candidate.CentroidWorld(app.Root));
+                panel.Row(L.Format("?? {0}   {1:F1} m\ncandidate · {2:F1} m²",AnnotationTypes.Prefix(candidate.Type),distance,candidate.area_m2),n++*56,()=>{app.Diff.Select(captured);LookAt(captured.CentroidWorld(app.Root),L.Get("Candidate"));Show("picker");},app.Diff.Selected==candidate,rows);
+                var text=rows.GetChild(rows.childCount-1).GetComponentInChildren<TMP_Text>();text.fontSize=15;text.rectTransform.anchoredPosition=new Vector2(12,-7);text.rectTransform.sizeDelta=new Vector2(408,44);
             }
             if(app.Annotations.Selected!=null)
             {
@@ -229,10 +256,12 @@ namespace TwinInspector
             panel.Button(L.Get("Export"),312,248,144,() => { AnnotationExporter.Export(app.Annotations); Notify(L.Get("JSON and CSV saved in Exports")); },true);
         }
         void LookAt(Annotation item)
+            => LookAt(app.Root.TwinToWorld(TwinRoot.Vector(item.position_twin)),L.Format("Annotation {0:D2}",item.index));
+        void LookAt(Vector3 point,string name)
         {
-            var local=app.Viewer.transform.InverseTransformPoint(app.Root.TwinToWorld(TwinRoot.Vector(item.position_twin)));
+            var local=app.Viewer.transform.InverseTransformPoint(point);
             string direction=local.z<0 ? L.Get("↓ Behind you") : Mathf.Abs(local.x)>.5f ? (local.x<0 ? L.Get("← Left") : L.Get("→ Right")) : L.Get("↑ Ahead");
-            Notify(direction+" · "+L.Format("Annotation {0:D2}",item.index));
+            Notify(direction+" · "+name);
         }
         void DiagnosticsPage()
         {
@@ -260,6 +289,7 @@ namespace TwinInspector
         void OnDestroy()
         {
             L.Changed -= LanguageChanged;
+            if(app&&app.Diff)app.Diff.Changed-=DiffChanged;
             if(subscribed && app) { if(app.Annotations!=null) app.Annotations.Changed-=AnnotationChanged; if(app.Placer) { app.Placer.Placed-=AnnotationPlaced; app.Placer.Feedback-=Notify; } if(app.Markers) app.Markers.Changed-=MarkerChanged; }
             if(panel) Destroy(panel.gameObject); if(strip) Destroy(strip.gameObject);
         }

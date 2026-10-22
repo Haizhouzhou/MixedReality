@@ -116,6 +116,7 @@ namespace TwinInspector
             scheduledFrame=Time.frameCount;pending=true;jobClock.Restart();
             if(observed){handle=OverlapSphereCommand.ScheduleBatch(overlaps.GetSubArray(0,batchCount),overlapHits.GetSubArray(0,batchCount),32,1);ScheduledOverlaps=batchCount;}
             else {handle=RaycastCommand.ScheduleBatch(rays.GetSubArray(0,batchCount),rayHits.GetSubArray(0,batchCount),32,1);ScheduledRays=batchCount;}
+            JobHandle.ScheduleBatchedJobs();
         }
         public void Dispose()
         {

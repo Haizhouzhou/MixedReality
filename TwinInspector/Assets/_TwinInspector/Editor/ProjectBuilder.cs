@@ -57,6 +57,7 @@ namespace TwinInspector.Editor
             Set(tokens,"annotationMaterial",Material("Annotation","TwinInspector/Annotation"));
             Set(tokens,"gridMaterial",Material("FloorGrid","TwinInspector/FloorGrid"));
             Set(tokens,"edgeMaterial",Material("ArchitecturalEdges","TwinInspector/ArchitecturalEdges"));
+            Set(tokens,"diffPatchMaterial",Material("DiffPatch","TwinInspector/DiffPatch"));
             var ink=Material("Ink","Universal Render Pipeline/Unlit"); ink.SetColor("_BaseColor",tokens.Ink); Set(tokens,"inkMaterial",ink);
             var paper=new GameObject("PanelBase",typeof(RectTransform),typeof(Canvas),typeof(CanvasGroup),typeof(Image),typeof(TrackedDeviceGraphicRaycaster),typeof(PanelBase));
             paper.layer=5;

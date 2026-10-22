@@ -16,6 +16,9 @@ namespace TwinInspector
         DesignTokens tokens;
         bool selected,hovered;
         float displayDiameter=.04f;
+        AnnotationRegion lastRegion;
+        AnnotationType regionType;
+        RegionPatch regionPatch;
         public string Id { get; private set; }
         public Vector3 AnchorPosition => transform.position;
         public float SelectionDiameter { get; private set; }
@@ -49,8 +52,27 @@ namespace TwinInspector
             var normal=TwinRoot.SwapYZ(TwinRoot.Vector(item.normal_twin)).normalized;
             transform.localPosition=root.ToLocal(TwinRoot.Vector(item.position_twin))+normal*.003f;
             transform.localRotation=Quaternion.LookRotation(-normal,Mathf.Abs(Vector3.Dot(normal,Vector3.up))>.95f?Vector3.forward:Vector3.up);
-            properties.SetColor("_Color",AnnotationTypes.Colour(kind).linear); properties.SetFloat("_Kind",(int)kind); disc.SetPropertyBlock(properties);
+            properties.SetColor("_Color",AnnotationTypes.Colour(kind).linear); properties.SetFloat("_Kind",(int)kind); properties.SetFloat("_Candidate",0); disc.SetPropertyBlock(properties);
             label.text=item.index.ToString("D2")+"  "+AnnotationTypes.Prefix(kind); Paint();
+            if(lastRegion!=item.region||regionType!=kind)
+            {
+                lastRegion=item.region;regionType=kind;
+                if(lastRegion?.hull_twin!=null)
+                {
+                    if(!regionPatch){regionPatch=new GameObject("Confirmed region").AddComponent<RegionPatch>();regionPatch.transform.SetParent(transform,false);}
+                    var hull=System.Array.ConvertAll(lastRegion.hull_twin,TwinRoot.Vector);
+                    regionPatch.Build(null,null,null,hull,transform.worldToLocalMatrix*root.WorldToTwinMatrix.inverse,design.DiffPatchMaterial,kind,.25f,256);
+                }
+                else if(regionPatch)Destroy(regionPatch.gameObject);
+            }
+        }
+        public void UpdateCandidate(Candidate item,bool isSelected,TwinRoot root,DesignTokens design)
+        {
+            Construct(design);properties??=new MaterialPropertyBlock();Id=item.id;kind=item.Type;selected=isSelected;
+            var normal=item.space==CandidateSpace.World?TwinRoot.Vector(item.normal):root.NormalToWorld(TwinRoot.Vector(item.normal));
+            transform.SetPositionAndRotation(item.CentroidWorld(root)+normal*.003f,Quaternion.LookRotation(-normal,Mathf.Abs(Vector3.Dot(normal,Vector3.up))>.95f?Vector3.forward:Vector3.up));
+            properties.SetColor("_Color",AnnotationTypes.Colour(kind).linear);properties.SetFloat("_Kind",(int)kind);properties.SetFloat("_Candidate",1);disc.SetPropertyBlock(properties);
+            label.text=L.Format("?? {0} · {1:F1} m²",AnnotationTypes.Prefix(kind),item.area_m2);label.enableAutoSizing=true;label.fontSizeMin=14;label.fontSizeMax=18;Paint();
         }
         public void Hover(bool value) { if(hovered==value) return; hovered=value; Paint(); }
         void Paint()

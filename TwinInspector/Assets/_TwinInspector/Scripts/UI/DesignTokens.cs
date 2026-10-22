@@ -13,6 +13,8 @@ namespace TwinInspector
         [SerializeField] GameObject panelPrefab, annotationPrefab;
         [SerializeField] Material twinMaterial, annotationMaterial, inkMaterial, gridMaterial;
         [SerializeField] Material edgeMaterial;
+        [SerializeField] Material diffPatchMaterial;
+        public Material DiffPatchMaterial => diffPatchMaterial;
         public Material EdgeMaterial => edgeMaterial;
         public Color Ink => ink; public Color Paper => paper; public Color Paper2 => paper2; public Color Muted => muted; public Color Accent => accent; public Color TwinTint => twinTint;
         public TMP_FontAsset Regular => regular; public TMP_FontAsset Medium => medium; public TMP_FontAsset Semibold => semibold;

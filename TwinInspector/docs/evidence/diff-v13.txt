@@ -1,0 +1,16 @@
+PASS: all patch geometry <=50000 triangles
+PASS: visible control ?? [+] NEW   5.1 m
+candidate · 4.1 m²
+PASS: candidate selected through list row
+PASS: visible control Confirm
+PASS: UI Confirm creates region annotation and returns to list
+PASS: confirmed region survives reload
+PASS: visible control Dismiss
+PASS: UI Dismiss persists suppression
+PASS: visible control Diff off
+PASS: Diff off UI control
+PASS: visible control Diff on
+PASS: Diff on UI control
+PASS: re-evaluation completes
+PASS: dismissal survives forced re-evaluation
+Editor only; assertPatches=False; physical hand/headset acceptance remains unverified.

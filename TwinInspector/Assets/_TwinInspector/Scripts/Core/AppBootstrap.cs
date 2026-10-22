@@ -104,6 +104,7 @@ namespace TwinInspector
                 Performance = gameObject.AddComponent<PerfHud>(); Performance.Initialize(Loader,settings);
                 if(!Application.isEditor) {var source=gameObject.AddComponent<SceneSurfaceSource>();source.Initialize(meshManager);SceneSource=source;}
                 Diff=gameObject.AddComponent<DiffEngine>();Diff.Initialize(this);
+                gameObject.AddComponent<CandidateVisuals>().Initialize(this);
                 Ready = true; Status = Loader.Manifest.demo ? "Built-in hall · low detail" : "Region A · external data";
                 EnsureUI(); UI.Show("setup");
                 DevLog.Write("Ready: "+Status);

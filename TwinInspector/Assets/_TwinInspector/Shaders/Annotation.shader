@@ -1,6 +1,6 @@
 Shader "TwinInspector/Annotation"
 {
-    Properties { _Color("Type colour",Color)=(1,0,0,1) _Kind("Type",Float)=0 _Selected("Selected",Float)=0 }
+    Properties { _Color("Type colour",Color)=(1,0,0,1) _Kind("Type",Float)=0 _Selected("Selected",Float)=0 _Candidate("Candidate",Float)=0 }
     SubShader
     {
         Tags { "RenderPipeline"="UniversalPipeline" "Queue"="Transparent+10" "RenderType"="Transparent" }
@@ -14,7 +14,7 @@ Shader "TwinInspector/Annotation"
             #pragma multi_compile_instancing
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             CBUFFER_START(UnityPerMaterial)
-            float4 _Color; float _Selected,_Kind;
+            float4 _Color; float _Selected,_Kind,_Candidate;
             CBUFFER_END
             struct A { float3 vertex:POSITION; float2 uv:TEXCOORD0; UNITY_VERTEX_INPUT_INSTANCE_ID };
             struct V { float4 position:SV_POSITION; float2 uv:TEXCOORD0; UNITY_VERTEX_OUTPUT_STEREO };
@@ -33,6 +33,7 @@ Shader "TwinInspector/Annotation"
                 half3 ink=half3(.0056,.0056,.0056),paper=half3(.888,.879,.839);
                 // Outer paper keyline and inner ink rule survive all backgrounds and selection.
                 half3 colour=shape>-.035?paper:shape>-.10?ink:_Color.rgb;
+                if(_Candidate>.5) colour=shape>-.035?paper:shape>-.15?_Color.rgb:paper;
                 float symbol=max(abs(p.x)-.37,abs(p.y)-.07);
                 if(_Kind>.5 && _Kind<1.5) symbol=min(symbol,max(abs(p.y)-.37,abs(p.x)-.07));
                 if(_Kind>1.5 && _Kind<2.5) symbol=min(segment(p,float2(-.3,-.43),float2(.3,-.43)),min(segment(p,float2(.3,-.43),float2(0,.15)),segment(p,float2(0,.15),float2(-.3,-.43))))-.055;

@@ -16,7 +16,9 @@ namespace TwinInspector
         {
             if(!Active || !input || !input.Pressed || input.OverUI) return;
             var app=AppBootstrap.Instance;
-            var hovered=GetComponent<AnnotationVisuals>().Hovered;
+            var visuals=GetComponent<AnnotationVisuals>();
+            if(visuals.HoveredCandidate!=null && input.ConsumePress()) {app.Diff.Select(visuals.HoveredCandidate);app.Feedback.Confirm();Placed?.Invoke();return;}
+            var hovered=visuals.Hovered;
             if(hovered && input.ConsumePress()) { store.Select(hovered.Id); app.Feedback.Confirm(); Placed?.Invoke(); return; }
             if(!input.HasBuildingHit || !app.Style.PlacementVisible(input.BuildingHit.point)) { Feedback?.Invoke(L.Get("Point at a visible twin surface")); return; }
             if(input.ConsumePress()) Place(input.BuildingHit);

@@ -128,5 +128,20 @@
   "Marker aligned · check twin": "Marker aligned · check twin",
   "{0:F1} fps\nCPU {1}    GPU {2}\n{3} tiles    {4:N0} triangles": "{0:F1} fps\nCPU {1}    GPU {2}\n{3} tiles    {4:N0} triangles",
   "n/a": "n/a",
-  "_note": "English primary source. Translation keys are English phrases; data and log identifiers stay English."
+  "_note": "English primary source. Translation keys are English phrases; data and log identifiers stay English.",
+  "?? {0} · {1:F1} m²": "?? {0} · {1:F1} m²",
+  "Candidate dismissed": "Candidate dismissed",
+  "Candidate confirmed · Annotation {0:D2}": "Candidate confirmed · Annotation {0:D2}",
+  "Guide": "Guide",
+  "L{0} · D{1}": "L{0} · D{1}",
+  "Diff on": "Diff on",
+  "Diff off": "Diff off",
+  "Language": "Language",
+  "EITHER HAND CAN SUMMON AND OPERATE": "EITHER HAND CAN SUMMON AND OPERATE",
+  "03 / Annotate": "03 / Annotate",
+  "Candidate": "Candidate",
+  "{0:F1} m² · {1:F1} m": "{0:F1} m² · {1:F1} m",
+  "Dismiss": "Dismiss",
+  "{0:D2} ITEMS · {1:D2} CAND": "{0:D2} ITEMS · {1:D2} CAND",
+  "?? {0}   {1:F1} m\ncandidate · {2:F1} m²": "?? {0}   {1:F1} m\ncandidate · {2:F1} m²"
 }
