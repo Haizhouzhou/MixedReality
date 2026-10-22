@@ -1,0 +1,8 @@
+<linker>
+  <assembly fullname="TwinInspector.Runtime">
+    <type fullname="TwinInspector.AnnotationRegion" preserve="all" />
+    <type fullname="TwinInspector.AnnotationRegion/TriangleReference" preserve="all" />
+    <type fullname="TwinInspector.DismissedDocument" preserve="all" />
+    <type fullname="TwinInspector.Dismissal" preserve="all" />
+  </assembly>
+</linker>

@@ -5,6 +5,8 @@ PASS: candidate selected through list row
 PASS: visible control Confirm
 PASS: UI Confirm creates region annotation and returns to list
 PASS: confirmed region survives reload
+PASS: refinement OBJ exported for confirmed New
+PASS: OBJ has vertices and faces
 PASS: visible control Dismiss
 PASS: UI Dismiss persists suppression
 PASS: visible control Diff off
@@ -13,4 +15,4 @@ PASS: visible control Diff on
 PASS: Diff on UI control
 PASS: re-evaluation completes
 PASS: dismissal survives forced re-evaluation
-Editor only; assertPatches=False; physical hand/headset acceptance remains unverified.
+Editor only; assertPatches=True; physical hand/headset acceptance remains unverified.

@@ -1,0 +1,15 @@
+{
+  "status": "completed",
+  "buildId": "build_83952a875be2",
+  "result": "Succeeded",
+  "platform": "Android",
+  "outputPath": "E:/MixedReality/TwinInspector/Builds/TwinInspector-0.1.0.apk",
+  "buildTimeMs": 934227,
+  "totalWarnings": 1,
+  "totalErrors": 0,
+  "warnings": [
+    {
+      "message": "Pipeline: No RuntimePipelineConfig asset found (Project Settings > Pipeline > Runtime). Pipeline will be disabled in Player builds."
+    }
+  ]
+}

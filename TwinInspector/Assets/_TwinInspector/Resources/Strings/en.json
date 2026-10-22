@@ -143,5 +143,6 @@
   "{0:F1} m² · {1:F1} m": "{0:F1} m² · {1:F1} m",
   "Dismiss": "Dismiss",
   "{0:D2} ITEMS · {1:D2} CAND": "{0:D2} ITEMS · {1:D2} CAND",
-  "?? {0}   {1:F1} m\ncandidate · {2:F1} m²": "?? {0}   {1:F1} m\ncandidate · {2:F1} m²"
+  "?? {0}   {1:F1} m\ncandidate · {2:F1} m²": "?? {0}   {1:F1} m\ncandidate · {2:F1} m²",
+  "JSON, CSV and {0:D2} patches saved in Exports": "JSON, CSV and {0:D2} patches saved in Exports"
 }
