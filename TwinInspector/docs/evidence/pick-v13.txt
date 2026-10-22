@@ -1,0 +1,21 @@
+PASS: column fixture hits twin surface
+PASS: column fixture is a vertical surface
+column prompt=(11.17, 8.00, 1.53) normal=(1.00, 0.07, -0.03)
+PASS: column model pick returns region: picked
+PASS: column preserves annotation type
+PASS: column SAM area .1-20 m2: 0,541261
+column region={"kind":"patch","source":"sam","centroid_twin":[11.174193382263184,8.084784507751465,1.9057539701461793],"normal_twin":[0.9972939491271973,0.0673847496509552,-0.029395954683423044],"extent_m":[2.5704150199890138,0.3725569248199463,0.000002339680349905393],"area_m2":0.5412610173225403,"triangles":{"tile":"x1_y0","lod":2,"indices":[17548]},"additional_triangles":[]}
+PASS: column surface normal within 30 degrees: 0
+PASS: column projected hull contains prompt
+column total_ms=468.7
+PASS: wall fixture hits twin surface
+PASS: wall fixture is a vertical surface
+wall prompt=(25.00, 18.58, 1.60) normal=(-0.02, -1.00, 0.01)
+PASS: wall model pick returns region: picked
+PASS: wall preserves annotation type
+PASS: wall SAM area .1-20 m2: 4,26028
+wall region={"kind":"patch","source":"sam","centroid_twin":[24.617164611816408,18.5313663482666,1.8128489255905152],"normal_twin":[0.07614412903785706,-0.9970963001251221,0.0010258815018460155],"extent_m":[3.4727461338043215,2.249896764755249,0.4144853353500366],"area_m2":4.260279655456543,"triangles":{"tile":"x2_y1","lod":2,"indices":[592,597,621,624,2861,3147,3148,3152,3153,3164,3165,3170,3172,3174,3177,3181,3187,3189,3190,3191,3192,3193,3194,3195,3201,3282,3862,3867,3887,3903,16907,16908,23673,23712]},"additional_triangles":[]}
+PASS: wall surface normal within 30 degrees: 5,421662
+PASS: wall projected hull contains prompt
+wall total_ms=659.0
+Editor only; device latency, GPU memory and physical pinch remain unverified.

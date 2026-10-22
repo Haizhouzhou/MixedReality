@@ -1,0 +1,32 @@
+{
+  "revision": "f706ad9c4eb7f219c00d9050e46328518ffb65d2",
+  "checkpoint_url": "https://raw.githubusercontent.com/ChaoningZhang/MobileSAM/f706ad9c4eb7f219c00d9050e46328518ffb65d2/weights/mobile_sam.pt",
+  "checkpoint_sha256": "6dbb90523a35330fedd7f1d3dfc66f995213d81b29a5ca8108dbcdd4e37d6c2f",
+  "official_export_sha256": "611adce2b32d126ec08f9ec3788100e7c1b947e1030156031bf22d5329c70482",
+  "encoder_sha256": "e9af33ed26e7d014c2c83ed88ecf998ec48709beb57d6efa1a65fbec5f943058",
+  "decoder_sha256": "0f0157d3e96a12ed6010b42c12858d1a8d431e45ae92ee28b703ff33c9d43053",
+  "encoder_bytes": 27969728,
+  "decoder_bytes": 16501736,
+  "image": "dataset/raw/HGE/sessions/navvis_2022-02-06_12.55.11/raw_data/images_undistr_center/00000-cam0__center.jpg",
+  "image_sha256": "b2d724c7a68b15dc1fbf3525b9c644530cf8066f1832bf25fbccfa3dbfcb1959",
+  "prompt_original_pixels": [
+    260,
+    1100
+  ],
+  "nonempty_mask_pixels": 2196361,
+  "predicted_iou": 0.979965329170227,
+  "mean": [
+    123.675,
+    116.28,
+    103.53
+  ],
+  "std": [
+    58.395,
+    57.12,
+    57.375
+  ],
+  "input_size": 1024,
+  "opset": 17,
+  "validation": "PASS",
+  "note": "Predicted IoU is model confidence, not measured IoU against a ground-truth mask."
+}

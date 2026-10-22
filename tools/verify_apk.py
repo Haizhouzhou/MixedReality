@@ -8,10 +8,12 @@ import zipfile
 
 def verify(apk):
     apk = Path(apk)
+    assert apk.stat().st_size < 95_000_000, "APK must remain below 95 MB"
     source = Path(__file__).resolve().parents[1] / "TwinInspector/Assets/StreamingAssets/twin_demo"
     with zipfile.ZipFile(apk) as package:
         assert package.testzip() is None, "APK ZIP integrity failure"
         names = set(package.namelist())
+        assert not any(name.lower().endswith((".sentis", ".onnx", ".pt")) for name in names), "External models must not be bundled"
         prefix = "assets/twin_demo/"
         manifest = json.loads(package.read(prefix + "manifest.json"))
         assert manifest["demo"] is True and manifest["region"]["name"] == "A"
@@ -36,7 +38,7 @@ def verify(apk):
     result = {"status": "PASS", "apk": apk.name, "bytes": apk.stat().st_size,
               "sha256": digest.hexdigest(), "abis": sorted(abis), "demo_tiles": len(expected),
               "demo_uncompressed_bytes": demo_bytes, "demo_lods": [2],
-              "checks": ["ZIP CRC", "ARM64 IL2CPP", "exact source demo GLB hashes", "no full-detail GLBs", "demo <=15 MB"]}
+              "checks": ["ZIP CRC", "ARM64 IL2CPP", "exact source demo GLB hashes", "no full-detail GLBs", "demo <=15 MB", "APK <95 MB", "no model files bundled"]}
     print(json.dumps(result, indent=2))
 
 

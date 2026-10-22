@@ -1,0 +1,19 @@
+{
+  "input_size": 1024,
+  "mean": [
+    123.675,
+    116.28,
+    103.53
+  ],
+  "std": [
+    58.395,
+    57.12,
+    57.375
+  ],
+  "encoder": "mobile_sam_encoder.sentis",
+  "decoder": "mobile_sam_decoder.sentis",
+  "encoder_sha256": "201228699a4e800eeb78f7ca2fe939e1c6f66ce1175e7280788e149f6f5e136b",
+  "decoder_sha256": "de06d2ee086e00f20b4376fab37ee51564da9871aad7fcda3a863cfd500a7afd",
+  "revision": "f706ad9c4eb7f219c00d9050e46328518ffb65d2",
+  "low_res_only": false
+}

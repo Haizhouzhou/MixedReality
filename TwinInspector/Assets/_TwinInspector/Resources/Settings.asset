@@ -23,3 +23,18 @@ MonoBehaviour:
   loadConcurrency: 2
   targetRefreshRate: 90
   loadingRefreshRate: 72
+  diffEnabled: 1
+  diffDistanceMax: 0.35
+  diffMinAreaM2: 0.15
+  diffMinExtentM: 0.25
+  diffObservedRadiusM: 1
+  diffChangedPairDistanceM: 1
+  diffFloorZ: 0
+  diffPersistUpdates: 3
+  diffRaycastsPerFrame: 2048
+  diffOverlapsPerFrame: 2048
+  diffIgnoreFloorCeiling: 1
+  diffMainThreadBudgetMs: 2
+  objectPickEnabled: 0
+  objectPickFramesBudgetMs: 4
+  editorModelsPath: E:/MixedReality/tools/sam/models

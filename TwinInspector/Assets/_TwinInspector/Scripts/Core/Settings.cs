@@ -20,7 +20,8 @@ namespace TwinInspector
         [SerializeField] int diffPersistUpdates = 3, diffRaycastsPerFrame = 2048, diffOverlapsPerFrame = 2048;
         [SerializeField] bool diffIgnoreFloorCeiling = true;
         [SerializeField] float diffMainThreadBudgetMs = 2;
-        [SerializeField] bool objectPickEnabled = true;
+        // Experimental until cold-start dispatch satisfies the frame budget on the target device.
+        [SerializeField] bool objectPickEnabled = false;
         [SerializeField] float objectPickFramesBudgetMs = 4;
         [SerializeField] string editorModelsPath = "E:/MixedReality/tools/sam/models";
         public bool DiffEnabled => diffEnabled;

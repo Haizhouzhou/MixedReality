@@ -187,5 +187,8 @@
   "meta.version": "v1.3",
   "meta.step.coarse": "5 cm / 2°",
   "meta.step.fine": "1 cm / 0.5°",
-  "list.annotationRow": "{0:D2}  {1}   {2:F1} m\n{3}"
+  "list.annotationRow": "{0:D2}  {1}   {2:F1} m\n{3}",
+  "probe.waiting": "Waiting for depth",
+  "probe.timeout": "No depth frame",
+  "probe.failed": "Probe unavailable"
 }

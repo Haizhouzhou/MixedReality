@@ -142,7 +142,7 @@
   "button.cameraProbe": "Test camera",
   "text.probeLogged": "Test registrato",
   "text.editorProbeUnavailable": "Editor: test non disponibile",
-  "button.pickObject": "Scegli oggetto",
+  "button.pickObject": "Scegli ogg.",
   "toast.processingObject": "Elaborazione oggetto…",
   "toast.objectPicked0F1M": "Oggetto scelto · {0:F1} m²",
   "toast.noObjectFound": "Nessun oggetto trovato",
@@ -187,5 +187,8 @@
   "meta.version": "v1.3",
   "meta.step.coarse": "5 cm / 2°",
   "meta.step.fine": "1 cm / 0.5°",
-  "list.annotationRow": "{0:D2}  {1}   {2:F1} m\n{3}"
+  "list.annotationRow": "{0:D2}  {1}   {2:F1} m\n{3}",
+  "probe.waiting": "Attesa profondità",
+  "probe.timeout": "Nessuna profondità",
+  "probe.failed": "Sonda non disponibile"
 }

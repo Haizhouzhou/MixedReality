@@ -1,0 +1,13 @@
+Editor measurements, GTX 1650. Cold shader/kernel dispatch exceeds the 4 ms scheduling target.
+RELEASE GATE: objectPickEnabled=false. Functional prototype/models retained; device performance unverified.
+Sampled Unity allocated memory excludes GPU driver allocations; this is not proof of the 400 MB GPU/total-memory target.
+[TwinInspector] SAM result=cancelled total_ms=51015.5 encoder_ms= max_schedule_ms= decoder_schedule_ms= managed_native_delta_bytes=28239585 source=Editor
+[TwinInspector] SAM result=picked total_ms=6664.2 encoder_ms=2635.5 max_schedule_ms=424.33 decoder_schedule_ms=3574.51 managed_native_delta_bytes=1013725 source=Editor
+[TwinInspector] SAM result=picked total_ms=2928.1 encoder_ms=830.1 max_schedule_ms=305.94 decoder_schedule_ms=184.24 managed_native_delta_bytes=29126398 sampled_peak_delta_bytes=37842486 source=Editor
+[TwinInspector] SAM result=picked total_ms=553.5 encoder_ms=358.4 max_schedule_ms=70.84 decoder_schedule_ms=5.78 managed_native_delta_bytes=185977 sampled_peak_delta_bytes=9270483 source=Editor
+[TwinInspector] SAM result=picked total_ms=3207.8 encoder_ms=942.1 max_schedule_ms=360.71 decoder_schedule_ms=216.54 managed_native_delta_bytes=28993838 sampled_peak_delta_bytes=37718127 source=Editor
+[TwinInspector] SAM result=cancelled total_ms=109.1 encoder_ms= max_schedule_ms= decoder_schedule_ms= managed_native_delta_bytes=3893703 sampled_peak_delta_bytes=4295860 source=Editor
+[TwinInspector] SAM result=picked total_ms=33127.6 encoder_ms=31644.0 max_schedule_ms=30070.55 decoder_schedule_ms=121.70 managed_native_delta_bytes=1801908 sampled_peak_delta_bytes=10514031 source=Editor
+[TwinInspector] SAM result=picked total_ms=453.4 encoder_ms=194.3 max_schedule_ms=5.63 decoder_schedule_ms=9.53 managed_native_delta_bytes=86714 sampled_peak_delta_bytes=9173635 source=Editor
+[TwinInspector] SAM result=picked total_ms=468.7 encoder_ms=211.6 max_schedule_ms=4.88 decoder_schedule_ms=10.15 managed_native_delta_bytes=173947 sampled_peak_delta_bytes=9265718 source=Editor
+[TwinInspector] SAM result=picked total_ms=659.0 encoder_ms=236.1 max_schedule_ms=23.77 decoder_schedule_ms=38.23 managed_native_delta_bytes=43496 sampled_peak_delta_bytes=9143208 source=Editor

@@ -1,0 +1,2 @@
+PASS: leaving picker cancels in-flight inference, releases busy state and preserves point annotation
+PASS: both external model hashes verified at runtime

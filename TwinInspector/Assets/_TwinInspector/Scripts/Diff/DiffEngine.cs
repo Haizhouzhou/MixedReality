@@ -131,6 +131,7 @@ namespace TwinInspector
         bool Suppressed(Candidate c)=>dismissed.items.Any(d=>d.Suppresses(c.kind,c.CentroidTwin(app.Root)))||sessionSuppression.Any(d=>d.Suppresses(c.kind,c.CentroidTwin(app.Root)));
         void RebuildVisible()
         {
+            if(!this||!app||!app.Root)return;
             if(!app)return;
             var eligible=members.Where(c=>!Suppressed(c)).ToList();pairs.Clear();pairs.AddRange(CandidateRules.Pair(eligible,c=>c.CentroidWorld(app.Root),settings.DiffChangedPairDistanceM));
             visible.Clear();visible.AddRange(eligible.Where(c=>c.stable&&!c.hiddenByPair));visible.AddRange(pairs.Where(c=>!Suppressed(c)));

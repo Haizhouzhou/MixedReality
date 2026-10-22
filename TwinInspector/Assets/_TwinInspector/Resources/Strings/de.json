@@ -142,7 +142,7 @@
   "button.cameraProbe": "Kameratest",
   "text.probeLogged": "Test protokolliert",
   "text.editorProbeUnavailable": "Editor: Test nicht verfügbar",
-  "button.pickObject": "Objekt wählen",
+  "button.pickObject": "Objekt wähl.",
   "toast.processingObject": "Objekt wird verarbeitet…",
   "toast.objectPicked0F1M": "Objekt gewählt · {0:F1} m²",
   "toast.noObjectFound": "Kein Objekt gefunden",
@@ -187,5 +187,8 @@
   "meta.version": "v1.3",
   "meta.step.coarse": "5 cm / 2°",
   "meta.step.fine": "1 cm / 0.5°",
-  "list.annotationRow": "{0:D2}  {1}   {2:F1} m\n{3}"
+  "list.annotationRow": "{0:D2}  {1}   {2:F1} m\n{3}",
+  "probe.waiting": "Warte auf Tiefe",
+  "probe.timeout": "Kein Tiefenbild",
+  "probe.failed": "Probe nicht verfügbar"
 }

@@ -6,7 +6,7 @@ if (-not $cecilPackage) { throw 'The Unity Mono.Cecil package is not available.'
 $source = [Mono.Cecil.AssemblyDefinition]::ReadAssembly((Join-Path $Project 'Library/Bee/PlayerScriptAssemblies/TwinInspector.Runtime.dll'))
 $stripped = [Mono.Cecil.AssemblyDefinition]::ReadAssembly((Join-Path $Project 'Library/Bee/artifacts/Android/ManagedStripped/TwinInspector.Runtime.dll'))
 try {
-    $names = @('AlignmentState','MarkerCatalog','MarkerDefinition','Annotation','AnnotationDocument','AnnotationRegion','DismissedDocument','Dismissal','TwinManifest')
+    $names = @('AlignmentState','MarkerCatalog','MarkerDefinition','Annotation','AnnotationDocument','AnnotationRegion','DismissedDocument','Dismissal','TwinManifest','SamModels')
     $types = @($source.MainModule.Types | Where-Object {$_.Namespace -eq 'TwinInspector' -and $_.Name -in $names})
     $types += @($types | ForEach-Object {$_.NestedTypes})
     $retained = @($stripped.MainModule.Types) + @($stripped.MainModule.Types | ForEach-Object {$_.NestedTypes})

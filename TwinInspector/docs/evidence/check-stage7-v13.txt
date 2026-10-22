@@ -1,0 +1,144 @@
+{
+  "status": "completed",
+  "failed": false,
+  "errors": [],
+  "compilationFailed": false
+}
+{
+  "output": null,
+  "diagnostics": [],
+  "success": true,
+  "result": "OpenXR Android issues: 0\r\nEnabled: UnityEngine.XR.OpenXR.Features.Interactions.HandInteractionProfile\r\nEnabled: UnityEngine.XR.OpenXR.Features.Interactions.KHRSimpleControllerProfile\r\nEnabled: UnityEngine.XR.OpenXR.Features.Interactions.PalmPoseInteraction\r\nEnabled: UnityEngine.XR.OpenXR.Features.Interactions.HandCommonPosesInteraction\r\nEnabled: UnityEngine.XR.OpenXR.Features.CompositionLayers.OpenXRCompositionLayersFeature\r\nEnabled: UnityEngine.XR.OpenXR.Features.FoveatedRenderingFeature\r\nEnabled: UnityEngine.XR.Hands.OpenXR.HandTracking\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.OpenXRLifeCycleFeature\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.ARCameraFeature\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.AROcclusionFeature\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.AndroidXRSupportFeature\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.DisplayUtilitiesFeature\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.AndroidXRPerformanceMetrics\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.ARRaycastFeature\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.ARMeshFeature\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.ARAnchorFeature\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.ARPlaneFeature\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.ARSessionFeature\r\nEnabled: Google.XR.Extensions.XRUnboundedRefSpaceFeature\r\nEnabled: Google.XR.Extensions.XRQrCodeTrackingFeature\r\nEnabled: Google.XR.Extensions.XRPassthroughFeature\r\nEnabled: Google.XR.Extensions.XRSessionFeature\r\nEnabled: Google.XR.Extensions.XRMarkerTrackingFeature\r\nCompiling: False\r\n"
+}
+{
+  "entries": [
+    {
+      "seq": 1,
+      "timestampUtc": "2026-10-22T21:25:49.3478888Z",
+      "level": "error",
+      "logType": "Error",
+      "message": "Assets\\_TwinInspector\\Tests\\Editor\\SchemaV2Tests.cs(4,7): error CS0246: The type or namespace name 'Newtonsoft' could not be found (are you missing a using directive or an assembly reference?)",
+      "stackTrace": "",
+      "seeded": false
+    },
+    {
+      "seq": 2,
+      "timestampUtc": "2026-10-22T21:25:49.3503961Z",
+      "level": "error",
+      "logType": "Error",
+      "message": "Assets\\_TwinInspector\\Tests\\Editor\\StringsTests.cs(2,7): error CS0246: The type or namespace name 'Newtonsoft' could not be found (are you missing a using directive or an assembly reference?)",
+      "stackTrace": "",
+      "seeded": false
+    },
+    {
+      "seq": 563,
+      "timestampUtc": "2026-10-22T22:30:24.3629026Z",
+      "level": "error",
+      "logType": "Exception",
+      "message": "Exception: String layout check failed; inspect strings-v13.txt",
+      "stackTrace": "PipelineEvaluation.PipelineEval_410dddb5+<>c__DisplayClass0_0.<Execute>b__0 () (at <0ea987b41b8e423282fd25dbe4ad88b2>:0)\nUnityEngine.Debug:LogException(Exception)\nPipelineEvaluation.<<Execute>b__0>d:MoveNext()\nUnityEngine.UnitySynchronizationContext:ExecuteTasks()\n",
+      "seeded": false
+    },
+    {
+      "seq": 641,
+      "timestampUtc": "2026-10-22T22:36:36.9421751Z",
+      "level": "error",
+      "logType": "Exception",
+      "message": "MissingReferenceException: The object of type 'TwinInspector.TwinRoot' has been destroyed but you are still trying to access it.\nYour script should either check if it is null or you should not destroy the object.",
+      "stackTrace": "UnityEngine.Object+MarshalledUnityObject.TryThrowEditorNullExceptionObject (UnityEngine.Object unityObj, System.String parameterName) (at <4188a0f79dff4b4191dbeaff03bfe462>:0)\nUnityEngine.Bindings.ThrowHelper.ThrowNullReferenceException (System.Object obj) (at <4188a0f79dff4b4191dbeaff03bfe462>:0)\nUnityEngine.Component.get_transform () (at <4188a0f79dff4b4191dbeaff03bfe462>:0)\nTwinInspector.TwinRoot.TwinToWorld (UnityEngine.Vector3 twin) (at Assets/_TwinInspector/Scripts/Twin/TwinRoot.cs:17)\nTwinInspector.Candidate.CentroidWorld (TwinInspector.TwinRoot root) (at Assets/_TwinInspector/Scripts/Diff/Candidate.cs:26)\nTwinInspector.DiffEngine.<RebuildVisible>b__82_1 (TwinInspector.Candidate c) (at Assets/_TwinInspector/Scripts/Diff/DiffEngine.cs:135)\nTwinInspector.CandidateRules.Pair (System.Collections.Generic.IList`1[T] members, System.Func`2[T,TResult] position, System.Single limit) (at Assets/_TwinInspector/Scripts/Diff/Candidate.cs:55)\nTwinInspector.DiffEngine.RebuildVisible () (at Assets/_TwinInspector/Scripts/Diff/DiffEngine.cs:135)\nTwinInspector.DiffEngine.SourceRemoved (TwinInspector.SurfaceChunk c) (at Assets/_TwinInspector/Scripts/Diff/DiffEngine.cs:55)\nTwinInspector.EditorSceneSurfaceSimulator.OnDestroy () (at Assets/_TwinInspector/Scripts/Diff/EditorSceneSurfaceSimulator.cs:113)\n",
+      "seeded": false
+    },
+    {
+      "seq": 651,
+      "timestampUtc": "2026-10-22T22:41:19.6771615Z",
+      "level": "error",
+      "logType": "Error",
+      "message": "Failed to handle /api/exec request: Main thread operation timed out after 30000ms",
+      "stackTrace": "UnityEngine.Debug:LogError (object)\nUnity.Pipeline.BasePipelineServer/<HandleExecRequest>d__119:MoveNext () (at ./Library/PackageCache/com.unity.pipeline@62c08c808737/Runtime/Common/BasePipelineServer.cs:2257)\nSystem.Runtime.CompilerServices.AsyncTaskMethodBuilder:SetException (System.Exception)\nUnity.Pipeline.BasePipelineServer/<ExecuteGated>d__109:MoveNext () (at ./Library/PackageCache/com.unity.pipeline@62c08c808737/Runtime/Common/BasePipelineServer.cs:1589)\nSystem.Runtime.CompilerServices.AsyncTaskMethodBuilder:SetException (System.Exception)\nUnity.Pipeline.BasePipelineServer/<>c__DisplayClass119_0/<<HandleExecRequest>b__0>d:MoveNext () (at ./Library/PackageCache/com.unity.pipeline@62c08c808737/Runtime/Common/BasePipelineServer.cs:2218)\nSystem.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<object>:SetException (System.Exception)\nUnity.Pipeline.BasePipelineServer/<ExecuteCommandByName>d__137:MoveNext () (at ./Library/PackageCache/com.unity.pipeline@62c08c808737/Runtime/Common/BasePipelineServer.cs:2664)\nSystem.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<object>:SetException (System.Exception)\nUnity.Pipeline.BasePipelineServer/<ExecuteCommand>d__138:MoveNext () (at ./Library/PackageCache/com.unity.pipeline@62c08c808737/Runtime/Common/BasePipelineServer.cs:2703)\nSystem.Threading._ThreadPoolWaitCallback:PerformWaitCallback ()\n",
+      "seeded": false
+    },
+    {
+      "seq": 684,
+      "timestampUtc": "2026-10-22T22:49:47.1372955Z",
+      "level": "error",
+      "logType": "Error",
+      "message": "Assets\\_TwinInspector\\Scripts\\Pick\\ObjectPicker.cs(46,27): error CS1061: 'TwinStyle' does not contain a definition for 'CanInspectAt' and no accessible extension method 'CanInspectAt' accepting a first argument of type 'TwinStyle' could be found (are you missing a using directive or an assembly reference?)",
+      "stackTrace": "",
+      "seeded": false
+    },
+    {
+      "seq": 724,
+      "timestampUtc": "2026-10-22T22:54:22.5354091Z",
+      "level": "error",
+      "logType": "Exception",
+      "message": "Exception: column model pick returns region: cancelled",
+      "stackTrace": "PipelineEvaluation.PipelineEval_be262f6f+<>c__DisplayClass0_1.<Execute>b__1 (System.Boolean ok, System.String message) (at <aeaf5c41787b48aeb816d97dc6f6e0b4>:0)\nPipelineEvaluation.PipelineEval_be262f6f+<>c__DisplayClass0_0.<Execute>b__0 () (at <aeaf5c41787b48aeb816d97dc6f6e0b4>:0)\nUnityEngine.Debug:LogException(Exception)\nPipelineEvaluation.<<Execute>b__0>d:MoveNext()\nSystem.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(Boolean)\nTwinInspector.<PickAsync>d__36:MoveNext() (at Assets/_TwinInspector/Scripts/Pick/ObjectPicker.cs:77)\nSystem.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetException(Exception)\nTwinInspector.<RunAsync>d__17:MoveNext() (at Assets/_TwinInspector/Scripts/Pick/SamRunner.cs:66)\nUnityEngine.Awaitable:OnUpdate()\n",
+      "seeded": false
+    },
+    {
+      "seq": 738,
+      "timestampUtc": "2026-10-22T22:55:07.8993158Z",
+      "level": "error",
+      "logType": "Exception",
+      "message": "Exception: column surface normal within 30 degrees: 36,32623",
+      "stackTrace": "PipelineEvaluation.PipelineEval_f5bc28e0+<>c__DisplayClass0_1.<Execute>b__1 (System.Boolean ok, System.String message) (at <07e9454182fb4357915da61267a41eb8>:0)\nPipelineEvaluation.PipelineEval_f5bc28e0+<>c__DisplayClass0_0.<Execute>b__0 () (at <07e9454182fb4357915da61267a41eb8>:0)\nUnityEngine.Debug:LogException(Exception)\nPipelineEvaluation.<<Execute>b__0>d:MoveNext()\nSystem.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(Boolean)\nTwinInspector.<PickAsync>d__36:MoveNext() (at Assets/_TwinInspector/Scripts/Pick/ObjectPicker.cs:77)\nSystem.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(AnnotationRegion)\nTwinInspector.<BackProject>d__37:MoveNext() (at Assets/_TwinInspector/Scripts/Pick/ObjectPicker.cs:129)\nUnityEngine.UnitySynchronizationContext:ExecuteTasks()\n",
+      "seeded": false
+    },
+    {
+      "seq": 754,
+      "timestampUtc": "2026-10-22T22:56:20.2301365Z",
+      "level": "error",
+      "logType": "Exception",
+      "message": "MissingReferenceException: The object of type 'TwinInspector.TwinRoot' has been destroyed but you are still trying to access it.\nYour script should either check if it is null or you should not destroy the object.",
+      "stackTrace": "UnityEngine.Object+MarshalledUnityObject.TryThrowEditorNullExceptionObject (UnityEngine.Object unityObj, System.String parameterName) (at <4188a0f79dff4b4191dbeaff03bfe462>:0)\nUnityEngine.Bindings.ThrowHelper.ThrowNullReferenceException (System.Object obj) (at <4188a0f79dff4b4191dbeaff03bfe462>:0)\nUnityEngine.Component.get_transform () (at <4188a0f79dff4b4191dbeaff03bfe462>:0)\nTwinInspector.TwinRoot.TwinToWorld (UnityEngine.Vector3 twin) (at Assets/_TwinInspector/Scripts/Twin/TwinRoot.cs:17)\nTwinInspector.Candidate.CentroidWorld (TwinInspector.TwinRoot root) (at Assets/_TwinInspector/Scripts/Diff/Candidate.cs:26)\nTwinInspector.DiffEngine.<RebuildVisible>b__82_1 (TwinInspector.Candidate c) (at Assets/_TwinInspector/Scripts/Diff/DiffEngine.cs:135)\nTwinInspector.CandidateRules.Pair (System.Collections.Generic.IList`1[T] members, System.Func`2[T,TResult] position, System.Single limit) (at Assets/_TwinInspector/Scripts/Diff/Candidate.cs:55)\nTwinInspector.DiffEngine.RebuildVisible () (at Assets/_TwinInspector/Scripts/Diff/DiffEngine.cs:135)\nTwinInspector.DiffEngine.SourceRemoved (TwinInspector.SurfaceChunk c) (at Assets/_TwinInspector/Scripts/Diff/DiffEngine.cs:55)\nTwinInspector.EditorSceneSurfaceSimulator.OnDestroy () (at Assets/_TwinInspector/Scripts/Diff/EditorSceneSurfaceSimulator.cs:113)\n",
+      "seeded": false
+    },
+    {
+      "seq": 779,
+      "timestampUtc": "2026-10-22T22:59:02.999165Z",
+      "level": "error",
+      "logType": "Exception",
+      "message": "Exception: column surface normal within 30 degrees: 45,0691",
+      "stackTrace": "PipelineEvaluation.PipelineEval_a4ba2847+<>c__DisplayClass0_1.<Execute>b__1 (System.Boolean ok, System.String message) (at <b6b942253aaa4ce587553dd4f004c6c0>:0)\nPipelineEvaluation.PipelineEval_a4ba2847+<>c__DisplayClass0_0.<Execute>b__0 () (at <b6b942253aaa4ce587553dd4f004c6c0>:0)\nUnityEngine.Debug:LogException(Exception)\nPipelineEvaluation.<<Execute>b__0>d:MoveNext()\nSystem.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(Boolean)\nTwinInspector.<PickAsync>d__37:MoveNext() (at Assets/_TwinInspector/Scripts/Pick/ObjectPicker.cs:79)\nSystem.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(AnnotationRegion)\nTwinInspector.<BackProject>d__38:MoveNext() (at Assets/_TwinInspector/Scripts/Pick/ObjectPicker.cs:131)\nUnityEngine.UnitySynchronizationContext:ExecuteTasks()\n",
+      "seeded": false
+    },
+    {
+      "seq": 800,
+      "timestampUtc": "2026-10-22T23:00:27.9510553Z",
+      "level": "error",
+      "logType": "Exception",
+      "message": "Exception: column surface normal within 30 degrees: 47,74852",
+      "stackTrace": "PipelineEvaluation.PipelineEval_51f2b704+<>c__DisplayClass0_1.<Execute>b__1 (System.Boolean ok, System.String message) (at <674c4f2740b542c9920fe97bcd5fa2d2>:0)\nPipelineEvaluation.PipelineEval_51f2b704+<>c__DisplayClass0_0.<Execute>b__0 () (at <674c4f2740b542c9920fe97bcd5fa2d2>:0)\nUnityEngine.Debug:LogException(Exception)\nPipelineEvaluation.<<Execute>b__0>d:MoveNext()\nSystem.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(Boolean)\nTwinInspector.<PickAsync>d__37:MoveNext() (at Assets/_TwinInspector/Scripts/Pick/ObjectPicker.cs:79)\nSystem.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(AnnotationRegion)\nTwinInspector.<BackProject>d__38:MoveNext() (at Assets/_TwinInspector/Scripts/Pick/ObjectPicker.cs:131)\nUnityEngine.UnitySynchronizationContext:ExecuteTasks()\n",
+      "seeded": false
+    },
+    {
+      "seq": 840,
+      "timestampUtc": "2026-10-22T23:03:40.9490505Z",
+      "level": "error",
+      "logType": "Exception",
+      "message": "Exception: column surface normal within 30 degrees: 47,75339",
+      "stackTrace": "PipelineEvaluation.PipelineEval_571de5e1+<>c__DisplayClass0_1.<Execute>b__1 (System.Boolean ok, System.String message) (at <3cf902a9b8794d78977caaf5511abbee>:0)\nPipelineEvaluation.PipelineEval_571de5e1+<>c__DisplayClass0_0.<Execute>b__0 () (at <3cf902a9b8794d78977caaf5511abbee>:0)\nUnityEngine.Debug:LogException(Exception)\nPipelineEvaluation.<<Execute>b__0>d:MoveNext()\nSystem.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(Boolean)\nTwinInspector.<PickAsync>d__37:MoveNext() (at Assets/_TwinInspector/Scripts/Pick/ObjectPicker.cs:79)\nSystem.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(AnnotationRegion)\nTwinInspector.<BackProject>d__38:MoveNext() (at Assets/_TwinInspector/Scripts/Pick/ObjectPicker.cs:131)\nUnityEngine.UnitySynchronizationContext:ExecuteTasks()\n",
+      "seeded": false
+    }
+  ],
+  "cursor": 963,
+  "session": "fab17031ce344125b6ae108597023a8e",
+  "returned": 12,
+  "dropped": false,
+  "reset": false,
+  "counts": {
+    "error": 12,
+    "warn": 249,
+    "log": 702
+  },
+  "groundTruth": {
+    "sampledUtc": "2026-10-22T23:14:34.4245919Z",
+    "ageMs": 242,
+    "compilationFailed": false,
+    "compiling": false,
+    "consoleErrors": 0,
+    "consoleWarnings": 0,
+    "consoleLogs": 11,
+    "seeded": true
+  }
+}

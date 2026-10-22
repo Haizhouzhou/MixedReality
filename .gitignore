@@ -7,3 +7,7 @@ work/fonts/
 __pycache__/
 *.pyc
 .venv/
+*.pt
+*.onnx
+tools/sam/.venv/
+tools/sam/models/*.bak

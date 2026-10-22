@@ -45,6 +45,7 @@ namespace TwinInspector
             app.Placer.Feedback += Notify;
             app.Markers.Changed += MarkerChanged;
             app.Diff.Changed += DiffChanged;
+            app.Picker.Changed += PickChanged;
             subscribed = true;
         }
         void AnnotationChanged() { if (page == "list" || page == "picker") Render(); }
@@ -57,6 +58,7 @@ namespace TwinInspector
             if(page=="list"||page=="picker"||page=="display")Render();
         }
         void MarkerChanged() { if (page == "marker") Render(); }
+        void PickChanged(){if(page=="picker")Render();}
         public void Notify(string message) { if (panel) panel.Notify(message); }
         public void Show(string target)
         {
@@ -64,6 +66,7 @@ namespace TwinInspector
             if(target=="guide"&&page!="guide")guide.Reset();
             if (!app.Ready) target = "setup";
             if (page == "marker" && target != "marker" && app.Markers) app.Markers.Cancel();
+            if(page=="picker"&&target!="picker"&&app.Picker)app.Picker.Cancel();
             page = target;
             if(app.Roam) app.Roam.Move(Vector2.zero);
             if(app.Ready && (target=="align" || target=="nudge" || target=="height" || target=="marker") && app.Style.Mode!=ViewMode.Overlay) app.Style.SetMode(ViewMode.Overlay);
@@ -227,8 +230,18 @@ namespace TwinInspector
                 panel.Button(L.Get("button.dismiss"),24,248,208,()=>{app.Diff.Dismiss();Show("list");});
                 panel.Button(L.Get("button.confirm"),248,248,208,()=>{app.Diff.Confirm();Show("list");},true);return;
             }
-            panel.Button(L.Get("button.list"),24,248,208,() => Show("list"));
-            panel.Button(L.Get("button.done"),248,248,208,() => { app.Placer.Active=false; Show("setup"); },true);
+            bool canPick=app.Picker.Available&&item!=null&&freshAnnotations.Contains(item.id);
+            if(canPick)
+            {
+                panel.Button(L.Get("button.list"),24,248,144,()=>Show("list"));
+                var pick=panel.Button(L.Get("button.pickObject"),168,248,144,()=>app.Picker.Arm());pick.interactable=!app.Picker.Busy&&!app.Picker.Armed;
+                panel.Button(L.Get("button.done"),312,248,144,()=>{app.Placer.Active=false;Show("setup");},true);
+            }
+            else
+            {
+                panel.Button(L.Get("button.list"),24,248,208,() => Show("list"));
+                panel.Button(L.Get("button.done"),248,248,208,() => { app.Placer.Active=false; Show("setup"); },true);
+            }
         }
         void ListPage()
         {
@@ -314,6 +327,7 @@ namespace TwinInspector
         {
             L.Changed -= LanguageChanged;
             if(app&&app.Diff)app.Diff.Changed-=DiffChanged;
+            if(app&&app.Picker)app.Picker.Changed-=PickChanged;
             if(subscribed && app) { if(app.Annotations!=null) app.Annotations.Changed-=AnnotationChanged; if(app.Placer) { app.Placer.Placed-=AnnotationPlaced; app.Placer.Feedback-=Notify; } if(app.Markers) app.Markers.Changed-=MarkerChanged; }
             if(panel) Destroy(panel.gameObject); if(strip) Destroy(strip.gameObject);
         }

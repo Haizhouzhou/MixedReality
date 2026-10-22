@@ -1,1 +1,25 @@
-{"name":"TwinInspector.Runtime","rootNamespace":"TwinInspector","references":["Unity.XR.ARFoundation","Unity.XR.ARSubsystems","Unity.XR.Management","Unity.XR.CoreUtils","Unity.XR.OpenXR","Unity.XR.AndroidOpenXR","Unity.XR.Hands","Unity.XR.Interaction.Toolkit","Unity.InputSystem","Unity.TextMeshPro","Unity.ugui","Unity.RenderPipelines.Universal.Runtime","Unity.RenderPipelines.Core.Runtime","Unity.Collections","Google.XR.Extensions","glTFast","Unity.Newtonsoft.Json"],"autoReferenced":true}
+{
+  "name": "TwinInspector.Runtime",
+  "rootNamespace": "TwinInspector",
+  "references": [
+    "Unity.XR.ARFoundation",
+    "Unity.XR.ARSubsystems",
+    "Unity.XR.Management",
+    "Unity.XR.CoreUtils",
+    "Unity.XR.OpenXR",
+    "Unity.XR.AndroidOpenXR",
+    "Unity.XR.Hands",
+    "Unity.XR.Interaction.Toolkit",
+    "Unity.InputSystem",
+    "Unity.TextMeshPro",
+    "Unity.ugui",
+    "Unity.RenderPipelines.Universal.Runtime",
+    "Unity.RenderPipelines.Core.Runtime",
+    "Unity.Collections",
+    "Google.XR.Extensions",
+    "glTFast",
+    "Unity.Newtonsoft.Json",
+    "Unity.InferenceEngine"
+  ],
+  "autoReferenced": true
+}

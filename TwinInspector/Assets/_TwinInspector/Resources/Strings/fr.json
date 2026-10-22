@@ -142,7 +142,7 @@
   "button.cameraProbe": "Test caméra",
   "text.probeLogged": "Test consigné",
   "text.editorProbeUnavailable": "Éditeur : test indisponible",
-  "button.pickObject": "Choisir objet",
+  "button.pickObject": "Choisir obj.",
   "toast.processingObject": "Traitement de l'objet…",
   "toast.objectPicked0F1M": "Objet choisi · {0:F1} m²",
   "toast.noObjectFound": "Aucun objet trouvé",
@@ -187,5 +187,8 @@
   "meta.version": "v1.3",
   "meta.step.coarse": "5 cm / 2°",
   "meta.step.fine": "1 cm / 0.5°",
-  "list.annotationRow": "{0:D2}  {1}   {2:F1} m\n{3}"
+  "list.annotationRow": "{0:D2}  {1}   {2:F1} m\n{3}",
+  "probe.waiting": "Attente de profondeur",
+  "probe.timeout": "Aucune profondeur",
+  "probe.failed": "Sonde indisponible"
 }
