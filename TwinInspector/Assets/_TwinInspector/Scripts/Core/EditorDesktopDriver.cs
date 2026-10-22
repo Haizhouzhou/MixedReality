@@ -13,11 +13,17 @@ namespace TwinInspector
         bool wasDesktop, flying;
         float yaw, pitch;
         float previousCameraOffset;
+#if UNITY_EDITOR
+        bool simulatorStarted;
+#endif
         public float MoveSpeed { get; private set; } = 2;
         public void Initialize(AppBootstrap application) { app=application; poseDriver=app.Viewer.GetComponent<TrackedPoseDriver>(); }
         void Update()
         {
             if(!app || !app.Input) return;
+#if UNITY_EDITOR
+            if(app.Ready && !simulatorStarted) {simulatorStarted=true;var simulator=new GameObject("Editor scene surface simulator").AddComponent<EditorSceneSurfaceSimulator>();app.SceneSource=simulator;_ = simulator.InitializeAsync(app);}
+#endif
             bool desktop=app.Input.Desktop;
             if(poseDriver) poseDriver.enabled=!desktop;
             if(!desktop) { if(wasDesktop) { ReleaseCursor(); app.Origin.CameraYOffset=previousCameraOffset; } wasDesktop=false; return; }

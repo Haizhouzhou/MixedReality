@@ -1,0 +1,4 @@
+PASS: simulator chunks=69 triangles=815253 max triangles/chunk=20000; readable, layer 9
+Collision readable CPU positions/normals/indices lower bound bytes=15264348 loaded tiles=29; excludes mesh overhead and additional channels
+Unity allocated memory bytes=802172710
+Fixture is applied to real Region A LOD2 geometry; all source chunks fixed in session space.

@@ -30,6 +30,9 @@ namespace TwinInspector
         public bool Ready { get; private set; }
         public string Status { get; private set; } = "Starting TwinInspector";
         public Camera Viewer => viewer;
+        public Settings Config => settings;
+        public ARMeshManager MeshManager => meshManager;
+        public ISceneSurfaceSource SceneSource { get; set; }
         public XROrigin Origin => origin;
         public DesignTokens Tokens { get; private set; }
         public TwinRoot Root { get; private set; }
@@ -98,6 +101,7 @@ namespace TwinInspector
                 Roam=gameObject.AddComponent<HandLocomotion>(); Roam.Initialize(this);
                 Feedback=gameObject.AddComponent<MicroFeedback>(); Feedback.Initialize();
                 Performance = gameObject.AddComponent<PerfHud>(); Performance.Initialize(Loader,settings);
+                if(!Application.isEditor) {var source=gameObject.AddComponent<SceneSurfaceSource>();source.Initialize(meshManager);SceneSource=source;}
                 Ready = true; Status = Loader.Manifest.demo ? "Built-in hall · low detail" : "Region A · external data";
                 EnsureUI(); UI.Show("setup");
                 DevLog.Write("Ready: "+Status);
