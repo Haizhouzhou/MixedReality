@@ -47,6 +47,7 @@ namespace TwinInspector
         public AnnotationPlacer Placer { get; private set; }
         public InspectorUI UI { get; private set; }
         public PerfHud Performance { get; private set; }
+        public DeviceProbes Probes { get; private set; }
         public ObjectPicker Picker { get; private set; }
         public InputRouter Input { get; private set; }
         public HandLocomotion Roam { get; private set; }
@@ -104,6 +105,7 @@ namespace TwinInspector
                 Roam=gameObject.AddComponent<HandLocomotion>(); Roam.Initialize(this);
                 Feedback=gameObject.AddComponent<MicroFeedback>(); Feedback.Initialize();
                 Performance = gameObject.AddComponent<PerfHud>(); Performance.Initialize(Loader,settings);
+                Probes = gameObject.AddComponent<DeviceProbes>(); Probes.Initialize(viewer);
                 Picker = gameObject.AddComponent<ObjectPicker>(); Picker.Initialize(this);
                 if(!Application.isEditor) {var source=gameObject.AddComponent<SceneSurfaceSource>();source.Initialize(meshManager);SceneSource=source;}
                 Diff=gameObject.AddComponent<DiffEngine>();Diff.Initialize(this);

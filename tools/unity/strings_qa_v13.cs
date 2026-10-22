@@ -2,7 +2,7 @@ var app=TwinInspector.AppBootstrap.Instance;
 if(!app||!app.Ready||!app.Diff.Settled)return "WAIT engine";
 System.Func<System.Threading.Tasks.Task> run=async()=>
 {
- var log=new System.Text.StringBuilder();var previous=TwinInspector.L.Language;var candidate=System.Linq.Enumerable.FirstOrDefault(app.Diff.Candidates);int missingGlyphs=0,totalMissing=0;
+ var log=new System.Text.StringBuilder();var previous=TwinInspector.L.Language;var candidate=System.Linq.Enumerable.FirstOrDefault(app.Diff.Candidates);int missingGlyphs=0,totalMissing=0;TwinInspector.Annotation point=null;
  UnityEngine.Application.LogCallback logger=(message,stack,type)=>{if(message.Contains("Unicode value")&&message.Contains("not found"))missingGlyphs++;};UnityEngine.Application.logMessageReceived+=logger;
  var fields=System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic;
  var guide=(TwinInspector.GuideFlow)typeof(TwinInspector.InspectorUI).GetField("guide",fields).GetValue(app.UI);
@@ -19,14 +19,18 @@ System.Func<System.Threading.Tasks.Task> run=async()=>
   // Freeze detection only for typography inspection; the existing real candidates remain the display fixture.
   while(app.Diff.HasPendingWork)await System.Threading.Tasks.Task.Yield();
   app.Diff.enabled=false;app.UI.Notify("");app.UI.Show("setup");app.UI.Summon();await System.Threading.Tasks.Task.Delay(3000);
+  point=app.Annotations.Add(new UnityEngine.Vector3(20,10,1),UnityEngine.Vector3.up,new UnityEngine.Vector3(20,10,1.6f),new float[]{0,0,0,1});
+  ((System.Collections.Generic.HashSet<string>)typeof(TwinInspector.InspectorUI).GetField("freshAnnotations",fields).GetValue(app.UI)).Add(point.id);
   foreach(var code in new[]{"en","de","fr","it"})
   {
    TwinInspector.L.Language=code;TwinInspector.L.ClearMissing();int pages=0;int overflow=0;
-   foreach(var page in new[]{"setup","mode","display","preferences","sound","language","list","picker","diagnostics","roam","align","nudge","height","marker","guide"})
+   foreach(var page in new[]{"setup","mode","display","preferences","sound","language","list","picker","picker-point","diagnostics","roam","align","nudge","height","marker","guide"})
    {
     if(page=="roam")app.Style.SetMode(TwinInspector.ViewMode.Twin);else if(app.Style.Mode==TwinInspector.ViewMode.Twin)app.Style.SetMode(TwinInspector.ViewMode.Overlay);
     if(page=="picker"&&candidate!=null)app.Diff.Select(candidate);
-    app.UI.Show(page);
+    if(page=="picker-point")app.Annotations.Select(point.id);
+    app.UI.Show(page=="picker-point"?"picker":page);
+    if(page=="diagnostics")app.Probes.CameraProbe();
     int count=page=="guide"?6:1;
     for(int card=0;card<count;card++)
     {
@@ -48,5 +52,5 @@ System.Func<System.Threading.Tasks.Task> run=async()=>
   if(log.ToString().Contains("OVERFLOW")||missingGlyphs>0||totalMissing>0)throw new System.Exception("String layout check failed; inspect strings-v13.txt");
  }
  catch(System.Exception error){log.AppendLine("FAIL: "+error);System.IO.File.WriteAllText("docs/evidence/strings-v13.txt",log.ToString());UnityEngine.Debug.LogException(error);}
- finally{UnityEngine.Application.logMessageReceived-=logger;TwinInspector.L.Language=previous;app.UI.Show("setup");app.Diff.enabled=true;}
+ finally{if(point!=null){app.Annotations.Select(point.id);app.Annotations.DeleteSelected();}UnityEngine.Application.logMessageReceived-=logger;TwinInspector.L.Language=previous;app.UI.Show("setup");app.Diff.enabled=true;}
 };_ = run();return "Four-language layout QA started";

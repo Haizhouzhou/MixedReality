@@ -96,6 +96,7 @@ namespace TwinInspector.Editor
             foreach(var behaviour in rig.GetComponentsInChildren<MonoBehaviour>(true))
             { string type=behaviour.GetType().Name; if(type.Contains("MoveProvider") || type.Contains("TurnProvider") || type.Contains("TeleportationProvider") || type.Contains("GrabMoveProvider")) behaviour.enabled=false; }
             var cameraManager=camera.GetComponent<ARCameraManager>() ?? camera.gameObject.AddComponent<ARCameraManager>(); cameraManager.enabled=false;
+            var occlusion=camera.GetComponent<AROcclusionManager>() ?? camera.gameObject.AddComponent<AROcclusionManager>(); occlusion.enabled=false;
             var anchor=rig.AddComponent<ARAnchorManager>(); anchor.enabled=false;
             var planes=rig.AddComponent<ARPlaneManager>(); planes.requestedDetectionMode=PlaneDetectionMode.Horizontal; planes.enabled=false;
             var images=rig.AddComponent<ARTrackedImageManager>(); images.referenceLibrary=library; images.requestedMaxNumberOfMovingImages=2; images.enabled=false;

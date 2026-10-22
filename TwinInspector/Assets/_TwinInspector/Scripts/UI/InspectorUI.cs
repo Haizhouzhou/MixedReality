@@ -284,9 +284,12 @@ namespace TwinInspector
         void DiagnosticsPage()
         {
             panel.Header(L.Get("page.diagnostics.label"),L.Get("page.diagnostics.heading"),Application.isEditor ? L.Get("meta.editor") : L.Get("meta.device"));
-            liveText=panel.Text(app.Performance.Readout,24,104,432,120);
-            panel.Button(L.Get("button.back"),24,248,432,() => Show("setup"));
+            liveText=panel.Text(DiagnosticsReadout,24,104,432,120);liveText.overflowMode=TextOverflowModes.Truncate;
+            panel.Button(L.Get("button.depthProbe"),24,248,144,()=>app.Probes.DepthProbe());
+            panel.Button(L.Get("button.cameraProbe"),168,248,144,()=>app.Probes.CameraProbe());
+            panel.Button(L.Get("button.back"),312,248,144,() => Show("setup"));
         }
+        string DiagnosticsReadout=>app.Performance.Readout+(string.IsNullOrEmpty(app.Probes.Status)?"":"\n"+app.Probes.Status);
         void LanguagePage()
         {
             panel.Header(L.Get("page.setup.label"),L.Get("button.language"));
@@ -320,7 +323,7 @@ namespace TwinInspector
             {
                 nextRefresh=Time.unscaledTime+.25f;
                 if(liveText && page=="marker") liveText.text=app.Markers.DisplayStatus;
-                if(liveText && page=="diagnostics") liveText.text=app.Performance.Readout;
+                if(liveText && page=="diagnostics") liveText.text=DiagnosticsReadout;
             }
         }
         void OnDestroy()
