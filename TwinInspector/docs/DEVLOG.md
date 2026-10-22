@@ -142,3 +142,12 @@ All device performance, passthrough, physical marker alignment and anchor reloca
 
 - Added an illustrated repository README with the inspection workflow, Editor controls, APK installation, release checksum and verification status. Existing Editor captures show the dock, Colour/Technical views, Lens and annotation controls. The project README remains the detailed build and data guide.
 - The documentation update leaves the verified v1.2 application binary unchanged.
+
+## v1.3 autonomous implementation — 2026-10-22
+
+Plan: (1) geometry/schema/localisation foundations; (2) device and simulated reality sources; (3) bounded geometry diff engine; (4) candidate patches and review UI; (5) refinement export and evaluation; (6) guide and four languages; (7) bounded MobileSAM integration; (8) diagnostic probes; (9) complete validation, Android build and publication.
+
+Baseline: main 80b0ca3, implementation branch v1.3, brief committed e68ddfb. Python mr imports numpy/trimesh. Unity 6000.3.26f1 started by this run. `adb devices -l` returned only `List of devices attached`; all device behavior remains unverified. The authoritative numbered stages in PROMPT_TwinInspector_v1.3.md govern gates for features implemented so far; Android builds at Stages 5 and 9. Fixture separation is interpreted between independent edits (the moved object's own removal/addition are necessarily 0.7 m apart).
+
+Stage 1: collision meshes stay CPU-readable; lifecycle notifications track collision-set changes. Optional annotation regions preserve the original frame and IDs, legacy files upgrade on save. PCA/convex-hull geometry, invariant CSV and OBJ writers, English resource strings and persistent preferences added. Multi-tile regions may include optional `additional_triangles`; the required primary triangle reference is unchanged. Memory measurement and validation follow below.
+Stage 1 validation: 22/22 EditMode tests pass (16 original + 6 new), zero current compile errors/warnings, zero OpenXR Android issues. Initial test-assembly Newtonsoft reference error was repaired with an explicit precompiled reference; CLI history retains that resolved error, while live console groundTruth is zero. Evidence: tests-stage1-v13.json and compile-stage1-v13.txt.

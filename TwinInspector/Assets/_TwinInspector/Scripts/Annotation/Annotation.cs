@@ -10,12 +10,13 @@ namespace TwinInspector
         public int index;
         public float[] position_twin, normal_twin;
         public DevicePose device_pose_twin;
+        public AnnotationRegion region;
         [Serializable] public sealed class DevicePose { public float[] position, rotation_quat_xyzw; }
         public AnnotationType Kind => Enum.TryParse(type, true, out AnnotationType value) ? value : AnnotationType.Note;
     }
     [Serializable] public sealed class AnnotationDocument
     {
-        public string schema = "twin-annotations/1", scan, exported_utc;
+        public string schema = "twin-annotations/2", scan, exported_utc;
         public int next_index = 1;
         public List<Annotation> items = new List<Annotation>();
     }

@@ -98,7 +98,7 @@ namespace TwinInspector
                 Roam=gameObject.AddComponent<HandLocomotion>(); Roam.Initialize(this);
                 Feedback=gameObject.AddComponent<MicroFeedback>(); Feedback.Initialize();
                 Performance = gameObject.AddComponent<PerfHud>(); Performance.Initialize(Loader,settings);
-                Ready = true; Status = Loader.Manifest.demo ? "Built-in hall · low detail" : "Region "+Loader.Manifest.region.name+" · external data";
+                Ready = true; Status = Loader.Manifest.demo ? "Built-in hall · low detail" : "Region A · external data";
                 EnsureUI(); UI.Show("setup");
                 DevLog.Write("Ready: "+Status);
             }
@@ -114,7 +114,7 @@ namespace TwinInspector
                 Status = error is UnauthorizedAccessException ? "Permissions needed to continue" : "Setup needs attention";
                 DevLog.Write("Startup failed: "+error);
                 Tokens = Resources.Load<DesignTokens>("DesignTokens");
-                if (Tokens) { EnsureUI(); UI.Show("setup"); UI.Notify(error.Message); }
+                if (Tokens) { EnsureUI(); UI.Show("setup"); UI.Notify(L.Get(Status)); }
             }
             finally { starting = false; }
         }

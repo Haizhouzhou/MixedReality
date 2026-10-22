@@ -29,6 +29,9 @@ namespace TwinInspector
         bool initialized;
         public TwinManifest Manifest { get; private set; }
         public string DataRoot { get; private set; }
+        public IReadOnlyList<TileHandle> Tiles => tiles;
+        public int TileVersion { get; private set; }
+        public event Action<TileHandle> CollisionLoaded, CollisionReleasing;
         public int PendingLoads => activeLoads;
         public int LoadedTiles { get { int count = 0; foreach (var tile in tiles) if (tile.Visual) count++; return count; } }
         public int Triangles { get { int count = 0; foreach (var tile in tiles) count += tile.ResidentTriangles; return count; } }
@@ -94,7 +97,7 @@ namespace TwinInspector
             }
             foreach (var tile in tiles)
             {
-                if (tile.Wanted < 0) tile.Dispose();
+                if (tile.Wanted < 0) Release(tile);
                 else if (tile.Loading && tile.Wanted != tile.Lod) { /* Re-evaluate after the bounded current request. */ }
             }
             foreach (var candidate in candidates)
@@ -138,7 +141,7 @@ namespace TwinInspector
                         var collider = filter.gameObject.AddComponent<MeshCollider>();
                         collider.sharedMesh = filter.sharedMesh;
                         filter.gameObject.layer = 8;
-                        filter.sharedMesh.UploadMeshData(true);
+                        filter.sharedMesh.UploadMeshData(false);
                         await Task.Yield();
                         token.ThrowIfCancellationRequested();
                     }
@@ -161,12 +164,13 @@ namespace TwinInspector
                 }
                 token.ThrowIfCancellationRequested();
                 if (tile.Wanted < 0) throw new OperationCanceledException();
+                foreach (var child in visual.GetComponentsInChildren<Transform>(true)) child.gameObject.layer = 11;
                 tile.ReleaseVisual();
                 tile.Visual = visual; tile.VisualImport = visualImport; tile.Lod = lod;
                 tile.Architecture=visual.GetComponentsInChildren<ArchitecturalMesh>(true);
                 foreach(var cached in tile.Architecture) cached.SetVisible(technical);
                 visual.SetActive(true); visual = null; visualImport = null;
-                if (collision) { tile.Collision = collision; tile.ColliderImport = colliderImport; collision.SetActive(true); collision = null; colliderImport = null; }
+                if (collision) { tile.Collision = collision; tile.ColliderImport = colliderImport; collision.SetActive(true); collision = null; colliderImport = null; TileVersion++; CollisionLoaded?.Invoke(tile); }
                 tile.Failures = 0;
             }
             catch (OperationCanceledException) { }
@@ -202,9 +206,14 @@ namespace TwinInspector
         void OnDestroy()
         {
             lifetime.Cancel();
-            foreach (var tile in tiles) tile.Dispose();
+            foreach (var tile in tiles) Release(tile);
             lifetime.Dispose();
             if(softMaterial) Destroy(softMaterial);
+        }
+        void Release(TileHandle tile)
+        {
+            if (tile.Collision) { TileVersion++; CollisionReleasing?.Invoke(tile); }
+            tile.Dispose();
         }
     }
 }

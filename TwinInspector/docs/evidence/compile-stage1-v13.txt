@@ -1,0 +1,54 @@
+{
+  "status": "completed",
+  "failed": false,
+  "errors": [],
+  "compilationFailed": false
+}
+{
+  "output": null,
+  "diagnostics": [],
+  "success": true,
+  "result": "OpenXR Android issues: 0\r\nEnabled: UnityEngine.XR.OpenXR.Features.Interactions.HandInteractionProfile\r\nEnabled: UnityEngine.XR.OpenXR.Features.Interactions.KHRSimpleControllerProfile\r\nEnabled: UnityEngine.XR.OpenXR.Features.Interactions.PalmPoseInteraction\r\nEnabled: UnityEngine.XR.OpenXR.Features.Interactions.HandCommonPosesInteraction\r\nEnabled: UnityEngine.XR.OpenXR.Features.CompositionLayers.OpenXRCompositionLayersFeature\r\nEnabled: UnityEngine.XR.OpenXR.Features.FoveatedRenderingFeature\r\nEnabled: UnityEngine.XR.Hands.OpenXR.HandTracking\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.OpenXRLifeCycleFeature\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.ARCameraFeature\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.AROcclusionFeature\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.AndroidXRSupportFeature\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.DisplayUtilitiesFeature\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.AndroidXRPerformanceMetrics\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.ARRaycastFeature\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.ARMeshFeature\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.ARAnchorFeature\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.ARPlaneFeature\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.ARSessionFeature\r\nEnabled: Google.XR.Extensions.XRUnboundedRefSpaceFeature\r\nEnabled: Google.XR.Extensions.XRQrCodeTrackingFeature\r\nEnabled: Google.XR.Extensions.XRPassthroughFeature\r\nEnabled: Google.XR.Extensions.XRSessionFeature\r\nEnabled: Google.XR.Extensions.XRMarkerTrackingFeature\r\nCompiling: False\r\n"
+}
+{
+  "entries": [
+    {
+      "seq": 1,
+      "timestampUtc": "2026-10-22T21:25:49.3478888Z",
+      "level": "error",
+      "logType": "Error",
+      "message": "Assets\\_TwinInspector\\Tests\\Editor\\SchemaV2Tests.cs(4,7): error CS0246: The type or namespace name 'Newtonsoft' could not be found (are you missing a using directive or an assembly reference?)",
+      "stackTrace": "",
+      "seeded": false
+    },
+    {
+      "seq": 2,
+      "timestampUtc": "2026-10-22T21:25:49.3503961Z",
+      "level": "error",
+      "logType": "Error",
+      "message": "Assets\\_TwinInspector\\Tests\\Editor\\StringsTests.cs(2,7): error CS0246: The type or namespace name 'Newtonsoft' could not be found (are you missing a using directive or an assembly reference?)",
+      "stackTrace": "",
+      "seeded": false
+    }
+  ],
+  "cursor": 9,
+  "session": "fab17031ce344125b6ae108597023a8e",
+  "returned": 2,
+  "dropped": false,
+  "reset": false,
+  "counts": {
+    "error": 2,
+    "warn": 0,
+    "log": 7
+  },
+  "groundTruth": {
+    "sampledUtc": "2026-10-22T21:27:39.4825202Z",
+    "ageMs": 183,
+    "compilationFailed": false,
+    "compiling": false,
+    "consoleErrors": 0,
+    "consoleWarnings": 0,
+    "consoleLogs": 7,
+    "seeded": true
+  }
+}

@@ -21,15 +21,16 @@ namespace TwinInspector
             System.Action[] actions={()=>app.UI.Show("mode"),()=>app.UI.Show("align"),()=>app.UI.BeginAnnotation(),()=>app.UI.Show("list")};
             for(int i=0;i<4;i++)
             {
-                var button=panel.Button(labels[i],i*139.75f,0,140.75f,actions[i]); cells[i]=button.GetComponent<SwissButton>();
+                var button=panel.Button(L.Get(labels[i]),i*139.75f,0,140.75f,actions[i]); cells[i]=button.GetComponent<SwissButton>();
                 ((RectTransform)button.transform).sizeDelta=new Vector2(140.75f,64);
                 ((RectTransform)button.transform.Find("Fill")).sizeDelta=new Vector2(138.75f,62);
                 var text=button.GetComponentInChildren<TMP_Text>(); text.rectTransform.anchoredPosition=new Vector2(12,-28); text.rectTransform.sizeDelta=new Vector2(116.75f,26);
-                text.font=app.Tokens.Medium; text.fontSize=16; text.characterSpacing=6; text.alignment=TextAlignmentOptions.MidlineLeft;
+                text.font=app.Tokens.Medium; text.fontSize=16; text.enableAutoSizing=true; text.fontSizeMin=12; text.fontSizeMax=16; text.textWrappingMode=TextWrappingModes.NoWrap; text.characterSpacing=6; text.alignment=TextAlignmentOptions.MidlineLeft;
                 var index=panel.Text((i+1).ToString("D2"),12,8,80,18,12,false,button.transform); index.font=app.Tokens.Medium; cells[i].SetIndex(index);
             }
             Recenter(true);
         }
+        public void RefreshLabels() { string[] labels={"MODE","ALIGN","ANNOTATE","LIST"}; for(int i=0;i<cells.Length;i++) cells[i].GetComponentInChildren<TMP_Text>().text=L.Get(labels[i]); }
         public void Select(int index) { if(cells!=null) for(int i=0;i<cells.Length;i++) cells[i].SetSelected(i==index); }
         public void Dock(PanelBase panel) { dockedPanel=panel; PositionPanel(); }
         void PositionPanel()

@@ -79,7 +79,7 @@ namespace TwinInspector
             var rect = Rectangle(label, parent ? parent : content, x,y,width,48);
             rect.gameObject.AddComponent<Image>().color = tokens.Ink;
             var inset = Rectangle("Fill",rect,1,1,width-2,46); var fill = inset.gameObject.AddComponent<Image>();
-            var text = Text(label,12,8,width-24,32,DesignTokens.Body,false,rect); text.alignment = TextAlignmentOptions.MidlineLeft;
+            var text = Text(label,12,8,width-24,32,DesignTokens.Body,false,rect); text.alignment = TextAlignmentOptions.MidlineLeft; text.enableAutoSizing=true; text.fontSizeMin=16; text.fontSizeMax=DesignTokens.Body; text.textWrappingMode=TextWrappingModes.NoWrap;
             var button = rect.gameObject.AddComponent<Button>(); button.targetGraphic = fill; button.transition = Selectable.Transition.None;
             button.onClick.AddListener(() => { button.GetComponent<SwissButton>().Accepted(); action(); AppBootstrap.Instance?.Feedback?.Confirm(); });
             rect.gameObject.AddComponent<SwissButton>().Configure(fill,text,tokens,primary); return button;

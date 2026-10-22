@@ -1,1 +1,1 @@
-{"name":"TwinInspector.Tests","rootNamespace":"TwinInspector.Tests","references":["TwinInspector.Runtime","Unity.Newtonsoft.Json"],"includePlatforms":["Editor"],"optionalUnityReferences":["TestAssemblies"]}
+{"name":"TwinInspector.Tests","rootNamespace":"TwinInspector.Tests","references":["TwinInspector.Runtime","Unity.Collections"],"overrideReferences":true,"precompiledReferences":["nunit.framework.dll","Newtonsoft.Json.dll"],"includePlatforms":["Editor"],"optionalUnityReferences":["TestAssemblies"]}

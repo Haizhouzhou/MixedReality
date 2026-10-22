@@ -10,6 +10,7 @@ namespace TwinInspector
     /// <summary>Resolves external data, an Editor override, or packaged Android assets.</summary>
     public static class TwinPaths
     {
+        public static string ModelsRoot(Settings settings) => Application.isEditor ? settings.EditorModelsPath : Path.Combine(Application.persistentDataPath,"twin",settings.DataFolder,"models");
         public static string Resolve(Settings settings)
         {
 #if UNITY_EDITOR

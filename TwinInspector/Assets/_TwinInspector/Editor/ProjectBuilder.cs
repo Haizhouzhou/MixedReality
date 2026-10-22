@@ -30,8 +30,13 @@ namespace TwinInspector.Editor
             if(EditorApplication.isPlaying) throw new InvalidOperationException("Stop Play mode before authoring Main");
             foreach(var folder in new[]{"Resources","Prefabs","Materials","Scenes","Fonts"}) Directory.CreateDirectory(Root+"/"+folder);
             AssetDatabase.Refresh();
-            PlayerSettings.companyName="MR Twin Team"; PlayerSettings.productName="TwinInspector"; PlayerSettings.bundleVersion="1.2.0";
-            PlayerSettings.Android.bundleVersionCode=2;
+            PlayerSettings.companyName="MR Twin Team"; PlayerSettings.productName="TwinInspector"; PlayerSettings.bundleVersion="1.3.0";
+            PlayerSettings.Android.bundleVersionCode=3;
+            var tags = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset")[0]);
+            var layers = tags.FindProperty("layers");
+            string[] layerNames = { "Building", "SceneMesh", "Annotation", "TwinVisual", "DiffPatch" };
+            for (int i=0;i<layerNames.Length;i++) layers.GetArrayElementAtIndex(8+i).stringValue=layerNames[i];
+            tags.ApplyModifiedPropertiesWithoutUndo();
             PlayerSettings.SetApplicationIdentifier(UnityEditor.Build.NamedBuildTarget.Android,"com.mrtwin.inspector");
             PlayerSettings.Android.targetSdkVersion=AndroidSdkVersions.AndroidApiLevelAuto;
             PlayerSettings.Android.targetArchitectures=AndroidArchitecture.ARM64;
@@ -147,12 +152,12 @@ namespace TwinInspector.Editor
         static TMP_FontAsset FontAsset(string name)
         {
             string path=Root+"/Fonts/"+name+" SDF.asset";
-            var font=AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(path); if(font) { font.TryAddCharacters("0123456789Δ•−",true); TabularDigits(font); return font; }
+            var font=AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(path); if(font) { font.TryAddCharacters("0123456789Δ•−²äöüÄÖÜßéèàâêëîïôùûçœÉÈÀÇìòéÌÒÉ…",true); TabularDigits(font); return font; }
             var source=AssetDatabase.LoadAssetAtPath<Font>(Root+"/Fonts/"+name+".otf");
             if(!source) throw new FileNotFoundException("Font missing: "+name);
             font=TMP_FontAsset.CreateFontAsset(source,64,8,GlyphRenderMode.SDFAA,2048,2048,AtlasPopulationMode.Dynamic,true); font.name=name+" SDF";
             AssetDatabase.CreateAsset(font,path);
-            font.TryAddCharacters(" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~°±−×·←→↑↓□■éèàüöäΔ•",true);
+            font.TryAddCharacters(" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~°±−×·←→↑↓□■éèàüöäΔ•²äöüÄÖÜßéèàâêëîïôùûçœÉÈÀÇìòéÌÒÉ…",true);
             foreach(var atlas in font.atlasTextures) { atlas.name=name+" Atlas"; AssetDatabase.AddObjectToAsset(atlas,font); }
             font.material.name=name+" Material"; AssetDatabase.AddObjectToAsset(font.material,font);
             TabularDigits(font); EditorUtility.SetDirty(font); return font;
