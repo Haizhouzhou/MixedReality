@@ -72,7 +72,7 @@ namespace TwinInspector
             var normal=item.space==CandidateSpace.World?TwinRoot.Vector(item.normal):root.NormalToWorld(TwinRoot.Vector(item.normal));
             transform.SetPositionAndRotation(item.CentroidWorld(root)+normal*.003f,Quaternion.LookRotation(-normal,Mathf.Abs(Vector3.Dot(normal,Vector3.up))>.95f?Vector3.forward:Vector3.up));
             properties.SetColor("_Color",AnnotationTypes.Colour(kind).linear);properties.SetFloat("_Kind",(int)kind);properties.SetFloat("_Candidate",1);disc.SetPropertyBlock(properties);
-            label.text=L.Format("?? {0} · {1:F1} m²",AnnotationTypes.Prefix(kind),item.area_m2);label.enableAutoSizing=true;label.fontSizeMin=14;label.fontSizeMax=18;Paint();
+            label.text=L.Format("text.01F1M",AnnotationTypes.Prefix(kind),item.area_m2);label.enableAutoSizing=true;label.fontSizeMin=14;label.fontSizeMax=18;Paint();
         }
         public void Hover(bool value) { if(hovered==value) return; hovered=value; Paint(); }
         void Paint()

@@ -118,7 +118,7 @@ namespace TwinInspector.Editor
             EditorSceneManager.SaveScene(scene,Root+"/Scenes/Inspector.unity");
             EditorBuildSettings.scenes=new[]{new EditorBuildSettingsScene(Root+"/Scenes/Inspector.unity",true)};
             AssetDatabase.SaveAssets(); AssetDatabase.Refresh();
-            Directory.CreateDirectory("docs/evidence"); File.WriteAllText("docs/evidence/setup.txt",DateTime.UtcNow.ToString("O")+"\nMain, DesignTokens, Settings, fonts, materials, prefabs and Android XR rendering authored successfully.\n");
+            Directory.CreateDirectory("docs/evidence"); File.WriteAllText("docs/evidence/setup-v13.txt",DateTime.UtcNow.ToString("O")+"\nMain, DesignTokens, Settings, fonts, materials, prefabs and Android XR rendering authored successfully.\n");
             Debug.Log("TwinInspector project setup complete");
         }
         static void ConfigureRendering()
@@ -150,15 +150,21 @@ namespace TwinInspector.Editor
             graphics.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(pipeline);
         }
+        static string UiCharacters()
+        {
+            var chars=new System.Collections.Generic.HashSet<char>(" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~°±−×·←→↑↓□■Δ•²…");
+            foreach(var path in Directory.GetFiles(Root+"/Resources/Strings","*.json"))foreach(char c in File.ReadAllText(path))if(!char.IsControl(c))chars.Add(c);
+            var ordered=new char[chars.Count];chars.CopyTo(ordered);Array.Sort(ordered);return new string(ordered);
+        }
         static TMP_FontAsset FontAsset(string name)
         {
             string path=Root+"/Fonts/"+name+" SDF.asset";
-            var font=AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(path); if(font) { font.TryAddCharacters("0123456789Δ•−²äöüÄÖÜßéèàâêëîïôùûçœÉÈÀÇìòéÌÒÉ…",true); TabularDigits(font); return font; }
+            var font=AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(path); if(font) { font.TryAddCharacters(UiCharacters(),true); TabularDigits(font); return font; }
             var source=AssetDatabase.LoadAssetAtPath<Font>(Root+"/Fonts/"+name+".otf");
             if(!source) throw new FileNotFoundException("Font missing: "+name);
             font=TMP_FontAsset.CreateFontAsset(source,64,8,GlyphRenderMode.SDFAA,2048,2048,AtlasPopulationMode.Dynamic,true); font.name=name+" SDF";
             AssetDatabase.CreateAsset(font,path);
-            font.TryAddCharacters(" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~°±−×·←→↑↓□■éèàüöäΔ•²äöüÄÖÜßéèàâêëîïôùûçœÉÈÀÇìòéÌÒÉ…",true);
+            font.TryAddCharacters(UiCharacters(),true);
             foreach(var atlas in font.atlasTextures) { atlas.name=name+" Atlas"; AssetDatabase.AddObjectToAsset(atlas,font); }
             font.material.name=name+" Material"; AssetDatabase.AddObjectToAsset(font.material,font);
             TabularDigits(font); EditorUtility.SetDirty(font); return font;

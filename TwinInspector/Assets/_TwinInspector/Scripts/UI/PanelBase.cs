@@ -37,6 +37,7 @@ namespace TwinInspector
             // Put transient feedback above the panel so it cannot cover the docked tool strip.
             var footer = Rectangle("Toast",rect,0,-56,480,48); var surface = footer.gameObject.AddComponent<Image>(); surface.color = tokens.Paper; surface.raycastTarget = false;
             toast = Text("",24,8,432,32,DesignTokens.Body,false,footer); toast.transform.parent.gameObject.SetActive(false);
+            toast.enableAutoSizing=true;toast.fontSizeMin=16;toast.fontSizeMax=DesignTokens.Body;toast.textWrappingMode=TextWrappingModes.NoWrap;
         }
         public void Header(string label, string heading, string status = "") { section.text = label.ToUpperInvariant(); title.text = heading; meta.text = status; }
         public void Clear()
@@ -92,8 +93,8 @@ namespace TwinInspector
             var handleArea = Rectangle("Handle area",root,6,14,340,12);
             var handle = Rectangle("Square handle",handleArea,0,0,12,0); handle.pivot = new Vector2(.5f,.5f); handle.anchorMin = new Vector2(0,0); handle.anchorMax=new Vector2(0,1); handle.gameObject.AddComponent<Image>().color = tokens.Ink;
             var slider = root.gameObject.AddComponent<Slider>(); slider.minValue = min; slider.maxValue = max; slider.handleRect = handle; slider.targetGraphic = handle.GetComponent<Image>(); slider.transition = Selectable.Transition.None; slider.value = value;
-            var readout = Text(suffix==" %"?Mathf.RoundToInt(value*100)+suffix:value.ToString("F1")+suffix,384,y+4,72,32,DesignTokens.Body); readout.alignment = TextAlignmentOptions.TopRight;
-            slider.onValueChanged.AddListener(v => { readout.text = suffix==" %"?Mathf.RoundToInt(v*100)+suffix:v.ToString("F1")+suffix; changed(v); });
+            var readout = Text(suffix==" %"?Mathf.RoundToInt(value*100)+suffix:value.ToString("F1",System.Globalization.CultureInfo.InvariantCulture)+suffix,384,y+4,72,32,DesignTokens.Body); readout.alignment = TextAlignmentOptions.TopRight;
+            slider.onValueChanged.AddListener(v => { readout.text = suffix==" %"?Mathf.RoundToInt(v*100)+suffix:v.ToString("F1",System.Globalization.CultureInfo.InvariantCulture)+suffix; changed(v); });
             root.gameObject.AddComponent<SliderFeedback>();
         }
         public RectTransform Scroll(float contentHeight)
@@ -107,6 +108,7 @@ namespace TwinInspector
         {
             var rect=Rectangle(label,parent,0,y,432,56); var fill=rect.gameObject.AddComponent<Image>();
             var text=Text(label,12,12,408,32,DesignTokens.Body,false,rect);
+            text.enableAutoSizing=true;text.fontSizeMin=16;text.fontSizeMax=DesignTokens.Body;text.textWrappingMode=TextWrappingModes.NoWrap;
             var rule=Rectangle("Row rule",rect,0,55,432,1); rule.gameObject.AddComponent<Image>().color=tokens.Ink;
             var button=rect.gameObject.AddComponent<Button>(); button.targetGraphic=fill; button.transition=Selectable.Transition.None; button.onClick.AddListener(()=> { action(); AppBootstrap.Instance?.Feedback?.Confirm(); });
             rect.gameObject.AddComponent<SwissButton>().Configure(fill,text,tokens,selected);

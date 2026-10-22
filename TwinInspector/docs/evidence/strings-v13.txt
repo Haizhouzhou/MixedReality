@@ -1,0 +1,5 @@
+Language=en pages=20 overflow=0 missing_keys=0
+Language=de pages=20 overflow=0 missing_keys=0
+Language=fr pages=20 overflow=0 missing_keys=0
+Language=it pages=20 overflow=0 missing_keys=0
+Missing glyph warnings=0

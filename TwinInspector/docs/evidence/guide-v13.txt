@@ -1,0 +1,20 @@
+PASS: first-launch preference opens guide: en
+PASS: Next does not complete onboarding
+PASS: Next does not complete onboarding
+PASS: Next does not complete onboarding
+PASS: Next does not complete onboarding
+PASS: Next does not complete onboarding
+PASS: sixth card shows Done
+PASS: Done persists completion
+PASS: Setup reopens guide
+PASS: Skip closes guide
+PASS: first-launch preference opens guide: de
+PASS: Next does not complete onboarding
+PASS: Next does not complete onboarding
+PASS: Next does not complete onboarding
+PASS: Next does not complete onboarding
+PASS: Next does not complete onboarding
+PASS: sixth card shows Done
+PASS: Done persists completion
+PASS: Setup reopens guide
+PASS: Skip closes guide

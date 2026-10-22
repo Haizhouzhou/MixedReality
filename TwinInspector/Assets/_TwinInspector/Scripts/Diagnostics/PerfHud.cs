@@ -52,6 +52,6 @@ namespace TwinInspector
                 DevLog.Write($"Metrics source={(Application.isEditor?"Editor":"device")} fps={Fps:F1} cpu_ms={CpuMs:F2} gpu_ms={GpuMs:F2} tiles={loader.LoadedTiles} resident_tris={loader.Triangles}");
             }
         }
-        public string Readout => L.Format("{0:F1} fps\nCPU {1}    GPU {2}\n{3} tiles    {4:N0} triangles", Fps, CpuMs<0?L.Get("n/a"):CpuMs.ToString("F1")+" ms", GpuMs<0?L.Get("n/a"):GpuMs.ToString("F1")+" ms", loader?.LoadedTiles??0, loader?.Triangles??0);
+        public string Readout => L.Format("diagnostics.metrics", Fps, CpuMs<0?L.Get("text.nA"):CpuMs.ToString("F1",System.Globalization.CultureInfo.InvariantCulture)+" ms", GpuMs<0?L.Get("text.nA"):GpuMs.ToString("F1",System.Globalization.CultureInfo.InvariantCulture)+" ms", loader?.LoadedTiles??0, loader?.Triangles??0);
     }
 }

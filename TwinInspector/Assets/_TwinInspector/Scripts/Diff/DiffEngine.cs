@@ -28,6 +28,7 @@ namespace TwinInspector
         public AnnotationType PendingType {get;set;}
         public bool Visible {get=>visibleSetting;set{visibleSetting=value;Changed?.Invoke();}}
         public bool Paused=>paused;
+        public bool HasPendingWork=>work!=null;
         public bool Settled=>source!=null&&source.Ready&&queued.Count==0&&evaluatedTiles.Count==tiles.Count&&members.All(c=>c.stable);
         public int LastRays {get;private set;}
         public int LastOverlaps {get;private set;}
@@ -111,7 +112,9 @@ namespace TwinInspector
         bool Valid(DiffWork w)
         {
             if(!w.Stamp.Matches(app.Loader.TileVersion,w.Stamp.SourceVersion,generation))return false;
-            return w.Missing?tiles.ContainsKey(w.Id):source.Chunks.Any(c=>c.Id==w.Id&&c.Version==w.Version);
+            if(w.Missing)return tiles.ContainsKey(w.Id);
+            foreach(var c in source.Chunks)if(c.Id==w.Id&&c.Version==w.Version)return true;
+            return false;
         }
         void Apply(DiffWork w)
         {
@@ -140,12 +143,12 @@ namespace TwinInspector
             foreach(var id in CandidateRules.MemberIds(c)) {var member=id==c.id?c:members.Find(x=>x.id==id);if(member==null)continue;var sphere=Sphere(member);if(persist)dismissed.items.Add(sphere);else sessionSuppression.Add(sphere);members.RemoveAll(x=>x.id==id);}
             Selected=null;if(persist)JsonStore.Write(dismissedPath,dismissed);RebuildVisible();
         }
-        public void Dismiss(){if(Selected==null)return;Remove(Selected,true);app.Feedback?.Confirm();app.UI.Notify(L.Get("Candidate dismissed"));}
+        public void Dismiss(){if(Selected==null)return;Remove(Selected,true);app.Feedback?.Confirm();app.UI.Notify(L.Get("toast.candidateDismissed"));}
         public Annotation Confirm()
         {
             var c=Selected;if(c==null)return null;var region=Region(c);var normal=TwinRoot.Vector(region.normal_twin);
             var item=app.Annotations.Add(c.CentroidTwin(app.Root),normal,app.Root.WorldToTwin(app.Viewer.transform.position),app.Root.RotationToTwin(app.Viewer.transform.rotation),PendingType,region);
-            Remove(c,false);app.Feedback?.Confirm();app.UI.Notify(L.Format("Candidate confirmed · Annotation {0:D2}",item.index));return item;
+            Remove(c,false);app.Feedback?.Confirm();app.UI.Notify(L.Format("toast.candidateConfirmedAnnotation0D2",item.index));return item;
         }
         public AnnotationRegion Region(Candidate c)
         {
@@ -159,5 +162,6 @@ namespace TwinInspector
             var chunk=source?.Chunks.FirstOrDefault(s=>s.Id==c.chunk_or_tile);vertices=chunk?.Vertices;triangles=chunk?.Triangles;return chunk!=null;
         }
         void OnDestroy(){if(work!=null)work.Dispose();if(source!=null){source.ChunkChanged-=SourceChanged;source.ChunkRemoved-=SourceRemoved;}if(app&&app.Loader){app.Loader.CollisionLoaded-=Loaded;app.Loader.CollisionReleasing-=Released;}if(app?.Annotations!=null)app.Annotations.Changed-=AnnotationChanged;}
+        void OnDisable(){if(work!=null){work.Dispose();work=null;}}
     }
 }

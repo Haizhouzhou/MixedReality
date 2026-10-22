@@ -29,6 +29,7 @@ namespace TwinInspector
         public static AppBootstrap Instance { get; private set; }
         public bool Ready { get; private set; }
         public string Status { get; private set; } = "Starting TwinInspector";
+        public string DisplayStatus=>Ready&&Loader&&!Loader.Manifest.demo?L.Format("status.region",Loader.Manifest.region.name):L.Get(Status);
         public Camera Viewer => viewer;
         public Settings Config => settings;
         public ARMeshManager MeshManager => meshManager;
@@ -105,7 +106,7 @@ namespace TwinInspector
                 if(!Application.isEditor) {var source=gameObject.AddComponent<SceneSurfaceSource>();source.Initialize(meshManager);SceneSource=source;}
                 Diff=gameObject.AddComponent<DiffEngine>();Diff.Initialize(this);
                 gameObject.AddComponent<CandidateVisuals>().Initialize(this);
-                Ready = true; Status = Loader.Manifest.demo ? "Built-in hall · low detail" : "Region A · external data";
+                Ready = true; Status = Loader.Manifest.demo ? "Built-in hall · low detail" : "Region "+Loader.Manifest.region.name+" · external data";
                 EnsureUI(); UI.Show("setup");
                 DevLog.Write("Ready: "+Status);
             }

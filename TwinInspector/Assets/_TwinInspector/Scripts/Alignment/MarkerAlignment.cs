@@ -36,7 +36,7 @@ namespace TwinInspector
         Quaternion previousRotation;
         Pose before;
         bool scanning;
-        public string DisplayStatus => Status.StartsWith("Aligned with marker ",StringComparison.Ordinal) ? L.Get("Marker aligned · check twin") : L.Get(Status);
+        public string DisplayStatus => Status.StartsWith("Aligned with marker ",StringComparison.Ordinal) ? L.Get("text.markerAlignedCheckTwin") : L.Get(Status);
         public string Status { get; private set; } = "Marker not detected";
         public bool AwaitingConfirmation { get; private set; }
         public event Action Changed;

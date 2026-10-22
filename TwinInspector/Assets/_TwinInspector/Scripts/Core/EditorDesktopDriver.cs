@@ -64,7 +64,7 @@ namespace TwinInspector
             if(!app || !app.Input || !app.Input.Desktop || !app.Performance || !app.Performance.Visible) return;
             var style=new GUIStyle(GUI.skin.label) { fontSize=12, normal={textColor=new Color(.067f,.067f,.067f)} };
             GUI.color=new Color(.949f,.945f,.925f); GUI.DrawTexture(new Rect(12,Screen.height-60,650,48),Texture2D.whiteTexture); GUI.color=Color.white;
-            GUI.Label(new Rect(20,Screen.height-56,630,44),$"RMB look · WASD move · E/Q height · Alt boost · RMB + wheel speed {MoveSpeed:F1} m/s\n1 Mode · 2 Align · 3 Annotate · 4 List · M marker · Tab summon",style);
+            GUI.Label(new Rect(20,Screen.height-56,630,44),L.Format("desktop.hint",MoveSpeed),style);
         }
         void ReleaseCursor() { flying=false; Cursor.lockState=CursorLockMode.None; Cursor.visible=true; }
         void OnDisable() { if(Application.isEditor) ReleaseCursor(); }
