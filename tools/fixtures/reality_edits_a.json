@@ -3,9 +3,9 @@
   "scan": "navvis_2022-02-06_12.55.11",
   "region": "A",
   "edits": [
-    {"id":"e1","kind":"remove_sphere","center_twin":[9.98,8,0.6],"radius_m":0.9,"expect":"missing"},
+    {"id":"e1","kind":"remove_sphere","center_twin":[12,0,0.6],"radius_m":0.9,"expect":"missing"},
     {"id":"e2","kind":"add_box","center_twin":[15,10,0.45],"size_m":[0.9,0.9,0.9],"yaw_deg":15,"expect":"new"},
-    {"id":"e3","kind":"move_object","from_twin":[9.98,15,0.4],"to_twin":[10.68,15,0.4],"radius_m":0.6,"size_m":[0.8,0.8,0.8],"expect":"changed"},
+    {"id":"e3","kind":"move_object","from_twin":[34,19,0.4],"to_twin":[33.3,19,0.4],"radius_m":0.6,"size_m":[0.8,0.8,0.8],"expect":"changed"},
     {"id":"e4","kind":"jitter","sigma_m":0.02,"seed":1303,"expect":"none"}
   ]
 }

@@ -33,6 +33,7 @@ namespace TwinInspector
         public Settings Config => settings;
         public ARMeshManager MeshManager => meshManager;
         public ISceneSurfaceSource SceneSource { get; set; }
+        public DiffEngine Diff { get; private set; }
         public XROrigin Origin => origin;
         public DesignTokens Tokens { get; private set; }
         public TwinRoot Root { get; private set; }
@@ -102,6 +103,7 @@ namespace TwinInspector
                 Feedback=gameObject.AddComponent<MicroFeedback>(); Feedback.Initialize();
                 Performance = gameObject.AddComponent<PerfHud>(); Performance.Initialize(Loader,settings);
                 if(!Application.isEditor) {var source=gameObject.AddComponent<SceneSurfaceSource>();source.Initialize(meshManager);SceneSource=source;}
+                Diff=gameObject.AddComponent<DiffEngine>();Diff.Initialize(this);
                 Ready = true; Status = Loader.Manifest.demo ? "Built-in hall · low detail" : "Region A · external data";
                 EnsureUI(); UI.Show("setup");
                 DevLog.Write("Ready: "+Status);

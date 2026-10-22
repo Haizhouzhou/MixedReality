@@ -1,0 +1,9 @@
+PASS: real Region A fixture, missing=2 new=1 changed=1 other=1
+PASS: Changed pairs are one-to-one, both members hidden, paired New within 0.5m of planted target.
+Measured Editor main_ms=0.238 max rays/frame=2048 max overlaps/frame=2048
+New (14.99, 9.99, 0.55) area=4,146304
+Missing (11.85, 0.24, 0.74) area=1,048112
+Missing (11.86, -0.16, 0.97) area=1,015825
+Changed (34.18, 19.01, 0.50) area=0,5972234
+New (1.73, 26.13, 5.88) area=0,1536215
+Device geometry, latency and tracking remain unverified. Candidates are geometric hypotheses, not verified changes.
