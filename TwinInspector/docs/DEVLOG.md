@@ -205,7 +205,7 @@ Strings: **en 0, de 0, fr 0, it 0** overflows; each language covers 21 page/card
 
 SAM functional prototype: column **468.7 ms**, wall **659.0 ms** warm total time; areas **0.5413 / 4.2603 m²**, normal errors **0 / 5.42°**. Cold total **33,127.6 ms**, including a **30,070.55 ms** single scheduling stall; warm encoder scheduling peaks **4.88 / 23.77 ms**, decoder **10.15 / 38.23 ms**. These violate the 4 ms scheduling target, so `objectPickEnabled=false` is the release default and the button is hidden. Sampled Unity allocations exclude GPU-driver allocations; neither the 400 MB memory target nor device latency is verified.
 
-Stage commits: 1 `3e7bce1`; 2 `e4c659e`; 3 `9671119`; 4 `13129e2`; 5 `4ecc386`; 6 `0adb34f`; 7 `ee2c24d`; 8 `cea8868`. Stage 9, tag and remote log are recorded after publication below. `gh` is not installed, so the authorized local-merge publication path is used; no pull request is created.
+Stage commits: 1 `3e7bce1`; 2 `e4c659e`; 3 `9671119`; 4 `13129e2`; 5 `4ecc386`; 6 `0adb34f`; 7 `ee2c24d`; 8 `cea8868`; 9 `bf5818d`. Release tag: `v1.3.0`. `gh` is not installed, so the authorized local-merge publication path was used; no pull request was created.
 
 Final `adb devices -l` output:
 
@@ -232,3 +232,17 @@ Implementation decisions and reasons:
 - The package/model runtime fails the frame budget, so the brief's bounded optional-feature fallback is used: code/models retained, SAM disabled, geometric comparison enabled.
 - Background diff refreshes wait for idle UI input and preserve scroll position because rebuilding a live ScrollRect interrupts real interaction.
 - Deployment is standalone local processing after installation/data transfer; the workstation prepares data and retrieves exports. Continuous PC or server inference is not part of the application architecture, and hardware support/performance remains subject to the above acceptance run.
+
+### Publication record
+
+Stage 9 commit **bf5818d1ce6be3769162b3124ef36220a389b9bd** was pushed to `origin/v1.3`, fast-forwarded into `main`, and published with annotated tag **v1.3.0**. The remote tag object is `7c903982b7d7a850fd482de1d91fbb31ceda5f74`; its peeled commit and `origin/main` both resolved to the Stage 9 commit immediately after publication. GitHub accepted the 73.63 MiB APK with its standard advisory about files above 50 MiB; it is below the project's 95 MB limit. PR: none (`gh` unavailable; local-merge route authorized).
+
+Quoted `git log origin/main --oneline -3`, captured immediately after the release push and before this documentation-only audit commit:
+
+```text
+bf5818d v1.3 Stage 9 — verified Android release, interaction regression and acceptance docs
+cea8868 v1.3 Stage 8 — bounded depth and Camera2 metadata probes
+ee2c24d v1.3 Stage 7 — validated MobileSAM prototype with guarded release fallback
+```
+
+This follow-up records the publication proof without changing the tagged application or APK. The final build's Unity-authored preload entries reference the existing XR General Settings and OpenXR Package Settings assets; they are retained. No model asset is preloaded or bundled.
