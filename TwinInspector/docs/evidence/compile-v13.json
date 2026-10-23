@@ -1,0 +1,20 @@
+{
+  "compile": {
+    "status": "completed",
+    "failed": false,
+    "errors": [],
+    "compilationFailed": false
+  },
+  "openxr": "OpenXR Android issues: 0\r\nEnabled: UnityEngine.XR.OpenXR.Features.Interactions.HandInteractionProfile\r\nEnabled: UnityEngine.XR.OpenXR.Features.Interactions.KHRSimpleControllerProfile\r\nEnabled: UnityEngine.XR.OpenXR.Features.Interactions.PalmPoseInteraction\r\nEnabled: UnityEngine.XR.OpenXR.Features.Interactions.HandCommonPosesInteraction\r\nEnabled: UnityEngine.XR.OpenXR.Features.CompositionLayers.OpenXRCompositionLayersFeature\r\nEnabled: UnityEngine.XR.OpenXR.Features.FoveatedRenderingFeature\r\nEnabled: UnityEngine.XR.Hands.OpenXR.HandTracking\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.OpenXRLifeCycleFeature\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.ARCameraFeature\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.AROcclusionFeature\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.AndroidXRSupportFeature\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.DisplayUtilitiesFeature\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.AndroidXRPerformanceMetrics\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.ARRaycastFeature\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.ARMeshFeature\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.ARAnchorFeature\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.ARPlaneFeature\r\nEnabled: UnityEngine.XR.OpenXR.Features.Android.ARSessionFeature\r\nEnabled: Google.XR.Extensions.XRUnboundedRefSpaceFeature\r\nEnabled: Google.XR.Extensions.XRQrCodeTrackingFeature\r\nEnabled: Google.XR.Extensions.XRPassthroughFeature\r\nEnabled: Google.XR.Extensions.XRSessionFeature\r\nEnabled: Google.XR.Extensions.XRMarkerTrackingFeature\r\nCompiling: False\r\n",
+  "currentConsole": {
+    "sampledUtc": "2026-10-23T00:02:43.3591522Z",
+    "ageMs": 165,
+    "compilationFailed": false,
+    "compiling": false,
+    "consoleErrors": 0,
+    "consoleWarnings": 34,
+    "consoleLogs": 16,
+    "seeded": true
+  },
+  "note": "Historical resolved CLI entries are excluded from current compile state; package shader build warnings are recorded separately in build-warnings-v13.json."
+}

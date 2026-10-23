@@ -8,7 +8,11 @@ $stripped = [Mono.Cecil.AssemblyDefinition]::ReadAssembly((Join-Path $Project 'L
 try {
     $names = @('AlignmentState','MarkerCatalog','MarkerDefinition','Annotation','AnnotationDocument','AnnotationRegion','DismissedDocument','Dismissal','TwinManifest','SamModels')
     $types = @($source.MainModule.Types | Where-Object {$_.Namespace -eq 'TwinInspector' -and $_.Name -in $names})
-    $types += @($types | ForEach-Object {$_.NestedTypes})
+    # DTO containers can also contain compiler-generated closures/async state machines.
+    # Those implementation types are not JSON contracts and need not have a class constructor.
+    $types += @($types | ForEach-Object {$_.NestedTypes} | Where-Object {
+        -not @($_.CustomAttributes | Where-Object {$_.AttributeType.FullName -eq 'System.Runtime.CompilerServices.CompilerGeneratedAttribute'}).Count
+    })
     $retained = @($stripped.MainModule.Types) + @($stripped.MainModule.Types | ForEach-Object {$_.NestedTypes})
     foreach ($type in $types) {
         $actual = $retained | Where-Object {$_.FullName -eq $type.FullName} | Select-Object -First 1

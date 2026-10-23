@@ -169,3 +169,66 @@ SAM's explicit prototype path captures a colour-only twin render, schedules the 
 **Stage 7 release gate: SAM disabled by default (`objectPickEnabled=false`).** The package's first GPU dispatch blocked the Editor for 30,070.55 ms (33,127.6 ms total); an earlier cold attempt hit the 45-second timeout. Subsequent functional runs were 468.7 / 659.0 ms total, but encoder scheduling peaks 4.88 / 23.77 ms and decoder scheduling 10.15 / 38.23 ms still fail the strict frame budget. ScheduleIterable cannot preempt one layer/driver compilation. The bounded integration effort therefore uses the brief's optional-feature fallback: retain tested code, models and re-enable instructions, hide the action in the release, and continue all other delivery work. Sampled Unity allocations do not include complete GPU-driver memory, so the 400 MB target is not claimed. Device performance is unverified. URP 17.3 warns when setting built-in stereoTargetEye; the capture now uses its source-verified standalone SingleCameraRequest path without additional camera data or an XR pass, avoiding that unsupported setter. Evidence: sam-export, sam-serialize, sam-performance, pick and pick-cancel-v13.
 
 Stage 8: added a disabled AROcclusionManager to the viewer through ProjectBuilder and an opt-in DeviceProbes service. Depth subscribes for one frame, logs texture property ID/name, dimensions/array depth/format, descriptor support, FOVs, poses, near/far and a disposed CPU-image attempt, then disables the manager; no-frame timeout is eight seconds. Camera2 enumerates IDs and characteristics without opening a camera; AndroidJavaException/SecurityException is logged. Diagnostics retains its 120 mm readout with a short localized status and three 144 mm actions. Both production UI buttons return exactly "Editor: probe unavailable" and leave occlusion disabled. Physical descriptor contents and camera access remain unverified. Tests-stage7-v13 also covers the combined compiled probe code: 32/32 pass, current compile errors/warnings and Android OpenXR issues zero.
+
+Stage 9 regression: the unchanged single-hand workflow exposed a list interaction race after two successful modalities: a background candidate update destroyed the ScrollRect during a pinch drag. InspectorUI now coalesces background diff refreshes until the pointer leaves and the held input ends, with a 0.5-second idle margin, and preserves the scroll offset. Explicit page actions still render immediately. A production Input System regression verifies hovered and held controls survive, refresh resumes after release, and the scroll position persists (`list-refresh-v13.txt`). The original v1.2 input scripts remain unchanged. Current localisation coverage is 21 page/card states in each of four languages, all zero overflow/missing-key counts, with zero missing-glyph warnings.
+
+The final Android metadata audit initially included SamModels' compiler-generated async state machine among nested DTO classes and incorrectly required a parameterless class constructor on that struct. The verifier now excludes types marked CompilerGeneratedAttribute while continuing to check every declared JSON DTO, public field and default constructor. This fixes the audit scope without changing runtime code or relaxing preservation checks for data contracts.
+
+
+### v1.3 final verification — 2026-10-23 (Europe/Paris)
+
+Final Android build `build_0defc2fd1512`: **Succeeded**, 1431.269 seconds, 0 errors. **354 build warnings**: 353 from the installed Inference Engine shader sources (320 ConvGeneric unsupported-variant warnings plus 33 pixel-shader warnings), and one existing Pipeline Editor control-service warning. Basename-only ConvGeneric messages were checked against the installed package source; no warning originates in TwinInspector scripts. Full messages and the classification are retained in build-v13.json / build-warnings-v13.json. These package warnings are not suppressed or claimed harmless; SAM remains disabled and device evaluation is outstanding. C# compilation is clean, Android OpenXR validation has zero issues, and all 32 Unity / 11 Python tests pass. The current console reports zero errors and 34 warning entries; historical CLI entries from repaired development errors are not current errors.
+
+APK: `TwinInspector/Builds/TwinInspector-0.1.0.apk`, **77,210,373 bytes**, SHA-256 **3d8ddab95b8afadd32b939e8595b0bf6e0a4e0e75416931e0b29384342297824**, version **1.3.0**, code **3**, package `com.mrtwin.inspector`. ZIP integrity, ARM64 IL2CPP, exact hashes of all 32 packaged LOD2 tiles and all 14 JSON DTOs after stripping pass. The serialized SAM weights are external, with no temporary model imports in Assets and no model files in the APK. The filename remains unchanged for deployment-script compatibility.
+
+The table distinguishes implementation evidence from physical acceptance. “done” does not establish headset behavior or device performance.
+
+| Brief §0 | Status | Evidence under `docs/evidence/` |
+|---|---|---|
+| 1 Geometry diff engine | done; device behavior unverified | diff-engine-v13.txt; tests-v13.json |
+| 2 Deterministic Editor reality | done | source-v13.txt; diff-engine-v13.txt |
+| 3 Candidate review, confirm, dismiss, toggle | done | diff-v13.txt; list-refresh-v13.txt |
+| 4 Persistent region annotations / v1 compatibility | done | tests-v13.json; diff-v13.txt |
+| 5 Scene-mesh OBJ refinement exports | done | diff-v13.txt (assertPatches=True) |
+| 6 Six-card guide | done | guide-v13.txt |
+| 7 Four languages and layout | done | strings-v13.txt; tests-v13.json |
+| 8 SAM object picker | blocked (model-runtime dispatch exceeds frame budget); release flag false | sam-performance-v13.txt; pick-v13.txt; pick-cancel-v13.txt; release-config-v13.txt |
+| 9 Diagnostic probes | done; device outputs unverified | probes-v13.txt; build-v13.json |
+| 10 Evaluation tooling | done | python-tests-v13.txt; evaluation-v13.md |
+| 11 Android build and regression checks | done | compile-v13.json; tests-v13.json; build-v13.json; apk-v13.json; android-metadata-v13.txt; android-json-metadata-v13.txt; desktop/spatial/single-hand-v13.txt |
+| 12 Documentation and git delivery | done at release publication below | README.md; ../README.md; DESIGN.md; this log; publication record |
+| 13 Physical headset acceptance | unverified (device) | device-v13.txt; ../README.md → Device acceptance run |
+
+Measured Editor results: **0.611 ms average diff main-thread time**, maxima **2,048 rays and 2,048 overlaps per frame** over the final 180-frame sample. All three independent fixture edits found: **2 Missing + 1 New + 1 Changed**, plus **1 other** visible candidate. Paired Changed members are hidden and the New member lies within 0.5 m of its planted target. These are fixture results, not surveyed real-world precision. The saved evaluation example uses one confirmed annotation and must not be read as the engine's overall recall.
+
+Strings: **en 0, de 0, fr 0, it 0** overflows; each language covers 21 page/card states, with zero missing keys and zero missing-glyph warnings. English/German terminology is agent-reviewed against the brief glossary; French/Italian are machine-translated and unreviewed. All four unchanged synthetic XRI workflows pass (left/right hand, left/right controller), as do desktop and spatial regressions. The final background-list-refresh regression passes.
+
+SAM functional prototype: column **468.7 ms**, wall **659.0 ms** warm total time; areas **0.5413 / 4.2603 m²**, normal errors **0 / 5.42°**. Cold total **33,127.6 ms**, including a **30,070.55 ms** single scheduling stall; warm encoder scheduling peaks **4.88 / 23.77 ms**, decoder **10.15 / 38.23 ms**. These violate the 4 ms scheduling target, so `objectPickEnabled=false` is the release default and the button is hidden. Sampled Unity allocations exclude GPU-driver allocations; neither the 400 MB memory target nor device latency is verified.
+
+Stage commits: 1 `3e7bce1`; 2 `e4c659e`; 3 `9671119`; 4 `13129e2`; 5 `4ecc386`; 6 `0adb34f`; 7 `ee2c24d`; 8 `cea8868`. Stage 9, tag and remote log are recorded after publication below. `gh` is not installed, so the authorized local-merge publication path is used; no pull request is created.
+
+Final `adb devices -l` output:
+
+```text
+List of devices attached
+```
+
+Open [HUMAN] items, in execution order:
+
+1. **Device acceptance v1.3:** connect/authorize Samsung Galaxy XR, record device model/runtime/build ID/date, install with `adb install -r`, transfer Region A and optionally the external models, launch and grant camera, scene-understanding and hand-tracking permissions. Complete/reopen the guide, inspect German Mode/List/strip labels, then switch back. See the project README for exact install/push/pull commands.
+2. Align with a surveyed marker or manually and save. Run Depth probe and Camera probe, pull logs and paste the actual descriptors into this log. Verify physical hands/controllers, near poke, both-eye rendering and anchor relocalization; synthetic inputs do not establish these.
+3. Walk the hall for two minutes in Overlay with Diff on. Record whether `Diff chunks=` shows a scene mesh, first-candidate latency, per-kind counts, false candidates, FPS/CPU/GPU and draw calls. The 72 FPS minimum / 90 FPS target and 300 draw calls remain targets.
+4. Confirm/retype a known physical change, restart to check its region, dismiss/recompute another, export/pull and inspect JSON/CSV/OBJ on the laptop. Replace the Editor fixture ground truth with surveyed physical changes for evaluation. Timestamp intervals are a proxy, not actual task duration.
+5. **Optional SAM evaluation, after the ordinary flow passes:** use an explicitly enabled evaluation build and transfer hash-validated models, select a column and measure cold/warm latency, memory and cancellation. Transferring models alone does not enable the release flag. Do not enable it by default until device scheduling and memory gates pass.
+6. Record failures as well as successes under “Device acceptance v1.3”. Human French/Italian language review is still open; those translations remain marked unreviewed.
+
+Implementation decisions and reasons:
+
+- Conservative unloaded-tile coverage exclusion treats ambiguous streamed boundaries as unknown and prevents false New patches without reading fixture labels.
+- Optional `additional_triangles` preserves the primary region reference while representing clusters crossing tile boundaries.
+- The moved object's own endpoints are exempt from the 3 m independent-edit separation because the required pairing radius is 1 m.
+- SAM uses bilinear low-resolution decoder-mask sampling, actual accepted back-projection samples, a 0.5 m discontinuity limit and a 30° normal-coherence guard; this avoids coarse-triangle overreach and yields a conservative visible surface patch rather than guaranteed full-object coverage.
+- URP's standalone SingleCameraRequest path replaces the unsupported built-in stereoTargetEye setter, retaining the twin-only colour capture without the obsolete-API warning.
+- The package/model runtime fails the frame budget, so the brief's bounded optional-feature fallback is used: code/models retained, SAM disabled, geometric comparison enabled.
+- Background diff refreshes wait for idle UI input and preserve scroll position because rebuilding a live ScrollRect interrupts real interaction.
+- Deployment is standalone local processing after installation/data transfer; the workstation prepares data and retrieves exports. Continuous PC or server inference is not part of the application architecture, and hardware support/performance remains subject to the above acceptance run.

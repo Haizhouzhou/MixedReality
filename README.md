@@ -2,7 +2,7 @@
 
 TwinInspector is a Unity application for inspecting a scanned building on Samsung Galaxy XR. It combines a digital twin with camera passthrough, supports manual and surveyed-marker alignment, and stores inspection notes in the building's original coordinate frame. The same project runs in the Unity Editor with a mouse and keyboard.
 
-**Version 1.2** · Android XR · Unity 6000.3.26f1
+**Version 1.3** · Android XR · Unity 6000.3.26f1
 
 [Download the APK](TwinInspector/Builds/TwinInspector-0.1.0.apk?raw=true) · [Setup and development guide](TwinInspector/README.md) · [Development notes](TwinInspector/docs/DEVLOG.md)
 
@@ -12,6 +12,18 @@ TwinInspector is a Unity application for inspecting a scanned building on Samsun
 
 ## Inspection workflow
 
+v1.3 adds automatic geometry-change candidates, region annotations, OBJ refinement exports, a six-card guide, four UI languages, an experimental MobileSAM object selector and opt-in depth/camera diagnostics. English and German terminology are reviewed against the project glossary; French and Italian are machine translated, unreviewed. German review was performed by the implementation agent, not a human translator.
+
+| Candidate review | German interface |
+| --- | --- |
+| ![Confirm or dismiss a detected change](TwinInspector/docs/screenshots/v13-picker-candidate.png) | ![Four-language comparison controls](TwinInspector/docs/screenshots/v13-de-mode.png) |
+
+With Diff enabled, the app compares observed scene surfaces against the old twin: **New**, **Missing**, or paired **Changed**. Candidates are suggestions requiring confirmation; alignment error, incomplete observation and mesh quality affect them. Unobserved or unloaded regions are excluded conservatively. Realignment invalidates pending results. The Editor reproduces deterministic planted changes using external Region A.
+
+After placing a fresh point annotation, **Pick object** optionally segments the old twin's rendered image with MobileSAM and attaches a region. It preserves the selected type. It does not detect changes from passthrough images. Missing or corrupt external model files hide this action; the rest of the app still works.
+
+**SAM is disabled by default in this release.** Its functional prototype passes column/wall selection and cancellation tests, but cold GPU dispatch in the installed package exceeds the strict frame budget. The complete code and external models are included for explicit evaluation; see [status and re-enable procedure](tools/sam/README.md). Automatic geometry candidates remain enabled and require no neural model.
+
 The four tool sections cover comparison, registration and annotation. Setup provides handedness and feedback preferences; Diagnostics shows the available runtime measurements.
 
 | Section | Use |
@@ -19,7 +31,7 @@ The four tool sections cover comparison, registration and annotation. Setup prov
 | **01 Mode** | Switch between Reality, Twin and Overlay. Choose Colour or Technical rendering, adjust opacity, or enable the local inspection Lens. |
 | **02 Align** | Register the twin with a single-hand drag, optional two-hand translation/yaw, measured marker poses, or numerical adjustments. Height is locked by default. |
 | **03 Annotate** | Place a surface note and classify it as Missing, New, Changed or Note. Each type has its own shape and symbol. |
-| **04 List** | Review annotations, select or retype an item, delete it, and export JSON or CSV. |
+| **04 List** | Review confirmed annotations and candidates; confirm/dismiss, retype, delete, and export JSON/CSV plus nearby New/Changed scene-mesh OBJ patches. |
 
 In Twin mode, the Roam page provides movement and snap turns. Returning to Overlay or Reality restores the physical inspection frame; roaming does not alter saved building alignment.
 
@@ -81,6 +93,8 @@ No XR Device Simulator key combinations are needed for desktop testing.
 
 ### Samsung Galaxy XR
 
+The intended deployment is a **standalone headset application**. A computer prepares the scan, installs the APK and transfers tiles/models; ordinary inspection then runs locally without a continuous PC connection or an inference server. Reconnect to update data, retrieve exports or profile the app. Headset scene meshing, tracking and performance still require physical acceptance; a successful Android build does not verify them.
+
 Enable USB debugging on the headset, connect it to the development computer, and accept the authorization prompt. With Android SDK platform tools on your path, run these commands from the repository root:
 
 ```powershell
@@ -91,30 +105,33 @@ adb shell am start -n com.mrtwin.inspector/com.unity3d.player.UnityPlayerGameAct
 
 Grant the requested camera, scene-understanding and hand-tracking permissions. The APK includes the hall demo; external scan data is optional for the first run. See the [project guide](TwinInspector/README.md#headset-setup-and-data-transfer) for full-region transfer and surveyed-marker setup.
 
-The APK filename is retained for compatibility with the existing delivery scripts. Its application version is **1.2.0**, package ID is **`com.mrtwin.inspector`**, and size is **66.37 MB / 63.29 MiB**. Installing with `-r` updates the existing application while preserving its data. Repository access is required to download this private build.
+The APK filename is retained for compatibility with the existing delivery scripts. Its application version is **1.3.0** (Android version code **3**), package ID is **`com.mrtwin.inspector`**, and size is **77,210,373 bytes / 73.63 MiB**. Installing with `-r` updates the existing application while preserving its data. Repository access is required to download this private build.
 
 SHA-256:
 
 ```text
-bf4e2daafa8afc507413752684df6590251254ec5eac60e537de70de593e6030
+3d8ddab95b8afadd32b939e8595b0bf6e0a4e0e75416931e0b29384342297824
 ```
 
 ## Verification status
 
-The v1.2 build was checked on 15 October 2026.
+The v1.3 build was checked on 23 October 2026 (Europe/Paris).
 
 | Check | Result |
 | --- | --- |
 | C# compilation | 0 errors, 0 warnings |
 | Shader compilation | 0 errors |
 | Android OpenXR project validation | 0 issues |
-| Unity tests | 16 passed |
+| Unity / Python tests | 32 / 11 passed |
 | Desktop interaction | Mouse UI, placement, flight and shortcuts passed |
 | Synthetic XRI workflows | Left hand, right hand, left controller and right controller passed independently |
-| Persistence and export | Annotation save/reload and JSON/CSV export passed |
+| Persistence and export | Legacy/v2 annotations, region reload, JSON/CSV and scene OBJ patch export passed |
+| Geometry fixture | All three edits found: 2 Missing, 1 New, 1 Changed; 1 other candidate |
+| Guide and languages | First-launch/reopen passed; 21 states × 4 languages, zero overflow or missing keys/glyphs |
+| Experimental SAM | Functional column/wall tests passed; disabled by default because GPU dispatch exceeds frame budget |
 | Android package | Build succeeded; ARM64 IL2CPP and all 32 bundled tile hashes verified |
 
-The build reports one existing warning about the Pipeline Editor control service being disabled in the player. No headset was connected during this verification. Physical hand/controller tracking, near poke, both-eye rendering, runtime OpenXR logs, anchor relocalization and device performance still need a headset acceptance run. The **72 FPS minimum, 90 FPS target and 300-draw-call budget are targets, not measured results**.
+The build reports 354 warnings: 353 from Inference Engine shaders (including unsupported compute variants) and one existing Pipeline Editor-service warning. TwinInspector scripts have zero warnings. SAM stays disabled; these package warnings and device behavior still require evaluation before enabling it. No headset was connected during this verification. Physical hand/controller tracking, near poke, both-eye rendering, runtime OpenXR logs, anchor relocalization and device performance still need a headset acceptance run. The **72 FPS minimum, 90 FPS target and 300-draw-call budget are targets, not measured results**.
 
 Detailed [test evidence](TwinInspector/docs/evidence/), [screenshots](TwinInspector/docs/screenshots/) and the [device acceptance procedure](TwinInspector/README.md#device-acceptance-run) are included in the repository.
 
@@ -124,7 +141,7 @@ Detailed [test evidence](TwinInspector/docs/evidence/), [screenshots](TwinInspec
 TwinInspector/                       Unity project
   Assets/_TwinInspector/             Application code, shaders, prefabs and scene
   Assets/StreamingAssets/twin_demo/   Packaged hall demo
-  Builds/TwinInspector-0.1.0.apk      Installable v1.2 build
+  Builds/TwinInspector-0.1.0.apk      Installable v1.3 build
   docs/                              Development notes and verification evidence
 tools/                               Scan processing, deployment and Unity checks
 ```
@@ -136,3 +153,5 @@ Raw scans, intermediate meshes, Unity caches and local working data are excluded
 The hall geometry is derived from the **LaMAR HGE** dataset by ETH Zurich and Microsoft, scan `navvis_2022-02-06_12.55.11`. Redistributed tiles retain **CC BY-SA 4.0**; the [bundled notice](TwinInspector/Assets/StreamingAssets/twin_demo/LICENSE.txt) records the source and processing changes.
 
 The interface uses **Inter 4.1** by Rasmus Andersson under the SIL Open Font License. Unity, Google XR and other dependency notices remain with their packages and imported samples.
+
+The experimental object picker uses [MobileSAM](https://github.com/ChaoningZhang/MobileSAM), Apache-2.0. Model provenance, hashes and the upstream license accompany the [external serialized models](tools/sam/models/MODELS.md).

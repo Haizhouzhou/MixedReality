@@ -14,12 +14,12 @@ Swiss / International Typographic Style: opaque paper, ink typography, square co
 | New | `#0046E6` | New geometry annotation |
 | Changed | `#F2B600` | Changed geometry annotation, ink label |
 | Note | `#6F6E69` | Note annotation |
-| Twin tint | `#1F4FD8`, 45% | Technical overlay fill |
-| Twin edge | `#111111`, 70% | Derivative-based surface edges |
+| Twin tint | `#C4C9CC` before surface shading | Neutral Technical overlay fill |
+| Twin edge | Ink | Creases and view-dependent silhouettes |
 
 Text uses ink on paper (or paper on ink), including secondary text: the provided muted colour does not meet the brief's 7:1 text contrast requirement. Annotation colours communicate type but their labels use ink/paper.
 
-Panel space is millimetres, at a world scale of 0.001. Standard panel 480 × 320 mm; outer margin 24, gutter 16, controls 48 high, square slider handle 12, separator rules 1. Long content scrolls rather than shrinking. World-locked placement is 1 m ahead, 0.10 m below eye height, gravity aligned. A hand strip is the sole hand-anchored surface. No head-locked panels.
+Panel space is millimetres, at a world scale of 0.001. Standard panel 480 × 320 mm; outer margin 24, gutter 16, controls 48 high, square slider handle 12, separator rules 1. Long content scrolls, with the bounded type fitting described below. The panel and strip share a gravity-aligned world dock; a qualified palm gesture summons it once. No head-locked panels.
 
 ## Typography and legibility resolution
 
@@ -29,11 +29,17 @@ The brief's nominal 12 mm body is only 0.69° at 1 m, below its own 1.2° minimu
 
 ## Components and state
 
+v1.3 retains the fixed 480 × 320 layout. Button and row text auto-sizes from 21 to a minimum of **16**; strip words use **12–16**. Slider headings use 19 in their 24 mm rect. Buttons never wrap. Two-line guide bodies use full terminology; short button abbreviations follow the [four-language glossary](../../doc/PROMPT_TwinInspector_v1.3.md#73-glossary). The six guide cards each give one sentence and one action to try, with Skip/Back/Next or Done. Only Skip/Done completes onboarding.
+
+All visible labels are resource-backed English/German/French/Italian. `ProjectBuilder.UiCharacters()` collects every table character when rebuilding the Inter atlases, including accents, umlauts, punctuation and ². Resource slot limits and actual TMP layout are tested independently. English/German glossary review was performed by the implementation agent; French/Italian are marked machine translated, unreviewed.
+
+Candidate patches use the existing type colours at 35% opacity with an ink outline and a hollow glyph. Confirmed regions use 25% opacity and persist with their annotations. Patches obey Lens visibility and share a global 50,000-triangle cap. Candidate selection offers Confirm/Dismiss. Pick object is an experimental action requiring an enabled evaluation build and verified external models; the v1.3 release disables it because scheduling exceeds its frame budget. Long-running inference has a visible processing message and cancels when its context changes. Background candidate updates preserve the list's scroll position and defer rebuilding while the pointer hovers or drags.
+
 One PanelBase supplies paper, header, content area and bottom toast. Buttons invert immediately on hover/focus; selected segments are ink filled. There are no radii, shadows, gradients, decorative illustrations or icon fonts. Show/hide motion lasts 150 ms, at most 20 mm. The four tool-strip actions are Mode, Align, Annotate, List.
 
-Annotations use a 40 mm surface disc, 1 mm ink ring, 80 mm × 1 mm leader and a short numbered label. Selected annotations invert; the list selection reveals a directional look-here arrow. Annotation marker colours are the only multi-colour semantic set.
+Annotations use type-specific geometry and symbols (circle/minus, square/plus, triangle/delta, diamond/dot), a short numbered label and a surface leader. Their presentation grows with distance to retain at least 1.5° angular height at 10–30 m, while the stored anchor and normal remain fixed. Selected annotations invert; list selection provides a directional cue. Annotation and candidate types share the same semantic colour set.
 
-Colour style renders the dataset's sampled vertex colour. Technical style uses blue unlit fill and derivative-based edge emphasis. Blend is a global shader property, with no per-renderer updates. Twin-only uses an opaque paper-2 background and a metre grid.
+Colour style renders the dataset's sampled vertex colour. Technical style uses neutral surface shading, restrained concavity, cached crease/silhouette edges and original-frame elevation contours. Shared clipping keeps fill, outlines, contours and the datum grid inside the Lens. Blend is a global shader property, with no per-renderer updates. Twin-only uses an opaque paper-2 background and a metre grid.
 
 ## Verification
 

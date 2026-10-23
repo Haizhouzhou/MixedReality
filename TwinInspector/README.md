@@ -2,7 +2,7 @@
 
 This guide covers the Unity project, controls, Android deployment and external scan data. For an illustrated overview, see the [repository README](../README.md).
 
-TwinInspector v1.2 uses Unity **6000.3.26f1**, XRI **3.6.1**, OpenXR, URP and glTFast. The Android application version is **1.2.0**, with package ID `com.mrtwin.inspector`. The [tracked APK](Builds/TwinInspector-0.1.0.apk) includes a 32-tile hall demo and can update an existing installation with `adb install -r`, preserving saved data. The existing filename is retained by the delivery scripts. External scans, caches and other build outputs are excluded from Git.
+TwinInspector v1.3 uses Unity **6000.3.26f1**, XRI **3.6.1**, OpenXR, URP, glTFast and Unity Inference Engine/Sentis **2.6.1**. The Android application version is **1.3.0**, code **3**, with package ID `com.mrtwin.inspector`. The [tracked APK](Builds/TwinInspector-0.1.0.apk) includes a 32-tile hall demo and can update an existing installation with `adb install -r`, preserving saved data. The existing filename is retained by the delivery scripts. External scans, caches, checkpoints and ONNX intermediates are excluded from Git. Serialized SAM models are tracked separately under `tools/sam/models` and excluded from the APK.
 
 ![Numbered inspection panel and tool strip in the HGE hall](docs/screenshots/v12-mode.png)
 
@@ -10,9 +10,11 @@ TwinInspector v1.2 uses Unity **6000.3.26f1**, XRI **3.6.1**, OpenXR, URP and gl
 
 See [DEVLOG](docs/DEVLOG.md) for build and verification results. Editor and synthetic input checks do not establish physical tracking, stereo correctness or headset frame rate.
 
-Verified v1.2 APK: **66,366,495 bytes (63.29 MiB)**; SHA-256 `bf4e2daafa8afc507413752684df6590251254ec5eac60e537de70de593e6030`. Compilation has zero errors/warnings, all 16 Unity tests pass, and Android OpenXR project validation has zero issues. No headset was connected for device acceptance.
+Verified v1.3 APK: **77,210,373 bytes (73.63 MiB)**; SHA-256 `3d8ddab95b8afadd32b939e8595b0bf6e0a4e0e75416931e0b29384342297824`. All 32 Unity and 11 Python tests pass; C# compilation and Android OpenXR project validation report zero errors/warnings and zero issues respectively. The Android build has 354 warnings: 353 from Inference Engine shaders and one existing Pipeline editor-service warning, with zero TwinInspector script warnings. SAM remains disabled. No headset was connected for device acceptance.
 
 ## Prepare the data
+
+The planned workflow is standalone Galaxy XR: prepare/install/push on a workstation, disconnect for local inspection, reconnect to retrieve exports or update assets. Neither geometry comparison nor SAM uses a server. The headset needs its supported Android XR tracking and scene-meshing runtime plus the requested permissions; actual availability and frame rate remain unverified until device acceptance. The 16 GB development laptop uses CPU model export and needs no CUDA. It is not a tethered rendering host.
 
 The packaged demo is sufficient to try the application. Process external data only when a full region is needed. The commands below use the development laptop's checkout and `mr` Python environment; adjust those paths on another machine. Python dependencies are listed in [requirements-twin.txt](../tools/requirements-twin.txt).
 
@@ -51,6 +53,7 @@ After installing and first launching the APK, push a verified region:
 
 ```powershell
 .\tools\push_twin.ps1 -Region region_a
+.\tools\push_twin.ps1 -Models
 # Or region_b; -Serial selects a device when more than one is connected.
 ```
 
@@ -90,7 +93,7 @@ $adb='E:\Unity\Editor\6000.3.26f1\Editor\Data\PlaybackEngines\AndroidPlayer\SDK\
 
 ## Use in the Editor and on Galaxy XR
 
-Enter Play mode in Inspector and focus the Game view. With no actively tracked HMD, the Editor selects mouse and keyboard automatically. The simulator stays disabled. The Editor loads `Settings.editorDataPath`; the packaged LOD2 demo is used when external data is absent.
+Enter Play mode in Inspector and focus the Game view. With no actively tracked HMD, the Editor selects mouse and keyboard automatically. The XRI device simulator stays disabled; v1.3's independent scene-surface fixture simulates reality when external Region A exists. The Editor loads `Settings.editorDataPath`; the packaged LOD2 demo is used when external data is absent.
 
 | Action | Editor input |
 |---|---|
@@ -107,13 +110,13 @@ On Galaxy XR, point and pinch to activate UI or place an annotation; near UI als
 
 The numbered ToolStrip and active panel share a world-space dock: 0.55 m forward, 22° below eye level, a 25° heading dead zone and a 150 ms recenter. The panel remains centered **24 mm above** the strip. Targeting or manipulating a control suspends automatic movement. Briefly raise either available palm to summon the dock, then turn the same hand over to operate it; lowering the palm re-arms the gesture. Tab and Setup → Preferences → Recenter provide explicit alternatives.
 
-- **00 Setup → Preferences:** persistent Left/Right dominant-hand preference, feedback sound and volume. The available hand always works when the preferred hand is absent. Visual feedback remains when muted.
+- **00 Setup → Guide / Preferences:** six short practice cards open on first launch and can be reopened. Preferences saves the language (English, German, French or Italian), Left/Right dominant hand, feedback sound and volume. The available hand always works when the preferred hand is absent. Visual feedback remains when muted.
 - **01 Mode:** Reality / Twin / Overlay, Technical / Colour, and the Lens toggle. Opacity / Lens opens the blend and 0.5–5 m radius controls. Lens defaults off and is available in Overlay. Its sphere follows the stabilized building hit; UI retains the last center, while no-hit holds briefly and fades out.
 - **01 Mode → Twin → Roam:** hold Forward / Backwards / Left / Right to move at 0.5 m/s; turn in 30° steps, or Return to room. Two-hand pinch world-drag remains available. Leaving Twin restores the physical inspection frame before comparison. Roaming never saves a building-registration offset.
 - **02 Align:** enters Overlay, including from Reality or a roamed Twin view. Point at the building and pinch/drag with one hand; a second pinch adds translation/yaw. Height starts locked. Fine/coarse nudges, height controls, floor snap, surveyed marker confirmation and Save Alignment remain available. The interface shows the original-frame datum.
 - **03 Annotate:** point at a visibly revealed building surface and select. Choose circle/minus Missing, square/plus New, triangle/delta Changed or diamond/dot Note. Geometry, high-contrast symbols and text identify types independently of color. Presentation faces the center-eye camera, while the stored surface anchor and normal remain unchanged.
-- **04 List:** scroll, select, retype, delete and export original-frame JSON/CSV. Selection prioritizes visible, best-aligned annotations, with building occlusion and stable tie-breaking.
-- **05 Diagnostics:** existing performance readings plus Editor-only corner key hints. Device metrics remain unavailable when no runtime supplies them.
+- **04 List:** review geometric change candidates alongside annotations. Confirm creates a persistent region; Dismiss suppresses that candidate, including after recomputation. Export writes original-frame JSON/CSV and nearby scene-mesh OBJ patches for New/Changed regions. Background results wait until the pointer leaves and dragging ends before refreshing the list, preserving its scroll position. Selection prioritizes visible, best-aligned annotations, with building occlusion and stable tie-breaking.
+- **05 Diagnostics:** performance readings, a one-frame depth-descriptor probe and a Camera2 metadata probe. Editor probes report unavailable. Device metrics remain unavailable when no runtime supplies them.
 
 The pointing filter acts on derived XRI ray transforms before hit testing, using the installed readers' continuous pinch/trigger value. A rising 0.4 strength crossing briefly increases angular damping; 0.3 re-arms it, and confirmation restores responsive dragging. These values and the 150 ms window are serialized tuning values on each inspection ray. Mouse pointing bypasses this filter.
 
@@ -127,7 +130,25 @@ Current rendered comparisons and interaction evidence are in [docs/screenshots](
 
 ## Device acceptance run
 
-After authorizing USB debugging and granting the app permissions, install the APK, push Region A and restart. Use this sequence for device acceptance:
+v1.3 adds the following acceptance steps, all currently **unverified on physical hardware**:
+
+SAM is an experimental implementation, **disabled in the release Settings asset** because cold GPU dispatch exceeded the frame budget. Its functional tests and external models are retained. Step 5 requires an explicitly enabled evaluation build; see [SAM status](../tools/sam/README.md). Transferring models alone does not enable the release flag.
+
+1. Record `adb devices -l`, device model/runtime and build ID. Install, push Region A and external models, launch and grant permissions. Complete the first-launch guide, reopen it from Setup, then switch Preferences → Language to Deutsch and back. English/German terminology is agent-reviewed against the glossary; French/Italian are machine translated, unreviewed.
+2. Align manually or with a measured marker and save. In Diagnostics run **Depth probe** and **Camera probe**, then pull the log. Record texture descriptor IDs/names, dimensions, array layers, format, FOV/poses/near-far data, CPU depth availability and Camera2 characteristics. These buttons only inspect metadata; Camera2 never opens a camera. The depth probe disables occlusion after one frame or an eight-second timeout.
+3. Walk for two minutes in Overlay with Diff on. Record first-candidate latency, counts by kind, `Diff chunks=`, FPS/CPU/GPU readings and false candidates. Confirm a known change, retype, restart and verify its region persists. Dismiss another and check suppression after recomputation.
+4. Export and pull JSON/CSV plus the `*-patches` directory. Inspect the OBJ in the original twin frame. New/Changed exports contain observed scene triangles within 1.5 m, capped at 200,000 triangles per annotation; no scene mesh means no patch file and an explicit log message.
+5. Create a fresh annotation on a visible twin column, press **Pick object**, and pinch the surface. Check type preservation, plausible region, cold/warm latency, sampled memory and responsiveness. Close the page or move more than 1 m to check cancellation. Missing/invalid models must leave ordinary inspection usable.
+
+```powershell
+adb pull /sdcard/Android/data/com.mrtwin.inspector/files/exports work/device-exports
+adb pull /sdcard/Android/data/com.mrtwin.inspector/files/logs work/device-logs
+& 'D:\miniforge3\envs\mr\python.exe' -I tools/evaluate_annotations.py work/device-exports/EXPORT.json tools/fixtures/ground_truth_example.csv --out work/evaluation.md
+```
+
+The shipped ground truth describes the deterministic Editor fixture, not physical hall measurements. Replace it with surveyed changes for a device evaluation. Time between annotation timestamps is an interval proxy, not measured task duration.
+
+Retain the baseline rendering and interaction acceptance checks below as well, after installing, granting permissions and transferring Region A:
 
 1. Confirm camera passthrough around the opaque Setup panel and inspect the loaded hall. Open Diagnostics; record FPS, CPU/GPU time, tile/triangle counts and display rate before loading and after 60 seconds of steady viewing. Acceptance is at least 72 FPS, with 90 as the target. Record draw calls from the Unity profiler when connected; the budget is 300.
 2. Switch Reality, Twin and Overlay; test opacity, both styles, contours and datum grid. Enable Lens and test 0.5 / 1.5 / 5 m radii at near and far hits, UI hold and no-hit fade. Confirm both eyes match and peripheral passthrough is unchanged.

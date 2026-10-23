@@ -20,6 +20,8 @@ namespace TwinInspector
         float nextRefresh;
         readonly HashSet<string> freshAnnotations=new HashSet<string>();
         string lastDiffSignature;
+        bool diffRefreshPending;
+        float lastUiInteraction;
         readonly GuideFlow guide=new GuideFlow();
         bool guideConsidered;
         public string Page => page;
@@ -55,7 +57,7 @@ namespace TwinInspector
             string signature=app.Diff.Visible+":"+app.Diff.Selected?.id+":"+app.Diff.Candidates.Count;
             foreach(var c in app.Diff.Candidates)signature+="/"+c.id;
             if(signature==lastDiffSignature)return;lastDiffSignature=signature;
-            if(page=="list"||page=="picker"||page=="display")Render();
+            if(page=="list"||page=="picker"||page=="display")diffRefreshPending=true;
         }
         void MarkerChanged() { if (page == "marker") Render(); }
         void PickChanged(){if(page=="picker")Render();}
@@ -95,6 +97,7 @@ namespace TwinInspector
         }
         void Render()
         {
+            diffRefreshPending=false;
             panel.Clear(); liveText = null;
             switch (page)
             {
@@ -143,8 +146,8 @@ namespace TwinInspector
             panel.Header(L.Get("page.mode.label"),L.Get("page.display.heading"),L.Format("meta.l0D1",app.Style.LensActive?"+":"−",app.Diff.Visible?"+":"−"));
             panel.Text(L.Get("text.twinOpacity"),24,104,432,24,19); panel.Slider(app.Style.Blend,app.Style.SetBlend,128);
             panel.Text(L.Get("text.lensRadius"),24,184,432,24,19); panel.Slider(app.Style.LensRadius,app.Style.SetLensRadius,208,.5f,5," m");
-            panel.Button(L.Get("button.diffOn"),24,264,144,()=>app.Diff.Visible=true,app.Diff.Visible);
-            panel.Button(L.Get("button.diffOff"),168,264,144,()=>app.Diff.Visible=false,!app.Diff.Visible);
+            panel.Button(L.Get("button.diffOn"),24,264,144,()=>{app.Diff.Visible=true;Render();},app.Diff.Visible);
+            panel.Button(L.Get("button.diffOff"),168,264,144,()=>{app.Diff.Visible=false;Render();},!app.Diff.Visible);
             panel.Button(L.Get("button.back"),312,264,144,()=>Show("mode"));
         }
         void PreferencesPage()
@@ -311,6 +314,16 @@ namespace TwinInspector
         void Update()
         {
             if (!panel) return;
+            // Background candidate updates must not destroy a hovered button or a dragged ScrollRect.
+            if(app.Input&&(app.Input.OverUI||app.Input.Held))lastUiInteraction=Time.unscaledTime;
+            if(diffRefreshPending&&Time.unscaledTime-lastUiInteraction>.5f)
+            {
+                var scroll=panel.GetComponentInChildren<UnityEngine.UI.ScrollRect>();
+                float offset=scroll?scroll.content.anchoredPosition.y:0;
+                Render();
+                scroll=panel.GetComponentInChildren<UnityEngine.UI.ScrollRect>();
+                if(scroll)scroll.content.anchoredPosition=new Vector2(0,Mathf.Clamp(offset,0,Mathf.Max(0,scroll.content.rect.height-scroll.viewport.rect.height)));
+            }
             if(app.Ready&&!guideConsidered&&page=="setup") {guideConsidered=true;if(!InteractionPreferences.GuideSeen)Show("guide");}
             if(Keyboard.current?.f1Key.wasPressedThisFrame==true) Summon();
             if(app.Ready && Application.isEditor)

@@ -1,0 +1,1 @@
+PASS: version 1.3.0 / code 3; geometry diff enabled; experimental SAM disabled; no temporary model imports in Assets.

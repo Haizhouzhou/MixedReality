@@ -1,0 +1,5 @@
+PASS: production pointer hovers the list
+PASS: background diff event retains hovered ScrollRect
+PASS: held pointer retains ScrollRect even outside the panel
+PASS: queued refresh applies after release and pointer leaves
+PASS: background refresh preserves scroll offset
