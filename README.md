@@ -1,8 +1,8 @@
 # TwinInspector
 
-TwinInspector is a Unity application for inspecting a scanned building on Samsung Galaxy XR. It combines a digital twin with camera passthrough, supports manual and surveyed-marker alignment, and stores inspection notes in the building's original coordinate frame. The same project runs in the Unity Editor with a mouse and keyboard.
+TwinInspector is a Unity application for inspecting a scanned building on Samsung Galaxy XR. It combines a digital twin with camera passthrough, supports manual, surveyed-marker and automatic scene-mesh alignment, and stores inspection notes in the building's original coordinate frame. The same project runs in the Unity Editor with a mouse and keyboard.
 
-**Version 1.4.1** · Android XR · Unity 6000.3.26f1
+**Version 1.5.0** · Android XR · Unity 6000.3.26f1
 
 [Releases](https://github.com/Haizhouzhou/MixedReality/releases) · [Setup and development guide](TwinInspector/README.md) · [Development notes](TwinInspector/docs/DEVLOG.md)
 
@@ -15,6 +15,8 @@ TwinInspector is a Unity application for inspecting a scanned building on Samsun
 v1.3 adds automatic geometry-change candidates, region annotations, OBJ refinement exports, a six-card guide, four UI languages, an experimental MobileSAM object selector and opt-in depth/camera diagnostics. English and German terminology are reviewed against the project glossary; French and Italian are machine translated, unreviewed. German review was performed by the implementation agent, not a human translator.
 
 v1.4 adds inspection spaces. The app starts by asking which space to inspect — **HG Main Hall**, **CAB Main Hall**, **HG E3 Hall** or **HG E7 Hall** (Skip opens HG Main Hall) — and a gear cell left of the tool strip opens **00 Setup** from any view to switch space after a confirmation, open Preferences (including Language), the Guide, or close the panel. Each space keeps its own annotations, alignment and dismissed candidates, even when cut from the same scan. HG E3/E7 Hall are not packaged in the APK and stay greyed out until their data is transferred. The interface starts in English and offers five languages: English, 中文, Deutsch, Français and Italiano. Chinese is machine translated by the implementation agent and unreviewed; its glyphs come from a subset of Noto Sans SC (SIL OFL 1.1).
+
+v1.5 adds **automatic alignment**. Align → Auto align hides the twin and shows the headset's scene mesh as it is scanned: blue for walls, green for floor. Align now unlocks once enough wall, floor and cross-direction wall has been seen. The match moves the twin for review, showing match %, deviation and the distance moved and angle turned. Confirm saves it like any other alignment; Cancel puts the twin back; Reset scan discards an earlier, confusing scan. Fits near the current alignment are preferred, so rough manual placement first makes symmetric halls unambiguous. A scan that saw only parallel walls is flagged rather than trusted. Scene meshing now uses Google's Android XR Extensions feature instead of Unity's, which never produced meshes on the Galaxy XR. `tools/record_headset.py` records what the wearer sees, passthrough included, over adb.
 
 | Candidate review | German interface |
 | --- | --- |
@@ -101,15 +103,22 @@ Enable USB debugging on the headset, connect it to the development computer, and
 
 ```powershell
 adb devices -l
-adb install -r TwinInspector-1.4.1.apk
+adb install -r TwinInspector-1.5.0.apk
 adb shell am start -n com.mrtwin.inspector/com.unity3d.player.UnityPlayerGameActivity
 ```
 
 Grant the requested camera, scene-understanding and hand-tracking permissions. The APK includes LOD2 copies of HG Main Hall and CAB Main Hall; full-detail data and the HG E3/E7 Hall spaces come from the [space data release](TwinInspector/README.md#download-space-data-from-github-releases). See the [project guide](TwinInspector/README.md#headset-setup-and-data-transfer) for full-region transfer and surveyed-marker setup.
 
-The application version is **1.4.1** (Android version code **5**) and the package ID is **`com.mrtwin.inspector`**; a published release lists the APK's size and SHA-256. Installing with `-r` updates an existing installation while preserving its data, provided it was signed with the same key; an APK built on another computer must be uninstalled first, which deletes the app's data folder. The previous v1.3 build remains at `TwinInspector/Builds/TwinInspector-0.1.0.apk`. Repository access is required to download these private builds.
+The application version is **1.5.0** (Android version code **6**) and the package ID is **`com.mrtwin.inspector`**; a published release lists the APK's size and SHA-256. Installing with `-r` updates an existing installation while preserving its data, provided it was signed with the same key; an APK built on another computer must be uninstalled first, which deletes the app's data folder. The previous v1.3 build remains at `TwinInspector/Builds/TwinInspector-0.1.0.apk`. Repository access is required to download these private builds.
 
 ## Verification status
+
+v1.5.0 (automatic alignment) was checked on 25 October 2026. Verified:
+- The Runtime, Editor and Test assemblies compile with 0 errors.
+- `tools/check_text_fit.py` passes for 379 strings.
+- The seven `AutoAlignerTests` pass in a standalone .NET harness. A random-transform stress test recovers 12 of 12 scans to within 0.01° and 3 mm.
+
+On the Galaxy XR in HG E3 Hall, scene meshing delivered up to about 1,200 chunks. Logs from the earlier test builds led to the floor, furniture-band, near-alignment and parallel-wall changes. With the released code, after a headset restart, two matches were marked reliable. Both had 85–86% wall inliers, 1.2 cm RMS, ambiguity 2.4 and a wall-direction constraint of 0.20. One was confirmed and saved as a persistent anchor. Accuracy has not been checked against surveyed ground truth, and the Unity Test Runner was not run.
 
 v1.4.1 (dock placement, pin and palm summon) was checked on 24 October 2026: the Runtime, Editor and Test assemblies compile with 0 errors, the 11 Python tests pass, and `tools/check_text_fit.py` measures 219 labels and readouts in five languages within 95% of their boxes. The user tested the 1.4.1 build on the Galaxy XR and reported no problems; the new `DockTests` were written for the Unity Test Runner, but no run of them was recorded here.
 

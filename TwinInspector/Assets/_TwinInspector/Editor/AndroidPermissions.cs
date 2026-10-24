@@ -22,8 +22,20 @@ namespace TwinInspector.Editor
                 if(exists) continue;
                 var element=document.CreateElement("uses-permission"); element.SetAttribute("name",ns,permission); document.DocumentElement.AppendChild(element);
             }
+            RecommendLargeBoundary(document,ns);
             document.Save(file);
             NormalizeXrManifest(Path.Combine(path,"xrmanifest.androidlib","AndroidManifest.xml"));
+        }
+
+        /// <summary>Inspection means walking through a building; without this the system keeps its default
+        /// stationary boundary (1.5 m radius on Galaxy XR) and minimizes the app shortly after the user leaves it.</summary>
+        static void RecommendLargeBoundary(XmlDocument document,string ns)
+        {
+            const string name="android.window.PROPERTY_XR_BOUNDARY_TYPE_RECOMMENDED";
+            var application=(XmlElement)document.SelectSingleNode("/manifest/application");
+            foreach(XmlElement node in application.GetElementsByTagName("property")) if(node.ParentNode==application && node.GetAttribute("name",ns)==name) return;
+            var property=document.CreateElement("property"); property.SetAttribute("name",ns,name); property.SetAttribute("value",ns,"XR_BOUNDARY_TYPE_LARGE");
+            application.AppendChild(property);
         }
 
         /// <summary>Merges declarations emitted by both Unity Android XR and Google Extensions.</summary>

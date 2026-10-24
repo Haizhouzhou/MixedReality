@@ -287,3 +287,76 @@ Not verified for v1.4: Unity EditMode tests (not run; new `SpacesTests` and stri
 - Version 1.4.1 (code 5). Tests: `DockTests` cover body-yaw following, home pose, drag offsets and clamping, the hide rule and the forced pin.
 
 Evidence: assemblies compile with 0 errors; 11 Python tests pass; text-fit check passes for 219 strings. The user tested the 1.4.1 build on the Galaxy XR and reported no problems; no Unity Test Runner run was recorded. Not yet evaluated: near-poke dragging of the grab bar (it follows the far ray) and whether the 35° / 25° / 2 s thresholds suit longer inspections.
+
+## Scene meshing and the safety boundary — device investigation, 2026-10-24 (Europe/Paris)
+
+Galaxy XR SM-I610 with the 1.4.1 build plus diagnostics; headset clock 2026-06-12.
+
+**Scene meshing.** Until now `ARMeshManager` had switched itself off: Unity's "Android XR: Meshing" (`ARMeshFeature`) never created an `XRMeshSubsystem`, so the diff engine always reported `chunks=0`. Both `Android-Scene-Mesh` (Unity) and `AndroidXRMeshProvider` (Google XR Extensions) descriptors were registered, and Google's `XRSceneMeshingFeature` declares Unity's feature as conflicting. With Unity's feature off and "Android XR (Extensions): Scene Meshing" on, the new Diagnostics → Scene probe recorded 783 chunks, 77,004 triangles and 72.6 m² (34.7 m² floor-like, 29.4 m² wall-like) over 9.7 × 9.4 m after 8 m of walking. Plane detection now requests horizontal and vertical planes (55 vertical planes, 280 m² in one walk). `SceneSurfaceSource` retries a disabled mesh manager every 2 s (10 tries) and logs each attempt.
+
+**Why the app "disappears" when walking.** The system classifies the app as a VR background (`vrBackgroundModeState=AppOpenXr`) and applies its stationary boundary (`borderRadiusMeters=1.5`). Near and outside it the system fades the app (`FADE_ALL_FULLSCREEN_QUAD`, boundary alpha up to 1.0) and shows its own passthrough. Passthrough drawn through Unity's OpenXR alpha blend is not counted: the system's passthrough stack shows `spatialApi=SpatialApi(requestEnabled=false, alpha=0.0, overridden=true)`. Android's immersive quality guideline ties free walking to a passthrough opacity above 0.5. Tried and rejected:
+- `PROPERTY_XR_BOUNDARY_TYPE_RECOMMENDED = XR_BOUNDARY_TYPE_LARGE` (manifest, kept as recommended for moving users): the radius stayed 1.5 m; per the guideline it would cover only about 2 m anyway.
+- Unbounded reference space (`XRUnboundedRefSpaceFeature`, `TrackingOriginModeFlags.Unbounded`): the fade still reached 1.0 outside 1.5 m, and the origin moved off the floor (head height 1.62 m → 1.37 m). Removed.
+- Jetpack XR SceneCore 1.0.0 `SpatialEnvironment.preferredPassthroughOpacity = 1`: the session was created, but the system grants this OpenXR full-space-unmanaged activity only `SpatialAudio`, not `PASSTHROUGH_CONTROL` (`capability=false`), so the preference was ignored. It also pushed the APK to 95.7 MB. Removed.
+
+Every "minimize" found in these logs was the headset being taken off (Doff / QVRService pause countdown, head height about 1.1 m), not the boundary. `permissionLevel` of the boundary was DISABLED in some sessions without a known cause; the user is checking the headset settings. The app now logs focus/pause with view, passthrough and tracking space. Open: walking-scale inspection outside 1.5 m remains limited by the system boundary.
+
+## Auto alignment from the scene mesh — 2026-10-24 (Europe/Paris)
+
+- **Flow.** Align → Auto align opens a scan page. It shows the wall and floor area the scene mesh has seen. Align now becomes available at 6 m² of wall and 2 m² of floor. The match runs on a worker thread and moves the twin for review: match %, deviation, distance moved and angle turned. Confirm saves the result through `AnchorPersistence`, the same way as manual and marker alignment. Cancel puts the twin back, and Rescan starts again. The Align page now opens with Auto align and Use marker; the drag hint became a one-line label, and Save alignment spans the bottom row.
+- **Solver (`AutoAligner`).** It solves 4 degrees of freedom (yaw and translation), since gravity is shared. Steps:
+  1. The scene floor comes from the largest upward surface 0.4–2.4 m below the head, and the twin floor from `datum_z`.
+  2. Yaw candidates come from the dominant wall direction modulo 90°, or a 10° sweep when the walls have no clear direction.
+  3. A floor-plan search scores the scene's 0.2 m wall cells against the twin's wall cells.
+  4. The top 6 candidates are refined with robust point-to-plane ICP.
+  5. Candidates are scored on wall points only: inliers within 5 cm, plus RMS. Floor points fit anywhere along a floor, so they would hide a placement that slid along a wall.
+  6. Among near-equal fits, the solver keeps the smallest change from the current alignment. *Ambiguity* is the chosen fit's score divided by the best distinct alternative's score. A result is called reliable only with ≥45% inliers, RMS ≤ 4 cm and ambiguity ≥ 1.15. Otherwise the review says that another place fits as well.
+- **Inputs (`AutoAlignment`).** The scene comes from triangles within 10 m of the viewer, sampled every 5 cm. The twin comes from every tile's LOD2, loaded once per space while the user scans and sampled every 10 cm in the root frame (sampling triangles rather than vertices, because a twin wall is often two triangles). The twin within 20 m of the viewer is tried first; the whole twin is tried only if that result is not reliable. Both clouds are solved relative to the viewer, so "smallest change" is measured where the user stands. Every result and candidate is written to the log.
+- Tests: `AutoAlignerTests` covers these cases on a synthetic 20 × 12 m hall with an inner L-wall, two columns, ±1 cm noise and an added box:
+  - recovery from a partial scan: yaw within 0.5°, translation within 3 cm, reliable;
+  - a look-alike position that is recovered but not called reliable;
+  - floor estimation under a table;
+  - Unity's yaw convention;
+  - refusal when too little wall was scanned;
+  - triangle sampling.
+
+Evidence: the assemblies compile with 0 errors. The solver tests pass in a standalone .NET harness (Unity-dependent tests not run there): 12 of 12 random transforms were recovered to within 0.01° and 3 mm in 1.5–3 s; with the twin sampled at 10 cm, the error was at most 2 mm. Text-fit check passes for 359 strings. Not yet run: the Unity Test Runner, the Editor simulator and the headset. Twin sizes for the device: about 1,900–9,000 m² of LOD2 surface per space.
+
+### First headset test in HG E3 Hall and tuning
+
+The log had 13 matches. Their inlier shares were 32–79%. Several were wrong, and the correct and wrong solutions were close in score. Four causes were found:
+- **The floor was read off desk tops.** The floor estimate came out as 0.84 m and 0.94 m when the floor origin was at 0. The headset looks ahead, so it scans more desk top than floor, and "largest upward surface" picked the desk.
+- **Mirror-image fits.** Candidates 180° apart scored similarly in the symmetric hall (yaw 52° against 231°), and the choice could jump between them.
+- **Sliding along parallel walls.** Repeated scans after a confirmed alignment returned 0.12 m, 0.36 m and 0.44 m along the same axis. When the scan sees only parallel walls, ICP's normal equations become singular and it stopped. The candidate kept the floor-plan search's 0.2 m grid position and was never refined.
+- **Furniture in the score.** Desks, chairs and boxes that the 2022 twin does not have counted as wall points.
+
+Changes:
+- **Floor.** Use the tracked floor height when an upward surface lies within 25 cm of it. Otherwise use the lowest broad upward surface: at least a quarter of the peak and at least 40 samples.
+- **Furniture.** Vertical scene surfaces below 0.8 m above the floor are left out of ICP, scoring and the floor-plan search.
+- **Current alignment.** The current alignment is always refined as a candidate. A fit within 15° and 1.5 m of it is kept when it scores at least 85% of the best. Distant look-alikes then do not count as ambiguity.
+- **ICP damping.** Light diagonal damping keeps an unconstrained direction where it is.
+- **Slide check.** `Constraint` is the ratio of the weaker to the stronger horizontal eigenvalue of the matched wall normals. Below 0.12 the result is not reliable, and the review says to scan a cross wall or column.
+
+Tests added: lowest floor under a larger desk top; a corridor flagged as sliding; a symmetric room keeping the near fit over its 180° image. All seven solver tests pass in the harness. The stress test still recovers 12/12. Not yet re-tested on the headset.
+
+### Second headset test: scans saw only parallel walls
+
+Both new matches had `constraint` 0.07 and 0.02, well under the 0.12 threshold. The scans saw only walls running in one direction, so the position along them was undetermined. Both results were marked unreliable, and one was confirmed anyway. The scanned floor was consistently 0.21 m above the tracked floor.
+
+Changes:
+- **Scan view.** While scanning and matching, the twin and its floor grid are hidden (`TwinStyle.SetScanView`). Each counted scene-mesh chunk is shown with `ScanSurface.shader`, a transparent overlay with a 25 cm world grid. Colours: blue for walls above the 0.8 m furniture band, green for floor, grey for everything else.
+- **Cross walls.** Align now also needs 1.5 m² of wall within ±35° of perpendicular to the main wall direction. Directions are put in 10° bins. Wall coverage now counts only walls above the band, and floor coverage counts only surfaces within 30 cm of the tracked floor. The scan instruction moved to the tip under the readout; the readout shows walls/floor on one line and cross walls on the other.
+
+Compiles; text-fit check passes. The shader has not been compiled outside Unity yet.
+
+### Headset restart and the v1.5.0 result
+
+A further build received no scene mesh at all (`Diff chunks=0`). The Unity meshing feature was still enabled. The cause was in the system: logcat showed the headset's `perceptionhost` restarting three times within 35 s, with camera-channel errors. After that, its Meshing service reported "resumed" but delivered nothing. A headset restart fixed it. The scan page now says so when no chunk has arrived 8 s into a scan, and logs it.
+
+After the restart, HG E3 Hall gave two reliable matches: 85–86% wall inliers, 1.2 cm RMS, ambiguity 2.35–2.39 and constraint 0.20–0.21. The second was confirmed and saved as a persistent anchor. The user reported the scan view working.
+
+`tools/record_headset.py` records the wearer's view with `adb shell screenrecord` (1776 × 960, passthrough included) in 3-minute parts. The display must be awake: a sleeping headset gives `INVALID_LAYER_STACK`.
+
+## v1.5.0 — automatic alignment — 2026-10-25 (Europe/Paris)
+
+Release of the work in the three sections above: Auto align with scan view, Reset scan and Rescan, the solver, and Google scene meshing. Also included are the large-boundary manifest property, Diagnostics → Scene probe and the recording script. Version 1.5.0, Android version code 6.

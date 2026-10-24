@@ -8,7 +8,7 @@ namespace TwinInspector
     {
         TwinLoader loader; TwinRoot root; Camera viewer; ARCameraManager passthrough; DesignTokens tokens; GameObject grid;
         Mesh gridMesh; Vector3 lensCenter; float lastHit=-10,visibility;
-        bool hasLensCenter;
+        bool hasLensCenter, scanView;
         public ViewMode Mode { get; private set; }=ViewMode.Overlay;
         public float Blend { get; private set; }=.45f;
         public bool Technical { get; private set; }=true;
@@ -39,12 +39,14 @@ namespace TwinInspector
         public void SetTechnical(bool value) { Technical=value; Apply(); }
         public void SetLens(bool value) { Lens=value; lastHit=-10; hasLensCenter=false; visibility=0; Apply(); }
         public void SetLensRadius(float radius) => LensRadius=Mathf.Clamp(radius,.5f,5);
+        /// <summary>Auto-align scanning: hide the twin and its grid so the viewer judges the room, not the model.</summary>
+        public void SetScanView(bool value) { scanView=value; Apply(); }
         public bool PlacementVisible(Vector3 point)
         { return Mode!=ViewMode.Passthrough && (Mode==ViewMode.Twin || Blend>.02f) && (!LensActive || hasLensCenter && visibility>.5f && Vector3.Distance(point,lensCenter)<LensRadius*.95f); }
         void Apply()
         {
-            if(!loader) return;
-            loader.SetVisible(Mode!=ViewMode.Passthrough); loader.SetLens(LensActive); loader.SetTechnical(Technical);
+            if(!loader || !viewer) return; // the camera can go first when the app quits
+            loader.SetVisible(Mode!=ViewMode.Passthrough && !scanView); loader.SetLens(LensActive); loader.SetTechnical(Technical);
             if(passthrough) passthrough.enabled=!Application.isEditor && Mode!=ViewMode.Twin;
             viewer.clearFlags=CameraClearFlags.SolidColor;
             viewer.backgroundColor=Mode==ViewMode.Twin?tokens.Paper2:Application.isEditor?new Color(.35f,.35f,.34f,1):Color.clear;
@@ -58,7 +60,7 @@ namespace TwinInspector
             var pipeline=UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline as UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset;
             Shader.SetGlobalFloat("_TwinOutlineScale",viewer.stereoEnabled && pipeline?pipeline.renderScale:1);
             var app=AppBootstrap.Instance;
-            grid.SetActive(Mode==ViewMode.Twin || Mode==ViewMode.Overlay && app && app.Manual && app.Manual.Active);
+            grid.SetActive(!scanView && (Mode==ViewMode.Twin || Mode==ViewMode.Overlay && app && app.Manual && app.Manual.Active));
             if(LensActive && app && app.Input)
             {
                 var input=app.Input;

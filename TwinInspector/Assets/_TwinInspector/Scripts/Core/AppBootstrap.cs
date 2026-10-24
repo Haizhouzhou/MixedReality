@@ -49,6 +49,7 @@ namespace TwinInspector
         public TwinStyle Style { get; private set; }
         public ManualAlignment Manual { get; private set; }
         public MarkerAlignment Markers { get; private set; }
+        public AutoAlignment AutoAlign { get; private set; }
         public AnchorPersistence Anchors { get; private set; }
         public AnnotationStore Annotations { get; private set; }
         public AnnotationPlacer Placer { get; private set; }
@@ -90,6 +91,8 @@ namespace TwinInspector
                     { lifetime.Token.ThrowIfCancellationRequested(); await Task.Yield(); }
                     if (ARSession.state < ARSessionState.Ready) throw new Exception("XR tracking is not ready. Try again after tracking recovers.");
                     cameraManager.enabled = true; viewer.backgroundColor = Color.clear;
+                    // Walls as well as floors: vertical planes are alignment evidence even without a scene mesh.
+                    planeManager.requestedDetectionMode = UnityEngine.XR.ARSubsystems.PlaneDetectionMode.Horizontal | UnityEngine.XR.ARSubsystems.PlaneDetectionMode.Vertical;
                     anchorManager.enabled = planeManager.enabled = imageManager.enabled = meshManager.enabled = true;
                     await Task.Yield();
                 }
@@ -118,12 +121,13 @@ namespace TwinInspector
                 Manual.Initialize(Root,Anchors,planeManager,Input);
                 Markers = gameObject.AddComponent<MarkerAlignment>();
                 await Markers.InitializeAsync(Root,Anchors,imageManager,Loader.DataRoot,TwinPaths.PackagedRoot(Space),Space.scan,lifetime.Token);
+                AutoAlign = gameObject.AddComponent<AutoAlignment>(); AutoAlign.Initialize(this);
                 Placer = gameObject.AddComponent<AnnotationPlacer>(); Placer.Initialize(Root,Annotations,viewer,Input);
                 gameObject.AddComponent<SwissReticle>().Initialize(this);
                 Roam=gameObject.AddComponent<HandLocomotion>(); Roam.Initialize(this);
                 Feedback=gameObject.AddComponent<MicroFeedback>(); Feedback.Initialize();
                 Performance = gameObject.AddComponent<PerfHud>(); Performance.Initialize(Loader,settings);
-                Probes = gameObject.AddComponent<DeviceProbes>(); Probes.Initialize(viewer);
+                Probes = gameObject.AddComponent<DeviceProbes>(); Probes.Initialize(viewer,meshManager,planeManager);
                 Picker = gameObject.AddComponent<ObjectPicker>(); Picker.Initialize(this);
                 if(!Application.isEditor) {var source=gameObject.AddComponent<SceneSurfaceSource>();source.Initialize(meshManager);SceneSource=source;}
                 Diff=gameObject.AddComponent<DiffEngine>();Diff.Initialize(this);
@@ -131,6 +135,7 @@ namespace TwinInspector
                 Ready = true; Status = Space.name+(Loader.Manifest.demo ? " · built-in data" : " · Region "+Loader.Manifest.region.name+" · external data");
                 EnsureUI(); UI.Show("setup");
                 DevLog.Write("Ready: "+Status);
+                DevLog.Write("Tracking space: "+TrackingSpace.Describe());
             }
             catch (OperationCanceledException) { }
             catch (Exception error)
@@ -170,7 +175,7 @@ namespace TwinInspector
             if(SceneSource is MonoBehaviour source && source && source.gameObject!=gameObject) Destroy(source.gameObject);
             if(Root) Destroy(Root.gameObject);
             // Explicit nulls: callers use ?. which does not see destroyed Unity objects as null.
-            Root=null; Loader=null; Anchors=null; Style=null; Manual=null; Markers=null; Placer=null; Performance=null;
+            Root=null; Loader=null; Anchors=null; Style=null; Manual=null; Markers=null; AutoAlign=null; Placer=null; Performance=null;
             Probes=null; Picker=null; Roam=null; Feedback=null; Diff=null; SceneSource=null; Annotations=null;
         }
 
@@ -205,6 +210,10 @@ namespace TwinInspector
             await Task.CompletedTask;
 #endif
         }
+        // Lifecycle evidence for system minimize/boundary investigations: which view, passthrough and tracking space were active.
+        void OnApplicationFocus(bool focus) => DevLog.Write("Application focus="+focus+" "+LifecycleState());
+        void OnApplicationPause(bool paused) => DevLog.Write("Application pause="+paused+" "+LifecycleState());
+        string LifecycleState() => "view="+(Style?Style.Mode.ToString():"-")+" passthrough="+(cameraManager&&cameraManager.enabled)+" "+TrackingSpace.Describe()+" head="+(viewer?viewer.transform.position.ToString("F2"):"-");
         void OnDestroy() { lifetime.Cancel(); lifetime.Dispose(); if (Instance==this) Instance=null; }
     }
 }

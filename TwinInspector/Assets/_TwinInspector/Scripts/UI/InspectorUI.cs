@@ -48,6 +48,7 @@ namespace TwinInspector
             app.Placer.Placed += AnnotationPlaced;
             app.Placer.Feedback += Notify;
             app.Markers.Changed += MarkerChanged;
+            app.AutoAlign.Changed += AutoAlignChanged;
             app.Diff.Changed += DiffChanged;
             app.Picker.Changed += PickChanged;
             subscribed = true;
@@ -59,6 +60,7 @@ namespace TwinInspector
             if (app.Annotations != null) app.Annotations.Changed -= AnnotationChanged;
             if (app.Placer) { app.Placer.Placed -= AnnotationPlaced; app.Placer.Feedback -= Notify; }
             if (app.Markers) app.Markers.Changed -= MarkerChanged;
+            if (app.AutoAlign) app.AutoAlign.Changed -= AutoAlignChanged;
             if (app.Diff) app.Diff.Changed -= DiffChanged;
             if (app.Picker) app.Picker.Changed -= PickChanged;
             subscribed = false; freshAnnotations.Clear(); lastDiffSignature = null;
@@ -73,6 +75,7 @@ namespace TwinInspector
             if(page=="list"||page=="picker"||page=="display")diffRefreshPending=true;
         }
         void MarkerChanged() { if (page == "marker") Render(); }
+        void AutoAlignChanged() { if (page == "auto") Render(); }
         void PickChanged(){if(page=="picker")Render();}
         public void Notify(string message) { if (panel) panel.Notify(message); }
         public void Show(string target)
@@ -82,13 +85,14 @@ namespace TwinInspector
             // Before the twin loads only the space choice (and its Language page) or Setup can show.
             if (!app.Ready && !(app.ChoosingSpace && (target == "space" || target == "language"))) target = app.ChoosingSpace ? "space" : "setup";
             if (page == "marker" && target != "marker" && app.Markers) app.Markers.Cancel();
+            if (page == "auto" && target != "auto" && app.AutoAlign) app.AutoAlign.Cancel();
             if(page=="picker"&&target!="picker"&&app.Picker)app.Picker.Cancel();
             if(page=="dock"&&target!="dock")PlayerPrefs.Save();
             page = target;
             if(app.Roam) app.Roam.Move(Vector2.zero);
-            if(app.Ready && (target=="align" || target=="nudge" || target=="height" || target=="marker") && app.Style.Mode!=ViewMode.Overlay) app.Style.SetMode(ViewMode.Overlay);
+            if(app.Ready && (target=="align" || target=="nudge" || target=="height" || target=="marker" || target=="auto") && app.Style.Mode!=ViewMode.Overlay) app.Style.SetMode(ViewMode.Overlay);
             if(app.Placer) app.Placer.Active=false;
-            if(spatialStrip) spatialStrip.Select((target=="mode"||target=="display"||target=="roam")?0:target=="align"||target=="nudge"||target=="height"||target=="marker"?1:target=="picker"?2:target=="list"?3:SetupPages.Contains(target)?ToolStrip.SetupIndex:-1);
+            if(spatialStrip) spatialStrip.Select((target=="mode"||target=="display"||target=="roam")?0:target=="align"||target=="nudge"||target=="height"||target=="marker"||target=="auto"?1:target=="picker"?2:target=="list"?3:SetupPages.Contains(target)?ToolStrip.SetupIndex:-1);
             if (app.Manual) app.Manual.SetActive(target == "align" || target == "nudge" || target == "height");
             if (app.Performance) app.Performance.Visible = target == "diagnostics";
             if(spatialStrip) spatialStrip.Reveal();
@@ -125,6 +129,7 @@ namespace TwinInspector
                 case "nudge": NudgePage(); break;
                 case "height": HeightPage(); break;
                 case "marker": MarkerPage(); break;
+                case "auto": AutoAlignPage(); break;
                 case "list": ListPage(); break;
                 case "picker": PickerPage(); break;
                 case "diagnostics": DiagnosticsPage(); break;
@@ -216,12 +221,57 @@ namespace TwinInspector
         void AlignPage()
         {
             panel.Header(L.Get("page.align.label"),L.Get("button.manualAlignment"),L.Format("text.datum0F2M",app.Style.DatumZ));
-            panel.Text(L.Get("toast.pointAtTheTwinPinchAndDragWithOneHandTwoHandsAlsoTurnHeightStartsLocked"),24,104,432,56,18);
+            var auto=panel.Button(L.Get("button.autoAlign"),24,104,208,() => { app.AutoAlign.Begin(); Show("auto"); },true);
+            auto.interactable=app.SceneSource!=null;
+            var marker=panel.Button(L.Get("button.useMarker"),248,104,208,() => { app.Markers.Begin(); Show("marker"); });
+            marker.interactable=app.Markers.HasMarkers;
             panel.Button(L.Get("button.fineAdjustment"),24,168,208,() => Show("nudge"));
             panel.Button(L.Get("button.heightFloor"),248,168,208,() => Show("height"));
-            var marker=panel.Button(L.Get("button.useMarker"),24,248,208,() => { app.Markers.Begin(); Show("marker"); });
-            marker.interactable=app.Markers.HasMarkers;
-            panel.Button(L.Get("button.saveAlignment"),248,248,208,() => Run(app.Anchors.SaveAsync,() => { Show("setup"); Notify(L.Get(app.Anchors.Status)); }),true);
+            panel.Text(L.Get("text.dragTwinHint"),24,224,432,20,DesignTokens.Label);
+            panel.Button(L.Get("button.saveAlignment"),24,248,432,() => Run(app.Anchors.SaveAsync,() => { Show("setup"); Notify(L.Get(app.Anchors.Status)); }));
+        }
+        void AutoAlignPage()
+        {
+            var auto=app.AutoAlign;
+            panel.Header(L.Get("page.align.label"),L.Get("button.autoAlign"),app.Space.name);
+            liveText=panel.Text(AutoAlignReadout,24,104,432,56,18);
+            string tip=auto.NoMesh?L.Get("text.autoAlign.noMesh"):auto.State==AutoAlignState.Scanning?L.Get("text.autoAlign.tip"):auto.State==AutoAlignState.Review?L.Format("text.autoAlign.reviewTip",auto.Moved,auto.Turned):null;
+            if(tip!=null) panel.Text(tip,24,168,432,56,16);
+            switch(auto.State)
+            {
+                case AutoAlignState.Scanning:
+                    panel.Button(L.Get("button.cancel"),24,248,144,() => Show("align"));
+                    panel.Button(L.Get("button.resetScan"),168,248,144,() => { auto.ResetScan(); Notify(L.Get("toast.scanReset")); });
+                    var match=panel.Button(L.Get("button.alignNow"),312,248,144,auto.Match,true); match.interactable=auto.CanMatch;
+                    break;
+                case AutoAlignState.Review:
+                    panel.Button(L.Get("button.rescan"),24,248,144,() => auto.Begin(false));
+                    panel.Button(L.Get("button.cancel"),168,248,144,() => Show("align"));
+                    panel.Button(L.Get("button.confirm"),312,248,144,() => Run(auto.ConfirmAsync,() => { Show("setup"); Notify(L.Get(app.Anchors.Status)); }),true);
+                    break;
+                case AutoAlignState.Failed:
+                    panel.Button(L.Get("button.back"),24,248,208,() => Show("align"));
+                    panel.Button(L.Get("button.rescan"),248,248,208,() => auto.Begin(false),true);
+                    break;
+                default:
+                    panel.Button(L.Get("button.cancel"),24,248,432,() => Show("align"));
+                    break;
+            }
+        }
+        string AutoAlignReadout
+        {
+            get
+            {
+                var auto=app.AutoAlign; var r=auto.Result;
+                switch(auto.State)
+                {
+                    case AutoAlignState.Scanning: return L.Format("text.autoAlign.coverage",auto.Walls,AutoAlignment.WallsNeeded,auto.Floor,AutoAlignment.FloorNeeded)+"\n"+L.Format("text.autoAlign.cross",auto.Cross,AutoAlignment.CrossNeeded);
+                    case AutoAlignState.Matching: return L.Get("text.autoAlign.matching");
+                    case AutoAlignState.Review: return L.Format("text.autoAlign.result",r.Inliers*100,r.Rms*100)+"\n"+L.Get(r.Slides?"text.autoAlign.slides":r.Reliable?"text.autoAlign.reliable":"text.autoAlign.uncertain");
+                    case AutoAlignState.Failed: return L.Get(auto.Failure);
+                    default: return "";
+                }
+            }
         }
         void NudgePage()
         {
@@ -322,10 +372,11 @@ namespace TwinInspector
         void DiagnosticsPage()
         {
             panel.Header(L.Get("page.diagnostics.label"),L.Get("page.diagnostics.heading"),Application.isEditor ? L.Get("meta.editor") : L.Get("meta.device"));
-            liveText=panel.Text(DiagnosticsReadout,24,104,432,120);liveText.overflowMode=TextOverflowModes.Truncate;
-            panel.Button(L.Get("button.depthProbe"),24,248,144,()=>app.Probes.DepthProbe());
-            panel.Button(L.Get("button.cameraProbe"),168,248,144,()=>app.Probes.CameraProbe());
-            panel.Button(L.Get("button.back"),312,248,144,() => Show("setup"));
+            liveText=panel.Text(DiagnosticsReadout,24,104,432,84,16);liveText.overflowMode=TextOverflowModes.Truncate;
+            panel.Button(L.Get("button.sceneProbe"),24,192,144,()=>app.Probes.SceneProbe(),true);
+            panel.Button(L.Get("button.depthProbe"),168,192,144,()=>app.Probes.DepthProbe());
+            panel.Button(L.Get("button.cameraProbe"),312,192,144,()=>app.Probes.CameraProbe());
+            panel.Button(L.Get("button.back"),24,248,432,() => Show("setup"));
         }
         string DiagnosticsReadout=>app.Performance.Readout+(string.IsNullOrEmpty(app.Probes.Status)?"":"\n"+app.Probes.Status);
         void LanguagePage()
@@ -407,6 +458,7 @@ namespace TwinInspector
             {
                 nextRefresh=Time.unscaledTime+.25f;
                 if(liveText && page=="marker") liveText.text=app.Markers.DisplayStatus;
+                if(liveText && page=="auto") liveText.text=AutoAlignReadout;
                 if(liveText && page=="diagnostics") liveText.text=DiagnosticsReadout;
             }
         }
@@ -415,7 +467,7 @@ namespace TwinInspector
             L.Changed -= LanguageChanged;
             if(app&&app.Diff)app.Diff.Changed-=DiffChanged;
             if(app&&app.Picker)app.Picker.Changed-=PickChanged;
-            if(subscribed && app) { if(app.Annotations!=null) app.Annotations.Changed-=AnnotationChanged; if(app.Placer) { app.Placer.Placed-=AnnotationPlaced; app.Placer.Feedback-=Notify; } if(app.Markers) app.Markers.Changed-=MarkerChanged; }
+            if(subscribed && app) { if(app.Annotations!=null) app.Annotations.Changed-=AnnotationChanged; if(app.Placer) { app.Placer.Placed-=AnnotationPlaced; app.Placer.Feedback-=Notify; } if(app.Markers) app.Markers.Changed-=MarkerChanged; if(app.AutoAlign) app.AutoAlign.Changed-=AutoAlignChanged; }
             if(panel) Destroy(panel.gameObject); if(strip) Destroy(strip.gameObject);
         }
     }

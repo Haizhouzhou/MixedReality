@@ -12,6 +12,7 @@ namespace TwinInspector
         readonly Dictionary<string,SurfaceChunk> lookup=new Dictionary<string,SurfaceChunk>();
         readonly HashSet<string> reported=new HashSet<string>();
         ARMeshManager manager;
+        int retries; float nextRetry;
         public IReadOnlyList<SurfaceChunk> Chunks => chunks;
         public bool Ready => manager && manager.enabled && chunks.Count>0;
         public event Action<SurfaceChunk> ChunkChanged,ChunkRemoved;
@@ -27,6 +28,13 @@ namespace TwinInspector
             string id=info.id.ToString(); if(!info.meshFilter) return;
             try {if(lookup.TryGetValue(id,out var chunk)) chunk.Capture(info.meshFilter);else {chunk=new SurfaceChunk(id,info.meshFilter);lookup.Add(id,chunk);chunks.Add(chunk);}ChunkChanged?.Invoke(chunk);}
             catch(Exception e) {if(reported.Add(id)) DevLog.Write("Scene capture unavailable: "+e.Message);}
+        }
+        // ARMeshManager disables itself when no mesh subsystem exists yet; the Android XR one can appear after the session starts.
+        void Update()
+        {
+            if(!manager || manager.enabled || retries>=10 || Time.unscaledTime<nextRetry) return;
+            retries++; nextRetry=Time.unscaledTime+2; manager.enabled=true;
+            DevLog.Write("Scene meshing retry "+retries+": enabled="+manager.enabled+" subsystem="+(manager.subsystem!=null));
         }
         void OnDestroy() {if(manager) manager.meshInfosChanged.RemoveListener(OnMeshes);}
     }

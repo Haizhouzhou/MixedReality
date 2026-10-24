@@ -72,5 +72,9 @@
   "button.reset": 12,
   "button.menuPosition": 18,
   "button.close": 12,
-  "text.dockSideways": 12
+  "text.dockSideways": 12,
+  "button.autoAlign": 18,
+  "button.alignNow": 12,
+  "button.rescan": 12,
+  "button.resetScan": 12
 }

@@ -139,7 +139,7 @@ namespace TwinInspector
             var center=dockedPanel && dockedPanel.gameObject.activeSelf?(WorldPose.position+dockedPanel.transform.position)/2:WorldPose.position;
             bool looking=DockPlacement.Looking(camera.position,camera.forward,center);
             // Space choice and loading always stay visible; so does a dock in use.
-            bool busy=interacting||dragging||!app.Ready||(app.Placer && app.Placer.Active);
+            bool busy=interacting||dragging||!app.Ready||(app.Placer && app.Placer.Active)||(app.Probes && app.Probes.SceneRunning)||(app.AutoAlign && app.AutoAlign.Active);
             if(pinned||palmUp||looking||busy) idleSince=Time.unscaledTime;
             if(Shown && DockPlacement.ShouldHide(pinned,palmUp,looking,busy,Time.unscaledTime-idleSince)) Shown=false;
             fade=Mathf.MoveTowards(fade,Shown?1:0,Time.unscaledDeltaTime/(Shown?.15f:DockPlacement.FadeSeconds));
