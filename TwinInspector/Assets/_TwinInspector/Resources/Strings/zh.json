@@ -184,7 +184,7 @@
   "text.diffPausedDuringAlignment": "对齐期间暂停差异检测",
   "desktop.hint": "右键 查看 · WASD 移动 · E/Q 高度 · Alt 加速 · 右键 + 滚轮 速度 {0:F1} m/s\n1 模式 · 2 对齐 · 3 标注 · 4 列表 · M 标记 · Tab 唤出",
   "status.region": "区域 {0} · 外部数据",
-  "meta.version": "v1.4",
+  "meta.version": "v1.4.1",
   "meta.step.coarse": "5 cm / 2°",
   "meta.step.fine": "1 cm / 0.5°",
   "list.annotationRow": "{0:D2}  {1}   {2:F1} m\n{3}",
@@ -204,5 +204,13 @@
   "text.switchSpaceBody": "标注和已保存的对齐按空间分别保存。未保存的对齐调整会丢失。",
   "button.switch": "切换",
   "meta.0D2Of1D2Ready": "{0:D2}/{1:D2} 可用",
-  "text.greyNoDataOnHeadset": "灰色 = 头显上没有数据"
+  "text.greyNoDataOnHeadset": "灰色 = 头显上没有数据",
+  "button.menuPosition": "菜单位置",
+  "text.dockDistance": "距离",
+  "text.dockSideways": "左右",
+  "text.dockHeight": "高度",
+  "text.dockAutoHide": "未钉住时：手放下且视线离开菜单 2 秒后淡出",
+  "button.palmOn": "掌心唤出：开",
+  "button.palmOff": "掌心唤出：关",
+  "button.reset": "恢复默认"
 }

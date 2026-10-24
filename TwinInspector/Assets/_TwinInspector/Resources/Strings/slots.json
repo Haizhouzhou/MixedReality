@@ -14,7 +14,7 @@
   "button.back": 12,
   "button.preferences": 18,
   "button.up1Cm": 18,
-  "button.diagnostics": 18,
+  "button.diagnostics": 12,
   "button.xMinus": 12,
   "button.delete": 12,
   "button.zMinus": 12,
@@ -51,7 +51,7 @@
   "button.setup": 18,
   "button.diffOn": 12,
   "button.down1Cm": 18,
-  "button.guide": 18,
+  "button.guide": 12,
   "button.next": 12,
   "button.zPlus": 12,
   "button.yawPlus": 12,
@@ -66,5 +66,11 @@
   "meta.lensActive": 18,
   "meta.l0D1": 18,
   "meta.device": 18,
-  "meta.0D2Items1D2Cand": 18
+  "meta.0D2Items1D2Cand": 18,
+  "button.palmOn": 12,
+  "button.palmOff": 12,
+  "button.reset": 12,
+  "button.menuPosition": 18,
+  "button.close": 12,
+  "text.dockSideways": 12
 }

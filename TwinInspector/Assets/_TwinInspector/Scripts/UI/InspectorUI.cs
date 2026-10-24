@@ -83,6 +83,7 @@ namespace TwinInspector
             if (!app.Ready && !(app.ChoosingSpace && (target == "space" || target == "language"))) target = app.ChoosingSpace ? "space" : "setup";
             if (page == "marker" && target != "marker" && app.Markers) app.Markers.Cancel();
             if(page=="picker"&&target!="picker"&&app.Picker)app.Picker.Cancel();
+            if(page=="dock"&&target!="dock")PlayerPrefs.Save();
             page = target;
             if(app.Roam) app.Roam.Move(Vector2.zero);
             if(app.Ready && (target=="align" || target=="nudge" || target=="height" || target=="marker") && app.Style.Mode!=ViewMode.Overlay) app.Style.SetMode(ViewMode.Overlay);
@@ -90,10 +91,10 @@ namespace TwinInspector
             if(spatialStrip) spatialStrip.Select((target=="mode"||target=="display"||target=="roam")?0:target=="align"||target=="nudge"||target=="height"||target=="marker"?1:target=="picker"?2:target=="list"?3:SetupPages.Contains(target)?ToolStrip.SetupIndex:-1);
             if (app.Manual) app.Manual.SetActive(target == "align" || target == "nudge" || target == "height");
             if (app.Performance) app.Performance.Visible = target == "diagnostics";
-            if(spatialStrip && spatialStrip.PalmAnchored) spatialStrip.Recenter();
+            if(spatialStrip) spatialStrip.Reveal();
             panel.gameObject.SetActive(true); Render();
         }
-        public void Summon() { if(!app.Placer || !app.Placer.Active) panel.gameObject.SetActive(true); if(spatialStrip) spatialStrip.Recenter(); }
+        public void Summon() { if(!app.Placer || !app.Placer.Active) panel.gameObject.SetActive(true); if(spatialStrip) { spatialStrip.Reveal(); spatialStrip.Recenter(); } }
         public void BeginAnnotation()
         {
             if (!app.Ready) return;
@@ -131,6 +132,7 @@ namespace TwinInspector
                 case "language": LanguagePage(); break;
                 case "space": SpacePage(); break;
                 case "spaceConfirm": SpaceConfirmPage(); break;
+                case "dock": DockPage(); break;
                 default: SetupPage(); break;
             }
         }
@@ -142,8 +144,9 @@ namespace TwinInspector
             { if (!app.Starting) panel.Button(L.Get("button.retrySetup"),24,184,432,() => Run(app.InitializeAsync)); return; }
             panel.Button(L.Format("button.space0",app.Space.name),24,168,208,() => Show("space"));
             panel.Button(L.Get("button.preferences"),248,168,208,() => Show("preferences"));
-            panel.Button(L.Get("button.guide"),24,248,208,() => Show("guide"));
-            panel.Button(L.Get("button.close"),248,248,208,() => { panel.gameObject.SetActive(false); if(spatialStrip) spatialStrip.Select(-1); });
+            panel.Button(L.Get("button.guide"),24,248,144,() => Show("guide"));
+            panel.Button(L.Get("button.diagnostics"),168,248,144,() => Show("diagnostics"));
+            panel.Button(L.Get("button.close"),312,248,144,() => { panel.gameObject.SetActive(false); if(spatialStrip) spatialStrip.Select(-1); });
         }
         void ViewPage()
         {
@@ -171,11 +174,26 @@ namespace TwinInspector
             panel.Header(L.Get("page.setup.label"),L.Get("button.preferences"),L.Get("meta.dominantHand"));
             panel.Button(L.Get("button.leftHand"),24,104,208,()=>{ InteractionPreferences.LeftHand=true; Render(); },InteractionPreferences.LeftHand);
             panel.Button(L.Get("button.rightHand"),248,104,208,()=>{ InteractionPreferences.LeftHand=false; Render(); },!InteractionPreferences.LeftHand);
-            panel.Button(L.Get("button.diagnostics"),24,168,208,()=>Show("diagnostics"));
-            panel.Button(L.Get("button.language"),248,168,208,()=>{ languageReturn="preferences"; Show("language"); });
+            panel.Button(L.Get("button.language"),24,168,208,()=>{ languageReturn="preferences"; Show("language"); });
+            panel.Button(L.Get("button.menuPosition"),248,168,208,()=>Show("dock"));
             panel.Text(L.Get("text.eitherHandCanSummonAndOperate"),24,224,432,20,DesignTokens.Label);
             panel.Button(L.Get("button.feedbackSound"),24,248,208,()=>Show("sound"));
-            panel.Button(L.Get("button.recenterBack"),248,248,208,()=>{ Show("setup"); Summon(); });
+            panel.Button(L.Get("button.back"),248,248,208,()=>Show("setup"));
+        }
+        void DockPage()
+        {
+            panel.Header(L.Get("page.setup.label"),L.Get("button.menuPosition"));
+            void Row(string label,float y,float value,System.Action<float> changed,float min,float max,string suffix)
+            // 96 px readout fits "−30 cm" at body size.
+            { panel.Text(label,24,y+8,104,24,16); panel.Slider(value,changed,y,min,max,suffix,128,224,"F0"); }
+            // Sliders work in cm and degrees; the dock moves while they are dragged.
+            Row(L.Get("text.dockDistance"),104,InteractionPreferences.DockDistance*100,v=>InteractionPreferences.DockDistance=v/100,40,90," cm");
+            Row(L.Get("text.dockSideways"),144,InteractionPreferences.DockYaw,v=>InteractionPreferences.DockYaw=v,-45,45,"°");
+            Row(L.Get("text.dockHeight"),184,InteractionPreferences.DockHeight*100,v=>InteractionPreferences.DockHeight=v/100,-30,20," cm");
+            panel.Text(L.Get("text.dockAutoHide"),24,224,432,20,DesignTokens.Label);
+            panel.Button(L.Get(InteractionPreferences.PalmSummon?"button.palmOn":"button.palmOff"),24,248,144,()=>{ InteractionPreferences.PalmSummon=!InteractionPreferences.PalmSummon; if(spatialStrip) spatialStrip.RefreshPin(); Render(); },InteractionPreferences.PalmSummon);
+            panel.Button(L.Get("button.reset"),168,248,144,()=>{ InteractionPreferences.ResetDock(); Render(); });
+            panel.Button(L.Get("button.back"),312,248,144,()=>Show("preferences"));
         }
         void SoundPage()
         {
@@ -363,7 +381,7 @@ namespace TwinInspector
             var back=panel.Button(L.Get("button.back"),168,248,144,()=>{guide.Back();Render();});back.interactable=guide.Index>0;
             panel.Button(L.Get(guide.Last?"button.done":"button.next"),312,248,144,()=>{if(guide.Last){guide.Done();Show("setup");}else{guide.Next();Render();}},true);
         }
-        static readonly HashSet<string> SetupPages=new HashSet<string>{"setup","preferences","sound","language","diagnostics","guide","space","spaceConfirm"};
+        static readonly HashSet<string> SetupPages=new HashSet<string>{"setup","preferences","sound","language","diagnostics","guide","space","spaceConfirm","dock"};
         void Update()
         {
             if (!panel) return;

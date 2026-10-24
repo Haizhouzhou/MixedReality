@@ -184,7 +184,7 @@
   "text.diffPausedDuringAlignment": "Diff paused during alignment",
   "desktop.hint": "RMB look · WASD move · E/Q height · Alt boost · RMB + wheel speed {0:F1} m/s\n1 Mode · 2 Align · 3 Annotate · 4 List · M marker · Tab summon",
   "status.region": "Region {0} · external data",
-  "meta.version": "v1.4",
+  "meta.version": "v1.4.1",
   "meta.step.coarse": "5 cm / 2°",
   "meta.step.fine": "1 cm / 0.5°",
   "list.annotationRow": "{0:D2}  {1}   {2:F1} m\n{3}",
@@ -204,5 +204,13 @@
   "text.switchSpaceBody": "Annotations and saved alignments are kept separately for each space. Unsaved alignment changes will be lost.",
   "button.switch": "Switch",
   "meta.0D2Of1D2Ready": "{0:D2}/{1:D2} READY",
-  "text.greyNoDataOnHeadset": "GREY = DATA NOT ON THIS HEADSET"
+  "text.greyNoDataOnHeadset": "GREY = DATA NOT ON THIS HEADSET",
+  "button.menuPosition": "Menu position",
+  "text.dockDistance": "Distance",
+  "text.dockSideways": "Left/right",
+  "text.dockHeight": "Height",
+  "text.dockAutoHide": "UNPINNED: FADES 2 S AFTER HAND DOWN AND LOOKING AWAY",
+  "button.palmOn": "Palm up: on",
+  "button.palmOff": "Palm up: off",
+  "button.reset": "Reset"
 }

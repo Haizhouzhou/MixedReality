@@ -184,7 +184,7 @@
   "text.0F1M1F1M": "{0:F1} m² · {1:F1} m",
   "_note": "German terminology reviewed against the v1.3 glossary by the implementation agent; no human language review.",
   "status.region": "Bereich {0} · externe Daten",
-  "meta.version": "v1.4",
+  "meta.version": "v1.4.1",
   "meta.step.coarse": "5 cm / 2°",
   "meta.step.fine": "1 cm / 0.5°",
   "list.annotationRow": "{0:D2}  {1}   {2:F1} m\n{3}",
@@ -204,5 +204,13 @@
   "text.switchSpaceBody": "Anmerkungen und gespeicherte Ausrichtungen bleiben je Raum getrennt erhalten. Nicht gespeicherte Ausrichtungsänderungen gehen verloren.",
   "button.switch": "Wechseln",
   "meta.0D2Of1D2Ready": "{0:D2}/{1:D2} BEREIT",
-  "text.greyNoDataOnHeadset": "GRAU = KEINE DATEN AUF DIESEM HEADSET"
+  "text.greyNoDataOnHeadset": "GRAU = OHNE DATEN",
+  "button.menuPosition": "Menüposition",
+  "text.dockDistance": "Abstand",
+  "text.dockSideways": "Seitlich",
+  "text.dockHeight": "Höhe",
+  "text.dockAutoHide": "OHNE PIN: AUSBLENDEN 2 S NACH HAND UNTEN, BLICK WEG",
+  "button.palmOn": "Geste: an",
+  "button.palmOff": "Geste: aus",
+  "button.reset": "Zurücksetzen"
 }

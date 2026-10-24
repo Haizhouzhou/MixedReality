@@ -17,6 +17,8 @@ namespace TwinInspector
         float toastUntil, shownAt;
         Vector3 settled;
         public DesignTokens Tokens => tokens;
+        /// <summary>Dock visibility (1 shown, 0 hidden); below one half the panel stops taking input.</summary>
+        public float Fade { get; set; } = 1;
         public RectTransform Content => content;
         public void Initialize(DesignTokens design, Camera viewer)
         {
@@ -57,7 +59,7 @@ namespace TwinInspector
         public void Notify(string message) { toast.text = message; toastUntil = Time.unscaledTime + 2.5f; toast.transform.parent.gameObject.SetActive(true); }
         void Update()
         {
-            if (group) group.alpha = Mathf.Clamp01((Time.unscaledTime - shownAt) / .15f);
+            if (group) { group.alpha = Mathf.Min(Mathf.Clamp01((Time.unscaledTime - shownAt) / .15f), Fade); group.blocksRaycasts = group.interactable = Fade > .5f; }
             if (toast && Time.unscaledTime > toastUntil) toast.transform.parent.gameObject.SetActive(false);
         }
         public static RectTransform Rectangle(string name, Transform parent, float x, float y, float width, float height)
@@ -85,16 +87,16 @@ namespace TwinInspector
             button.onClick.AddListener(() => { button.GetComponent<SwissButton>().Accepted(); action(); AppBootstrap.Instance?.Feedback?.Confirm(); });
             rect.gameObject.AddComponent<SwissButton>().Configure(fill,text,tokens,primary); return button;
         }
-        public void Slider(float value, Action<float> changed, float y=192, float min=0, float max=1, string suffix=" %")
+        public void Slider(float value, Action<float> changed, float y=192, float min=0, float max=1, string suffix=" %", float x=24, float width=352, string format="F1")
         {
-            var root = Rectangle("Blend slider",content,24,y,352,40);
+            var root = Rectangle("Blend slider",content,x,y,width,40);
             root.gameObject.AddComponent<Image>().color=Color.clear;
-            var line = Rectangle("One mm rule",root,0,19.5f,352,1); line.gameObject.AddComponent<Image>().color = tokens.Ink;
-            var handleArea = Rectangle("Handle area",root,6,14,340,12);
+            var line = Rectangle("One mm rule",root,0,19.5f,width,1); line.gameObject.AddComponent<Image>().color = tokens.Ink;
+            var handleArea = Rectangle("Handle area",root,6,14,width-12,12);
             var handle = Rectangle("Square handle",handleArea,0,0,12,0); handle.pivot = new Vector2(.5f,.5f); handle.anchorMin = new Vector2(0,0); handle.anchorMax=new Vector2(0,1); handle.gameObject.AddComponent<Image>().color = tokens.Ink;
             var slider = root.gameObject.AddComponent<Slider>(); slider.minValue = min; slider.maxValue = max; slider.handleRect = handle; slider.targetGraphic = handle.GetComponent<Image>(); slider.transition = Selectable.Transition.None; slider.value = value;
-            var readout = Text(suffix==" %"?Mathf.RoundToInt(value*100)+suffix:value.ToString("F1",System.Globalization.CultureInfo.InvariantCulture)+suffix,384,y+4,72,32,DesignTokens.Body); readout.alignment = TextAlignmentOptions.TopRight;
-            slider.onValueChanged.AddListener(v => { readout.text = suffix==" %"?Mathf.RoundToInt(v*100)+suffix:v.ToString("F1",System.Globalization.CultureInfo.InvariantCulture)+suffix; changed(v); });
+            var readout = Text(suffix==" %"?Mathf.RoundToInt(value*100)+suffix:value.ToString(format,System.Globalization.CultureInfo.InvariantCulture)+suffix,x+width+8,y+4,456-(x+width+8),32,DesignTokens.Body); readout.alignment = TextAlignmentOptions.TopRight;
+            slider.onValueChanged.AddListener(v => { readout.text = suffix==" %"?Mathf.RoundToInt(v*100)+suffix:v.ToString(format,System.Globalization.CultureInfo.InvariantCulture)+suffix; changed(v); });
             root.gameObject.AddComponent<SliderFeedback>();
         }
         public RectTransform Scroll(float contentHeight)

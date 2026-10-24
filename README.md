@@ -2,9 +2,9 @@
 
 TwinInspector is a Unity application for inspecting a scanned building on Samsung Galaxy XR. It combines a digital twin with camera passthrough, supports manual and surveyed-marker alignment, and stores inspection notes in the building's original coordinate frame. The same project runs in the Unity Editor with a mouse and keyboard.
 
-**Version 1.4** · Android XR · Unity 6000.3.26f1
+**Version 1.4.1** · Android XR · Unity 6000.3.26f1
 
-[Download the APK](https://github.com/Haizhouzhou/MixedReality/releases/tag/v1.4.0) · [Setup and development guide](TwinInspector/README.md) · [Development notes](TwinInspector/docs/DEVLOG.md)
+[Releases](https://github.com/Haizhouzhou/MixedReality/releases) · [Setup and development guide](TwinInspector/README.md) · [Development notes](TwinInspector/docs/DEVLOG.md)
 
 ![TwinInspector comparison controls above the four-part spatial tool strip](TwinInspector/docs/screenshots/v12-mode.png)
 
@@ -70,7 +70,7 @@ Annotations retain their surface position, normal and stable ID when their displ
 | --- | --- |
 | ![Four annotation types with distinct geometric symbols](TwinInspector/docs/screenshots/v12-picker.png) | ![Annotation list with type, index, distance and editing controls](TwinInspector/docs/screenshots/v12-list.png) |
 
-Hands use pointing and pinch, with near poke for UI. Optional controllers use the same interaction path. Either hand can summon the dock with a brief palm-up gesture and then operate it. A persistent dominant-hand preference selects the default pointer without requiring that hand to remain tracked. Sound can be adjusted or muted without losing visual feedback.
+Hands use pointing and pinch, with near poke for UI. Optional controllers use the same interaction path. The dock (tool strip and panel) keeps a saved offset from your body direction, by default 30° to the right, 60 cm away and 20 cm below eye level; drag its grab bar to move it, or set the offset in Setup → Preferences → Menu position. Either hand can summon it with a brief palm-up gesture and then operate it. The pin cell at the strip's right end keeps it visible; unpinned, it fades 2 s after the hand is down and you look away, until the next palm-up. The palm gesture can be turned off there (the dock then stays pinned). A persistent dominant-hand preference selects the default pointer without requiring that hand to remain tracked. Sound can be adjusted or muted without losing visual feedback.
 
 ## Run the application
 
@@ -90,26 +90,28 @@ No XR Device Simulator key combinations are needed for desktop testing.
 | Alt; right mouse + scroll | Increase or adjust movement speed |
 | Left mouse | Operate UI or place/select an annotation |
 | 1 / 2 / 3 / 4 | Mode / Align / Annotate / List |
-| Tab | Summon and recenter the dock |
+| Tab | Show the dock at its saved offset |
 | M | Simulate the first marker entry for Editor testing |
 
 ### Samsung Galaxy XR
 
 The intended deployment is a **standalone headset application**. A computer prepares the scan, installs the APK and transfers tiles/models; ordinary inspection then runs locally without a continuous PC connection or an inference server. Reconnect to update data, retrieve exports or profile the app. Headset scene meshing, tracking and performance still require physical acceptance; a successful Android build does not verify them.
 
-Enable USB debugging on the headset, connect it to the development computer, and accept the authorization prompt. Download `TwinInspector-1.4.0.apk` from the [v1.4.0 release](https://github.com/Haizhouzhou/MixedReality/releases/tag/v1.4.0); with Android SDK platform tools on your path, run:
+Enable USB debugging on the headset, connect it to the development computer, and accept the authorization prompt. Build the APK in Unity (File → Build Profiles → Android → Build) or download it from [Releases](https://github.com/Haizhouzhou/MixedReality/releases) once published; with Android SDK platform tools on your path, run:
 
 ```powershell
 adb devices -l
-adb install -r TwinInspector-1.4.0.apk
+adb install -r TwinInspector-1.4.1.apk
 adb shell am start -n com.mrtwin.inspector/com.unity3d.player.UnityPlayerGameActivity
 ```
 
 Grant the requested camera, scene-understanding and hand-tracking permissions. The APK includes LOD2 copies of HG Main Hall and CAB Main Hall; full-detail data and the HG E3/E7 Hall spaces come from the [space data release](TwinInspector/README.md#download-space-data-from-github-releases). See the [project guide](TwinInspector/README.md#headset-setup-and-data-transfer) for full-region transfer and surveyed-marker setup.
 
-The application version is **1.4.0** (Android version code **4**) and the package ID is **`com.mrtwin.inspector`**; the release page lists the APK's size and SHA-256. Installing with `-r` updates an existing installation while preserving its data, provided it was signed with the same key; an APK built on another computer must be uninstalled first, which deletes the app's data folder. The previous v1.3 build remains at `TwinInspector/Builds/TwinInspector-0.1.0.apk`. Repository access is required to download these private builds.
+The application version is **1.4.1** (Android version code **5**) and the package ID is **`com.mrtwin.inspector`**; a published release lists the APK's size and SHA-256. Installing with `-r` updates an existing installation while preserving its data, provided it was signed with the same key; an APK built on another computer must be uninstalled first, which deletes the app's data folder. The previous v1.3 build remains at `TwinInspector/Builds/TwinInspector-0.1.0.apk`. Repository access is required to download these private builds.
 
 ## Verification status
+
+v1.4.1 (dock placement, pin and palm summon) was checked on 24 October 2026: the Runtime, Editor and Test assemblies compile with 0 errors, the 11 Python tests pass, and `tools/check_text_fit.py` measures 219 labels and readouts in five languages within 95% of their boxes. The user tested the 1.4.1 build on the Galaxy XR and reported no problems; the new `DockTests` were written for the Unity Test Runner, but no run of them was recorded here.
 
 v1.4 was checked on 24 October 2026 (Europe/Paris): the Runtime, Editor and Test assemblies compile with Unity's compiler with 0 errors, the 11 Python tests pass, and the four packaged/transferred spaces pass the tile seam and budget verifiers. On the Galaxy XR, the start-up space choice loaded CAB Main Hall and HG Main Hall (its full Region A data), and Space switching tore down HG Main Hall and started HG E3 Hall; that run exposed a marker-loading fault for unpackaged spaces, after whose fix HG E3 Hall loaded its transferred data. The Unity EditMode tests (including the new space and language tests) were not run for this release, and HG E7 Hall, Chinese rendering and per-space annotation persistence were checked by the user on the headset without log evidence. The v1.3 results below still describe the unchanged inspection features.
 

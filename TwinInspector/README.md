@@ -63,6 +63,12 @@ Chinese text uses subsets of Noto Sans SC in `Resources/Fonts`, added at runtime
 python -I tools/subset_cjk_font.py <folder with NotoSansSC-Regular/Medium/Bold.otf>
 ```
 
+Then check that every label and slider readout still fits its box in all five languages (real font widths, 5% margin):
+
+```bash
+python -I tools/check_text_fit.py
+```
+
 ## Coordinates
 
 Persisted twin coordinates are aligned LaMAR world coordinates, metres, right-handed Z-up. Tiles subtract `origin_world = [20, 0, 0]`, then export `(x,y,z) → (x,z,-y)`. glTFast reflects X into Unity handedness. A single 180° Unity Y rotation on the imported tile container gives local `(x,z,y)`. The root applies only alignment; it never scales the building. The inverse is local `(x,z,y) + origin_world`. Python and C# tests use asymmetric points so a double reflection cannot silently pass. Confirm the rotunda remains west / negative X in the scene.
@@ -154,13 +160,13 @@ Enter Play mode in Inspector and focus the Game view. With no actively tracked H
 | Speed | Hold Alt for 3× speed; right mouse + wheel adjusts base speed |
 | Tool pages | 1 Mode, 2 Align, 3 Annotate, 4 List |
 | Interact | Left click world-space buttons, sliders or an annotation surface |
-| Recenter | Tab summons the active panel and recenters the strip |
+| Recenter | Tab shows the dock at its saved offset |
 | Marker simulation | M uses `markers.json` entry zero; this is an Editor fixture |
 | Developer hints | Setup → Diagnostics shows PerfHud and the corner key guide |
 
 On Galaxy XR, point and pinch to activate UI or place an annotation; near UI also accepts poke. A tracked controller uses its trigger through the same XRI action readers. The modality manager activates the tracked hand or controller group automatically; no controller model or long sample beam is rendered.
 
-The numbered ToolStrip and active panel share a world-space dock: 0.55 m forward, 22° below eye level, a 25° heading dead zone and a 150 ms recenter. The panel remains centered **24 mm above** the strip. Targeting or manipulating a control suspends automatic movement. Briefly raise either available palm to summon the dock, then turn the same hand over to operate it; lowering the palm re-arms the gesture. Tab and Setup → Preferences → Recenter provide explicit alternatives.
+The numbered ToolStrip and active panel share a world-space dock, flanked by the Setup gear (left) and the pin (right), with a grab bar underneath. The dock follows a saved offset from the estimated body direction (`DockPlacement`): the body direction trails head yaw by a 35° dead zone, so looking at the dock leaves it in place while turning around brings it along; position eases with a 120 ms time constant. Defaults are 30° right, 0.60 m, 0.20 m below eye height; Setup → Preferences → Menu position edits distance (40–90 cm), sideways angle (±45°) and height (−30…+20 cm), and dropping a dragged grab bar stores the same three values. The panel remains centered **24 mm above** the strip. Targeting or manipulating a control suspends automatic movement. Briefly raise either available palm to show the dock, then turn the same hand over to operate it; lowering the palm re-arms the gesture. When unpinned, the dock fades over 0.5 s once no palm is up, the head is more than 25° away from it and it has been unused for 2 s; it never fades before a space has loaded. Turning the palm gesture off keeps the dock pinned. Tab shows the dock in the Editor.
 
 - **00 Setup → Guide / Preferences:** six short practice cards open on first launch and can be reopened. Preferences saves the language (English, German, French or Italian), Left/Right dominant hand, feedback sound and volume. The available hand always works when the preferred hand is absent. Visual feedback remains when muted.
 - **01 Mode:** Reality / Twin / Overlay, Technical / Colour, and the Lens toggle. Opacity / Lens opens the blend and 0.5–5 m radius controls. Lens defaults off and is available in Overlay. Its sphere follows the stabilized building hit; UI retains the last center, while no-hit holds briefly and fades out.
