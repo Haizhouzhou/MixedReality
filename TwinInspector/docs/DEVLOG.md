@@ -246,3 +246,17 @@ ee2c24d v1.3 Stage 7 — validated MobileSAM prototype with guarded release fall
 ```
 
 This follow-up records the publication proof without changing the tagged application or APK. The final build's Unity-authored preload entries reference the existing XR General Settings and OpenXR Package Settings assets; they are retained. No model asset is preloaded or bundled.
+
+### First Galaxy XR test — 2026-10-24 (Europe/Paris)
+
+The user connected a Samsung Galaxy XR (SM-I610, Android 14 / API 34, build I610UEU2AZF3) and chose to test display and operation in a different room from the scanned hall. The verified release APK updated the existing installation from 0.1.0 / code 1 to 1.3.0 / code 3, preserving application data. Camera, scene-understanding and hand-tracking permissions were already granted. The existing annotations and alignment directories were empty when backed up.
+
+The initial Region A transfer failed with ADB `secure_mkdirs: Operation not permitted` while creating nested tile directories. Explicit `adb shell mkdir -p` succeeded and a single-file transfer verified the workaround. `tools/push_twin.ps1` now creates all tile directories through the shell before the existing sync transfer. The retry transferred 134 files and skipped the already tested file. All 135 device GLBs match local SHA-256 values; the active manifest also matches the locally staged manifest. Versioned paths and manifest-last activation remain intact.
+
+After restart, the app logged `Manifest A: 45 tiles, demo=False` and `Ready: Region A · external data`. The user confirmed seeing the Guide or numbered 00–05 menu. This establishes startup and visible UI only; hand interaction, both-eye correctness, annotation persistence and exports still require observation. The user was directed to Twin and Colour for the next step. No runtime code or APK changed in this test.
+
+The next user report confirms the hall is visible and pinch clicks work after following the Twin / Colour instructions. A Note creation/list check was then requested. ADB disconnected before its saved file could be retrieved; the last device listing was empty. This does not establish whether the user unplugged USB or another connection issue occurred, nor does it yet establish continued untethered operation. An earlier local log contains an export completion at 08:33:40 (`patches=0`), but the exported files have not been retrieved or validated.
+
+Five initial samples between 08:31:28 and 08:32:09 local time report 43.7, 46.0, 39.9, 38.0 and 40.1 FPS, with reported GPU times 33.88–47.36 ms and 15–32 resident tiles. These are initial operation/loading samples, not a controlled steady-view benchmark, and do not meet the 72 FPS minimum. Refresh requests repeatedly alternate between 72 and 90 Hz as pending loads change; requested refresh is not measured FPS. `Diff chunks=0` in this interval provides no evidence of physical scene-mesh comparison. The unrelated room also prevents a valid new/old-scene accuracy evaluation. SAM remains disabled and external models were not transferred.
+
+Evidence: `docs/evidence/device-first-run-v13.txt`; full session logs, empty-save backups and per-file device hashes are retained locally under `work/device-tests/2026-10-24-v13-082718`. Earlier release-time statements that no device was connected describe that release snapshot, not this subsequent test.

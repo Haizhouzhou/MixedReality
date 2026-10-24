@@ -52,7 +52,18 @@ $versionDestination = "$destination/versions/$revision"
 & $Adb @adbArguments shell mkdir -p $versionDestination
 if ($LASTEXITCODE -ne 0) { throw 'Cannot create device data directory. Install and launch the app first.' }
 # Push only runtime files, never multi-gigabyte processing intermediates.
-& $Adb @adbArguments push --sync (Join-Path $source 'tiles') "$versionDestination/"
+$tileRoot = Join-Path $source 'tiles'
+# Galaxy XR allows shell mkdir here but rejects ADB sync's recursive secure_mkdirs.
+# Create the tile directories explicitly before asking sync to copy their files.
+$remoteTileDirectories = @("$versionDestination/tiles")
+foreach ($directory in Get-ChildItem -LiteralPath $tileRoot -Directory -Recurse) {
+    $relative = [IO.Path]::GetRelativePath($tileRoot, $directory.FullName).Replace('\', '/')
+    if ($relative -notmatch '^[a-zA-Z0-9_/-]+$') { throw "Unsafe tile directory: $relative" }
+    $remoteTileDirectories += "$versionDestination/tiles/$relative"
+}
+& $Adb @adbArguments shell mkdir -p @remoteTileDirectories
+if ($LASTEXITCODE -ne 0) { throw 'Cannot create tile directories; previous manifest retained.' }
+& $Adb @adbArguments push --sync $tileRoot "$versionDestination/"
 if ($LASTEXITCODE -ne 0) { throw 'Tile transfer failed; previous manifest retained.' }
 & $Adb @adbArguments push (Join-Path $PSScriptRoot 'markers\markers.json') "$destination/markers.json"
 if ($LASTEXITCODE -ne 0) { throw 'Marker transfer failed.' }

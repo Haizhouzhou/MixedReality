@@ -10,7 +10,7 @@ TwinInspector v1.3 uses Unity **6000.3.26f1**, XRI **3.6.1**, OpenXR, URP, glTFa
 
 See [DEVLOG](docs/DEVLOG.md) for build and verification results. Editor and synthetic input checks do not establish physical tracking, stereo correctness or headset frame rate.
 
-Verified v1.3 APK: **77,210,373 bytes (73.63 MiB)**; SHA-256 `3d8ddab95b8afadd32b939e8595b0bf6e0a4e0e75416931e0b29384342297824`. All 32 Unity and 11 Python tests pass; C# compilation and Android OpenXR project validation report zero errors/warnings and zero issues respectively. The Android build has 354 warnings: 353 from Inference Engine shaders and one existing Pipeline editor-service warning, with zero TwinInspector script warnings. SAM remains disabled. No headset was connected for device acceptance.
+Verified v1.3 APK: **77,210,373 bytes (73.63 MiB)**; SHA-256 `3d8ddab95b8afadd32b939e8595b0bf6e0a4e0e75416931e0b29384342297824`. All 32 Unity and 11 Python tests pass; C# compilation and Android OpenXR project validation report zero errors/warnings and zero issues respectively. The Android build has 354 warnings: 353 from Inference Engine shaders and one existing Pipeline editor-service warning, with zero TwinInspector script warnings. SAM remains disabled. On 2026-10-24, installation and external Region A startup succeeded on Galaxy XR; the user confirmed the Guide/menu, visible hall and working pinch clicks. Initial device samples were 38.0–46.0 FPS, below the 72 FPS target. This is partial device evidence, not completed acceptance; see [first device run](docs/evidence/device-first-run-v13.txt).
 
 ## Prepare the data
 
@@ -130,7 +130,7 @@ Current rendered comparisons and interaction evidence are in [docs/screenshots](
 
 ## Device acceptance run
 
-v1.3 adds the following acceptance steps, all currently **unverified on physical hardware**:
+v1.3 adds the following acceptance steps. Installation, external-data startup and user-observed Guide/menu visibility, hall rendering and pinch clicks have initial physical evidence; the full workflows below remain **pending physical acceptance**. The first test is in a different room from the scan and cannot validate real change-detection accuracy.
 
 SAM is an experimental implementation, **disabled in the release Settings asset** because cold GPU dispatch exceeded the frame budget. Its functional tests and external models are retained. Step 5 requires an explicitly enabled evaluation build; see [SAM status](../tools/sam/README.md). Transferring models alone does not enable the release flag.
 

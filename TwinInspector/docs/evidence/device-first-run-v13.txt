@@ -1,0 +1,54 @@
+TwinInspector v1.3: first physical-device test, partial evidence
+Date: 2026-10-24, Europe/Paris
+Device: Samsung Galaxy XR, SM-I610, Android 14 / API 34
+Build: samsung/xrvst2ue/xrvst2:14/UML2.260301.001/I610UEU2AZF3:user/release-keys
+App: com.mrtwin.inspector, versionName=1.3.0, versionCode=3
+APK SHA256: 3d8ddab95b8afadd32b939e8595b0bf6e0a4e0e75416931e0b29384342297824
+Test context: user is in a different room from the scanned hall; display and operation only.
+
+Verified:
+- USB debugging authorized; update install -r succeeded.
+- Camera, scene-understanding and hand-tracking permissions granted.
+- Pre-update annotation/alignment directories existed and contained no files.
+- Region A manifest has 45 tiles; all 135 GLBs transferred and hash-matched locally.
+- Device manifest SHA256 matches staged local manifest:
+  14d29e00584358c4d36c16cc2f73f8a641e7934bab229ecfa8c1836d9296d78a
+- User reports seeing the Guide or 00-05 menu.
+- User subsequently reports the hall is visible and pinch clicks work after
+  following the Twin / Colour instructions.
+
+Deployment failure and repair:
+ADB recursive push initially failed: remote secure_mkdirs failed: Operation not permitted.
+Explicit shell mkdir -p and then file push succeeded. Deployment script now creates
+the tile directory tree before sync; previous manifest is retained on failure.
+Successful retry: 134 files pushed, 1 skipped, 69,697,632 bytes transferred.
+
+Selected device log evidence (UTC):
+2026-10-24T06:31:23.6699670Z Manifest A: 45 tiles, demo=False
+2026-10-24T06:31:23.8304710Z Ready: Region A · external data
+2026-10-24T06:31:28.5797660Z Metrics source=device fps=43.7 cpu_ms=13.22 gpu_ms=33.88 tiles=15 resident_tris=806520
+2026-10-24T06:31:38.8137340Z Metrics source=device fps=46.0 cpu_ms=18.51 gpu_ms=45.29 tiles=27 resident_tris=1144992
+2026-10-24T06:31:49.2774170Z Metrics source=device fps=39.9 cpu_ms=18.00 gpu_ms=43.72 tiles=30 resident_tris=1181204
+2026-10-24T06:31:59.3197370Z Metrics source=device fps=38.0 cpu_ms=19.78 gpu_ms=47.01 tiles=27 resident_tris=1144992
+2026-10-24T06:32:09.8223210Z Metrics source=device fps=40.1 cpu_ms=19.55 gpu_ms=47.36 tiles=32 resident_tris=1179239
+
+Limits and open observations:
+- Initial operation/loading samples, not a controlled stationary benchmark.
+- 72 FPS minimum not met in these samples. Repeated 72/90 Hz requests observed;
+  the current code selects refresh from pending loads, not a sustained-load policy.
+- Diff chunks=0 in this sample; physical scene-meshing/change detection not established.
+- No fatal/Unity-exception entries found in the collected app-PID startup log snapshot.
+- Basic hand pinch clicks and hall visibility are user-confirmed. Controller input,
+  detailed hand interactions, stereo correctness, annotation persistence/export,
+  alignment, probes and untethered operation remain unverified in this record.
+- SAM release flag remains false; no external models transferred.
+- ADB disconnected during the next Note creation/list check; device listing empty.
+  Cause and ongoing headset application state are not inferred from that event.
+- Last local log also records export completion at 06:33:40 UTC, patches=0;
+  exported files have not been retrieved or validated.
+
+Local raw evidence: work/device-tests/2026-10-24-v13-082718/
+  install.txt, first-launch-logcat.txt, region-a-startup-logcat.txt,
+  region-a-device-sha256.txt, app-logs/2026-10-24.log,
+  pre-update-annotations/, pre-update-alignment/.
+Raw logs and backups remain local; this file records only relevant application evidence.
