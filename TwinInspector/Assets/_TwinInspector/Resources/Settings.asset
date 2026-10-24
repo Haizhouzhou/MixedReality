@@ -12,9 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9cda644641ed00347a9d2194963d2a03, type: 3}
   m_Name: Settings
   m_EditorClassIdentifier: TwinInspector.Runtime::TwinInspector.Settings
-  scan: navvis_2022-02-06_12.55.11
-  dataFolder: HGE_2022-02-06
-  editorDataPath: E:/MixedReality/work/twin/HGE_2022-02-06/region_a
+  editorDataPath: work/twin
+  defaultSpace: HG_MainHall
   lodDistances:
   - 12
   - 30
@@ -37,4 +36,4 @@ MonoBehaviour:
   diffMainThreadBudgetMs: 2
   objectPickEnabled: 0
   objectPickFramesBudgetMs: 4
-  editorModelsPath: E:/MixedReality/tools/sam/models
+  editorModelsPath: tools/sam/models

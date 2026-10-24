@@ -16,20 +16,21 @@ namespace TwinInspector
         public static IReadOnlyCollection<string> MissingKeys => missing;
         public static event Action Changed;
         public static void ClearMissing()=>missing.Clear();
-        public static string LanguageFor(SystemLanguage system)=>system==SystemLanguage.German?"de":system==SystemLanguage.French?"fr":system==SystemLanguage.Italian?"it":"en";
+        public static readonly string[] Codes={"en","zh","de","fr","it"};
         public static string Language
         {
             get { Ensure(); return language; }
             set { language=Supported(value)?value:"en"; InteractionPreferences.Language=language; Load(); Changed?.Invoke(); }
         }
-        static bool Supported(string code) => code=="en"||code=="de"||code=="fr"||code=="it";
+        static bool Supported(string code) => System.Array.IndexOf(Codes,code)>=0;
         static void Ensure()
         {
             if(english!=null) return;
             language=InteractionPreferences.Language;
-            if(!Supported(language)) language=LanguageFor(Application.systemLanguage);
+            // The first run starts in English; a choice made on the Language page is remembered.
+            if(!Supported(language)) language="en";
             Load();
-            if(Application.isEditor)foreach(var code in new[]{"en","de","fr","it"}){var table=Read(code);int count=0;foreach(var key in english.Keys)if(!table.ContainsKey(key))count++;DevLog.Write("Strings language="+code+" missing_keys="+count);}
+            if(Application.isEditor)foreach(var code in Codes){var table=Read(code);int count=0;foreach(var key in english.Keys)if(!table.ContainsKey(key))count++;DevLog.Write("Strings language="+code+" missing_keys="+count);}
         }
         static Dictionary<string,string> Read(string code)
         {

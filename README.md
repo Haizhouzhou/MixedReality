@@ -2,9 +2,9 @@
 
 TwinInspector is a Unity application for inspecting a scanned building on Samsung Galaxy XR. It combines a digital twin with camera passthrough, supports manual and surveyed-marker alignment, and stores inspection notes in the building's original coordinate frame. The same project runs in the Unity Editor with a mouse and keyboard.
 
-**Version 1.3** · Android XR · Unity 6000.3.26f1
+**Version 1.4** · Android XR · Unity 6000.3.26f1
 
-[Download the APK](TwinInspector/Builds/TwinInspector-0.1.0.apk?raw=true) · [Setup and development guide](TwinInspector/README.md) · [Development notes](TwinInspector/docs/DEVLOG.md)
+[Download the APK](https://github.com/Haizhouzhou/MixedReality/releases/tag/v1.4.0) · [Setup and development guide](TwinInspector/README.md) · [Development notes](TwinInspector/docs/DEVLOG.md)
 
 ![TwinInspector comparison controls above the four-part spatial tool strip](TwinInspector/docs/screenshots/v12-mode.png)
 
@@ -13,6 +13,8 @@ TwinInspector is a Unity application for inspecting a scanned building on Samsun
 ## Inspection workflow
 
 v1.3 adds automatic geometry-change candidates, region annotations, OBJ refinement exports, a six-card guide, four UI languages, an experimental MobileSAM object selector and opt-in depth/camera diagnostics. English and German terminology are reviewed against the project glossary; French and Italian are machine translated, unreviewed. German review was performed by the implementation agent, not a human translator.
+
+v1.4 adds inspection spaces. The app starts by asking which space to inspect — **HG Main Hall**, **CAB Main Hall**, **HG E3 Hall** or **HG E7 Hall** (Skip opens HG Main Hall) — and a gear cell left of the tool strip opens **00 Setup** from any view to switch space after a confirmation, open Preferences (including Language), the Guide, or close the panel. Each space keeps its own annotations, alignment and dismissed candidates, even when cut from the same scan. HG E3/E7 Hall are not packaged in the APK and stay greyed out until their data is transferred. The interface starts in English and offers five languages: English, 中文, Deutsch, Français and Italiano. Chinese is machine translated by the implementation agent and unreviewed; its glyphs come from a subset of Noto Sans SC (SIL OFL 1.1).
 
 | Candidate review | German interface |
 | --- | --- |
@@ -24,7 +26,7 @@ After placing a fresh point annotation, **Pick object** optionally segments the 
 
 **SAM is disabled by default in this release.** Its functional prototype passes column/wall selection and cancellation tests, but cold GPU dispatch in the installed package exceeds the strict frame budget. The complete code and external models are included for explicit evaluation; see [status and re-enable procedure](tools/sam/README.md). Automatic geometry candidates remain enabled and require no neural model.
 
-The four tool sections cover comparison, registration and annotation. Setup provides handedness and feedback preferences; Diagnostics shows the available runtime measurements.
+The four tool sections cover comparison, registration and annotation. Setup provides handedness and feedback preferences; Diagnostics shows the available runtime measurements. A gear cell left of the four tools opens **00 Setup** from any view: switch space (after a confirmation, the app reloads), Preferences (including Language), Guide and Close.
 
 | Section | Use |
 | --- | --- |
@@ -95,25 +97,21 @@ No XR Device Simulator key combinations are needed for desktop testing.
 
 The intended deployment is a **standalone headset application**. A computer prepares the scan, installs the APK and transfers tiles/models; ordinary inspection then runs locally without a continuous PC connection or an inference server. Reconnect to update data, retrieve exports or profile the app. Headset scene meshing, tracking and performance still require physical acceptance; a successful Android build does not verify them.
 
-Enable USB debugging on the headset, connect it to the development computer, and accept the authorization prompt. With Android SDK platform tools on your path, run these commands from the repository root:
+Enable USB debugging on the headset, connect it to the development computer, and accept the authorization prompt. Download `TwinInspector-1.4.0.apk` from the [v1.4.0 release](https://github.com/Haizhouzhou/MixedReality/releases/tag/v1.4.0); with Android SDK platform tools on your path, run:
 
 ```powershell
 adb devices -l
-adb install -r TwinInspector/Builds/TwinInspector-0.1.0.apk
+adb install -r TwinInspector-1.4.0.apk
 adb shell am start -n com.mrtwin.inspector/com.unity3d.player.UnityPlayerGameActivity
 ```
 
-Grant the requested camera, scene-understanding and hand-tracking permissions. The APK includes the hall demo; external scan data is optional for the first run. See the [project guide](TwinInspector/README.md#headset-setup-and-data-transfer) for full-region transfer and surveyed-marker setup.
+Grant the requested camera, scene-understanding and hand-tracking permissions. The APK includes LOD2 copies of HG Main Hall and CAB Main Hall; full-detail data and the HG E3/E7 Hall spaces come from the [space data release](TwinInspector/README.md#download-space-data-from-github-releases). See the [project guide](TwinInspector/README.md#headset-setup-and-data-transfer) for full-region transfer and surveyed-marker setup.
 
-The APK filename is retained for compatibility with the existing delivery scripts. Its application version is **1.3.0** (Android version code **3**), package ID is **`com.mrtwin.inspector`**, and size is **77,210,373 bytes / 73.63 MiB**. Installing with `-r` updates the existing application while preserving its data. Repository access is required to download this private build.
-
-SHA-256:
-
-```text
-3d8ddab95b8afadd32b939e8595b0bf6e0a4e0e75416931e0b29384342297824
-```
+The application version is **1.4.0** (Android version code **4**) and the package ID is **`com.mrtwin.inspector`**; the release page lists the APK's size and SHA-256. Installing with `-r` updates an existing installation while preserving its data, provided it was signed with the same key; an APK built on another computer must be uninstalled first, which deletes the app's data folder. The previous v1.3 build remains at `TwinInspector/Builds/TwinInspector-0.1.0.apk`. Repository access is required to download these private builds.
 
 ## Verification status
+
+v1.4 was checked on 24 October 2026 (Europe/Paris): the Runtime, Editor and Test assemblies compile with Unity's compiler with 0 errors, the 11 Python tests pass, and the four packaged/transferred spaces pass the tile seam and budget verifiers. On the Galaxy XR, the start-up space choice loaded CAB Main Hall and HG Main Hall (its full Region A data), and Space switching tore down HG Main Hall and started HG E3 Hall; that run exposed a marker-loading fault for unpackaged spaces, after whose fix HG E3 Hall loaded its transferred data. The Unity EditMode tests (including the new space and language tests) were not run for this release, and HG E7 Hall, Chinese rendering and per-space annotation persistence were checked by the user on the headset without log evidence. The v1.3 results below still describe the unchanged inspection features.
 
 The v1.3 build was checked on 23 October 2026 (Europe/Paris).
 
@@ -133,6 +131,8 @@ The v1.3 build was checked on 23 October 2026 (Europe/Paris).
 
 The build reports 354 warnings: 353 from Inference Engine shaders (including unsupported compute variants) and one existing Pipeline Editor-service warning. TwinInspector scripts have zero warnings. SAM stays disabled; these package warnings and device behavior still require evaluation before enabling it. No headset was connected during this verification. Physical hand/controller tracking, near poke, both-eye rendering, runtime OpenXR logs, anchor relocalization and device performance still need a headset acceptance run. The **72 FPS minimum, 90 FPS target and 300-draw-call budget are targets, not measured results**.
 
+Full-detail space data (HG Main Hall, HG E3 Hall, HG E7 Hall, CAB Main Hall) is published as zips in the [`data-2026-10-24` release](https://github.com/Haizhouzhou/MixedReality/releases/tag/data-2026-10-24); see [Download space data](TwinInspector/README.md#download-space-data-from-github-releases) for the transfer steps.
+
 Detailed [test evidence](TwinInspector/docs/evidence/), [screenshots](TwinInspector/docs/screenshots/) and the [device acceptance procedure](TwinInspector/README.md#device-acceptance-run) are included in the repository.
 
 ## Repository layout
@@ -140,8 +140,8 @@ Detailed [test evidence](TwinInspector/docs/evidence/), [screenshots](TwinInspec
 ```text
 TwinInspector/                       Unity project
   Assets/_TwinInspector/             Application code, shaders, prefabs and scene
-  Assets/StreamingAssets/twin_demo/   Packaged hall demo
-  Builds/TwinInspector-0.1.0.apk      Installable v1.3 build
+  Assets/StreamingAssets/twins/       Packaged spaces (HG_MainHall, CAB_MainHall) and spaces.json index
+  Builds/TwinInspector-0.1.0.apk      Previous v1.3 build (v1.4.0 is attached to its GitHub release)
   docs/                              Development notes and verification evidence
 tools/                               Scan processing, deployment and Unity checks
 ```
@@ -150,7 +150,9 @@ Raw scans, intermediate meshes, Unity caches and local working data are excluded
 
 ## Credits
 
-The hall geometry is derived from the **LaMAR HGE** dataset by ETH Zurich and Microsoft, scan `navvis_2022-02-06_12.55.11`. Redistributed tiles retain **CC BY-SA 4.0**; the [bundled notice](TwinInspector/Assets/StreamingAssets/twin_demo/LICENSE.txt) records the source and processing changes.
+The hall geometry is derived from the **LaMAR HGE** dataset by ETH Zurich and Microsoft, scan `navvis_2022-02-06_12.55.11`. Redistributed tiles retain **CC BY-SA 4.0**; the [bundled notice](TwinInspector/Assets/StreamingAssets/twins/HG_MainHall/LICENSE.txt) records the source and processing changes.
+
+The CAB entrance hall (`CAB_MainHall`) is derived from the **LaMAR CAB** dataset, scan `navvis_2022-06-25_11.14.36`, cropped to the main hall; its [notice](TwinInspector/Assets/StreamingAssets/twins/CAB_MainHall/LICENSE.txt) records the same CC BY-SA 4.0 terms.
 
 The interface uses **Inter 4.1** by Rasmus Andersson under the SIL Open Font License. Unity, Google XR and other dependency notices remain with their packages and imported samples.
 

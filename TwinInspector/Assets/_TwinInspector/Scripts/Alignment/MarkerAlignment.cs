@@ -39,18 +39,28 @@ namespace TwinInspector
         public string DisplayStatus => Status.StartsWith("Aligned with marker ",StringComparison.Ordinal) ? L.Get("text.markerAlignedCheckTwin") : L.Get(Status);
         public string Status { get; private set; } = "Marker not detected";
         public bool AwaitingConfirmation { get; private set; }
+        public bool HasMarkers => catalog?.markers != null && catalog.markers.Count > 0;
         public event Action Changed;
 
-        public async Task InitializeAsync(TwinRoot twin, AnchorPersistence anchors, ARTrackedImageManager manager, string dataRoot, string scan, CancellationToken token)
+        public async Task InitializeAsync(TwinRoot twin, AnchorPersistence anchors, ARTrackedImageManager manager, string dataRoot, string packagedRoot, string scan, CancellationToken token)
         {
             root = twin; persistence = anchors; images = manager;
-            string json;
-            try { json = await TwinPaths.ReadTextAsync(dataRoot, "markers.json", token); }
-            catch(System.IO.IOException) { json = await TwinPaths.ReadTextAsync(Application.streamingAssetsPath+"/twin_demo", "markers.json", token); }
-            catalog = JsonConvert.DeserializeObject<MarkerCatalog>(json);
+            string json = null;
+            foreach (var source in new[] { dataRoot, packagedRoot })
+            {
+                if (source == null) continue; // external-only spaces have no packaged folder
+                try { json = await TwinPaths.ReadTextAsync(source, "markers.json", token); break; }
+                catch (System.IO.IOException) { }
+            }
+            // A space without a marker survey still loads; only marker alignment is unavailable.
+            catalog = json == null ? new MarkerCatalog { schema = "twin-markers/1", scan = scan, markers = new List<MarkerDefinition>() } : JsonConvert.DeserializeObject<MarkerCatalog>(json);
             if (catalog.schema != "twin-markers/1" || catalog.scan != scan) throw new Exception("Marker catalog scan mismatch");
         }
-        public void Begin() { scanning = true; AwaitingConfirmation = false; stableSince = 0; Status = "Look at a measured marker"; Changed?.Invoke(); }
+        public void Begin()
+        {
+            if (!HasMarkers) { scanning = false; AwaitingConfirmation = false; Status = "No measured markers for this space"; Changed?.Invoke(); return; }
+            scanning = true; AwaitingConfirmation = false; stableSince = 0; Status = "Look at a measured marker"; Changed?.Invoke();
+        }
         public void Cancel()
         {
             if (AwaitingConfirmation) root.transform.SetPositionAndRotation(before.position, before.rotation);

@@ -11,3 +11,4 @@ __pycache__/
 *.onnx
 tools/sam/.venv/
 tools/sam/models/*.bak
+.DS_Store

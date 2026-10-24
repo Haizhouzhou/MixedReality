@@ -1,0 +1,33 @@
+{
+  "schema": "twin-spaces/1",
+  "spaces": [
+    {
+      "id": "HG_MainHall",
+      "name": "HG Main Hall",
+      "building": "HGE",
+      "scan": "navvis_2022-02-06_12.55.11",
+      "packaged": true
+    },
+    {
+      "id": "CAB_MainHall",
+      "name": "CAB Main Hall",
+      "building": "CAB",
+      "scan": "navvis_2022-06-25_11.14.36",
+      "packaged": true
+    },
+    {
+      "id": "HG_E3_Hall",
+      "name": "HG E3 Hall",
+      "building": "HGE",
+      "scan": "navvis_2022-02-06_12.55.11",
+      "packaged": false
+    },
+    {
+      "id": "HG_E7_Hall",
+      "name": "HG E7 Hall",
+      "building": "HGE",
+      "scan": "navvis_2022-02-06_12.55.11",
+      "packaged": false
+    }
+  ]
+}

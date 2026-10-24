@@ -38,14 +38,14 @@ namespace TwinInspector
         public int Failures { get { int count = 0; foreach (var tile in tiles) if (tile.Failures > 0) count++; return count; } }
         struct Candidate { public TileHandle Tile; public int Lod; public float Priority; }
 
-        public async Task InitializeAsync(Settings config, TwinRoot twin, Camera camera, Material sharedMaterial)
+        public async Task InitializeAsync(Settings config, TwinSpace space, TwinRoot twin, Camera camera, Material sharedMaterial)
         {
             settings = config; root = twin; viewer = camera; material = sharedMaterial;
             softMaterial=new Material(sharedMaterial) { name="Twin Lens soft shell" }; softMaterial.SetFloat("_SoftReveal",1); softMaterial.SetFloat("_ZWrite",0);
             edgeMaterial=Resources.Load<DesignTokens>("DesignTokens").EdgeMaterial;
-            DataRoot = TwinPaths.Resolve(config);
+            DataRoot = TwinPaths.Resolve(config, space);
             Manifest = JsonConvert.DeserializeObject<TwinManifest>(await TwinPaths.ReadTextAsync(DataRoot, "manifest.json", lifetime.Token));
-            Manifest.Validate(config.Scan);
+            Manifest.Validate(space.scan);
             root.Initialize(Manifest.origin_world);
             visuals = new GameObject("Twin visuals").transform; visuals.SetParent(root.transform, false);
             collisions = new GameObject("LOD2 inspection surfaces").transform; collisions.SetParent(root.transform, false);

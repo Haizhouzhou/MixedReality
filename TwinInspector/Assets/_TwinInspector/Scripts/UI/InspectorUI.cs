@@ -24,6 +24,8 @@ namespace TwinInspector
         float lastUiInteraction;
         readonly GuideFlow guide=new GuideFlow();
         bool guideConsidered;
+        string languageReturn = "preferences";
+        string pendingSpace;
         public string Page => page;
         public PanelBase Panel => panel;
 
@@ -50,6 +52,17 @@ namespace TwinInspector
             app.Picker.Changed += PickChanged;
             subscribed = true;
         }
+        /// <summary>Drop handlers on services that are about to be destroyed; the next Show subscribes to their replacements.</summary>
+        public void ReleaseServices()
+        {
+            if (!subscribed) return;
+            if (app.Annotations != null) app.Annotations.Changed -= AnnotationChanged;
+            if (app.Placer) { app.Placer.Placed -= AnnotationPlaced; app.Placer.Feedback -= Notify; }
+            if (app.Markers) app.Markers.Changed -= MarkerChanged;
+            if (app.Diff) app.Diff.Changed -= DiffChanged;
+            if (app.Picker) app.Picker.Changed -= PickChanged;
+            subscribed = false; freshAnnotations.Clear(); lastDiffSignature = null;
+        }
         void AnnotationChanged() { if (page == "list" || page == "picker") Render(); }
         void AnnotationPlaced() { app.Placer.Active = false; if(app.Annotations.Selected!=null)freshAnnotations.Add(app.Annotations.Selected.id); Show("picker"); }
         void DiffChanged()
@@ -66,14 +79,15 @@ namespace TwinInspector
         {
             Subscribe();
             if(target=="guide"&&page!="guide")guide.Reset();
-            if (!app.Ready) target = "setup";
+            // Before the twin loads only the space choice (and its Language page) or Setup can show.
+            if (!app.Ready && !(app.ChoosingSpace && (target == "space" || target == "language"))) target = app.ChoosingSpace ? "space" : "setup";
             if (page == "marker" && target != "marker" && app.Markers) app.Markers.Cancel();
             if(page=="picker"&&target!="picker"&&app.Picker)app.Picker.Cancel();
             page = target;
             if(app.Roam) app.Roam.Move(Vector2.zero);
             if(app.Ready && (target=="align" || target=="nudge" || target=="height" || target=="marker") && app.Style.Mode!=ViewMode.Overlay) app.Style.SetMode(ViewMode.Overlay);
             if(app.Placer) app.Placer.Active=false;
-            if(spatialStrip) spatialStrip.Select((target=="mode"||target=="display"||target=="roam")?0:target=="align"||target=="nudge"||target=="height"||target=="marker"?1:target=="picker"?2:target=="list"?3:-1);
+            if(spatialStrip) spatialStrip.Select((target=="mode"||target=="display"||target=="roam")?0:target=="align"||target=="nudge"||target=="height"||target=="marker"?1:target=="picker"?2:target=="list"?3:SetupPages.Contains(target)?ToolStrip.SetupIndex:-1);
             if (app.Manual) app.Manual.SetActive(target == "align" || target == "nudge" || target == "height");
             if (app.Performance) app.Performance.Visible = target == "diagnostics";
             if(spatialStrip && spatialStrip.PalmAnchored) spatialStrip.Recenter();
@@ -115,6 +129,8 @@ namespace TwinInspector
                 case "diagnostics": DiagnosticsPage(); break;
                 case "guide": GuidePage(); break;
                 case "language": LanguagePage(); break;
+                case "space": SpacePage(); break;
+                case "spaceConfirm": SpaceConfirmPage(); break;
                 default: SetupPage(); break;
             }
         }
@@ -123,11 +139,11 @@ namespace TwinInspector
             panel.Header(L.Get("page.setup.label"),L.Get("page.setup.heading"),L.Get("meta.version"));
             panel.Text(app.DisplayStatus+(app.Ready ? "\n"+L.Get(app.Anchors.Status) : ""),24,104,432,56);
             if (!app.Ready)
-            { panel.Button(L.Get("button.retrySetup"),24,184,432,() => Run(app.InitializeAsync)); return; }
-            panel.Button(L.Get("button.manualAlignment"),24,168,208,() => Show("align"));
+            { if (!app.Starting) panel.Button(L.Get("button.retrySetup"),24,184,432,() => Run(app.InitializeAsync)); return; }
+            panel.Button(L.Format("button.space0",app.Space.name),24,168,208,() => Show("space"));
             panel.Button(L.Get("button.preferences"),248,168,208,() => Show("preferences"));
-            panel.Button(L.Get("button.viewModes"),24,248,208,() => Show("mode"),true);
-            panel.Button(L.Get("button.guide"),248,248,208,() => Show("guide"));
+            panel.Button(L.Get("button.guide"),24,248,208,() => Show("guide"));
+            panel.Button(L.Get("button.close"),248,248,208,() => { panel.gameObject.SetActive(false); if(spatialStrip) spatialStrip.Select(-1); });
         }
         void ViewPage()
         {
@@ -156,7 +172,7 @@ namespace TwinInspector
             panel.Button(L.Get("button.leftHand"),24,104,208,()=>{ InteractionPreferences.LeftHand=true; Render(); },InteractionPreferences.LeftHand);
             panel.Button(L.Get("button.rightHand"),248,104,208,()=>{ InteractionPreferences.LeftHand=false; Render(); },!InteractionPreferences.LeftHand);
             panel.Button(L.Get("button.diagnostics"),24,168,208,()=>Show("diagnostics"));
-            panel.Button(L.Get("button.language"),248,168,208,()=>Show("language"));
+            panel.Button(L.Get("button.language"),248,168,208,()=>{ languageReturn="preferences"; Show("language"); });
             panel.Text(L.Get("text.eitherHandCanSummonAndOperate"),24,224,432,20,DesignTokens.Label);
             panel.Button(L.Get("button.feedbackSound"),24,248,208,()=>Show("sound"));
             panel.Button(L.Get("button.recenterBack"),248,248,208,()=>{ Show("setup"); Summon(); });
@@ -185,7 +201,8 @@ namespace TwinInspector
             panel.Text(L.Get("toast.pointAtTheTwinPinchAndDragWithOneHandTwoHandsAlsoTurnHeightStartsLocked"),24,104,432,56,18);
             panel.Button(L.Get("button.fineAdjustment"),24,168,208,() => Show("nudge"));
             panel.Button(L.Get("button.heightFloor"),248,168,208,() => Show("height"));
-            panel.Button(L.Get("button.useMarker"),24,248,208,() => { app.Markers.Begin(); Show("marker"); });
+            var marker=panel.Button(L.Get("button.useMarker"),24,248,208,() => { app.Markers.Begin(); Show("marker"); });
+            marker.interactable=app.Markers.HasMarkers;
             panel.Button(L.Get("button.saveAlignment"),248,248,208,() => Run(app.Anchors.SaveAsync,() => { Show("setup"); Notify(L.Get(app.Anchors.Status)); }),true);
         }
         void NudgePage()
@@ -296,9 +313,44 @@ namespace TwinInspector
         void LanguagePage()
         {
             panel.Header(L.Get("page.setup.label"),L.Get("button.language"));
-            string[] codes={"en","de","fr","it"},names={"English","Deutsch","Français","Italiano"};
-            for(int i=0;i<codes.Length;i++){string code=codes[i];panel.Button(L.Get(names[i]),24+i*108,104,108,()=>L.Language=code,L.Language==code);}
-            panel.Button(L.Get("button.back"),24,248,432,()=>Show("preferences"));
+            var codes=L.Codes;
+            for(int i=0;i<codes.Length;i++){string code=codes[i];panel.Button(L.Get("language."+code),24+i%3*144,104+i/3*64,144,()=>L.Language=code,L.Language==code);}
+            panel.Button(L.Get("button.back"),24,248,432,()=>Show(languageReturn));
+        }
+        void SpacePage()
+        {
+            // At start-up this answers the space question; once loaded it switches spaces after confirmation.
+            bool switching=app.Ready;
+            var spaces=app.Spaces.spaces; bool usable(TwinSpace s)=>TwinPaths.Available(app.Config,s);
+            var marked=switching?app.Space:app.Spaces.Default(app.Config.DefaultSpace,usable);
+            var available=spaces.FindAll(usable);
+            void Pick(TwinSpace space){ if(!switching) app.ChooseSpace(space.id); else if(space==app.Space) Show("setup"); else { pendingSpace=space.id; Show("spaceConfirm"); } }
+            panel.Header(L.Get("page.space.label"),L.Get("page.space.heading"),L.Format("meta.0D2Of1D2Ready",available.Count,spaces.Count));
+            // Greyed spaces have no packaged data and nothing transferred to this headset yet.
+            string hint=available.Count<spaces.Count?L.Get("text.greyNoDataOnHeadset"):"";
+            if(!switching) hint=L.Format("text.skipOpens0",marked.name)+(hint==""?"":" · "+hint);
+            if(spaces.Count<=4)
+            {
+                for(int i=0;i<spaces.Count;i++){var space=spaces[i];var button=panel.Button(space.name,24+i%2*224,104+i/2*64,208,()=>Pick(space),space==marked);button.interactable=available.Contains(space);}
+                if(hint!="") panel.Text(hint,24,224,432,20,DesignTokens.Label);
+            }
+            else
+            {
+                var rows=panel.Scroll(spaces.Count*56);
+                for(int i=0;i<spaces.Count;i++){var space=spaces[i];panel.Row(space.name+"\n"+space.building,i*56,()=>{ if(available.Contains(space)) Pick(space); else Notify(hint); },space==marked,rows);}
+            }
+            if(switching) { panel.Button(L.Get("button.back"),24,248,432,()=>Show("setup")); return; }
+            panel.Button(L.Get("button.language"),24,248,208,()=>{ languageReturn="space"; Show("language"); });
+            panel.Button(L.Get("button.skip"),248,248,208,()=>app.ChooseSpace(null));
+        }
+        void SpaceConfirmPage()
+        {
+            var target=app.Spaces.Find(pendingSpace);
+            if(target==null||target==app.Space||!TwinPaths.Available(app.Config,target)) { Show("setup"); return; }
+            panel.Header(L.Get("page.space.label"),L.Format("page.space.switchTo0",target.name),app.Space.name);
+            panel.Text(L.Get("text.switchSpaceBody"),24,104,432,104,18);
+            panel.Button(L.Get("button.cancel"),24,248,208,()=>Show("space"));
+            panel.Button(L.Get("button.switch"),248,248,208,()=>Run(()=>app.SwitchSpaceAsync(target.id)),true);
         }
         void GuidePage()
         {
@@ -311,6 +363,7 @@ namespace TwinInspector
             var back=panel.Button(L.Get("button.back"),168,248,144,()=>{guide.Back();Render();});back.interactable=guide.Index>0;
             panel.Button(L.Get(guide.Last?"button.done":"button.next"),312,248,144,()=>{if(guide.Last){guide.Done();Show("setup");}else{guide.Next();Render();}},true);
         }
+        static readonly HashSet<string> SetupPages=new HashSet<string>{"setup","preferences","sound","language","diagnostics","guide","space","spaceConfirm"};
         void Update()
         {
             if (!panel) return;

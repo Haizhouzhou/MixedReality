@@ -38,12 +38,12 @@ namespace TwinInspector
         public bool Done=>clustering!=null && clustering.IsCompleted;
         public List<DiffClusterer.Cluster> Result=>clustering.GetAwaiter().GetResult();
         sealed class Prepared {public Vector3[] Points,Normals;public bool[] Eligible;}
-        public DiffWork(string id,bool missing,int version,BatchStamp stamp,Vector3[] vertices,Vector3[] normals,int[] triangles,Matrix4x4 toWorld,Matrix4x4 worldToTwin,Bounds[] coverage,Bounds[] unknown,Settings settings)
+        public DiffWork(string id,bool missing,int version,BatchStamp stamp,Vector3[] vertices,Vector3[] normals,int[] triangles,Matrix4x4 toWorld,Matrix4x4 worldToTwin,Bounds[] coverage,Bounds[] unknown,Settings settings,float datum=0)
         {
             Id=id;Missing=missing;Version=version;Stamp=stamp;Vertices=vertices;Triangles=triangles;
             distance=settings.DiffDistanceMax;observedRadius=settings.DiffObservedRadiusM;minArea=settings.DiffMinAreaM2;minExtent=settings.DiffMinExtentM;
             cap=Math.Min(settings.DiffRaycastsPerFrame,settings.DiffOverlapsPerFrame);
-            bool ignore=settings.DiffIgnoreFloorCeiling;float floor=settings.DiffFloorZ;
+            bool ignore=settings.DiffIgnoreFloorCeiling;float floor=datum+settings.DiffFloorZ;
             // Everything captured here is a value or an immutable array; the worker never accesses a Unity object.
             preparation=Task.Run(()=>
             {

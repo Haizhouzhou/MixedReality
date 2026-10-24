@@ -26,10 +26,17 @@ namespace TwinInspector
         [SerializeField] ARMeshManager meshManager;
         readonly CancellationTokenSource lifetime = new CancellationTokenSource();
         bool starting;
+        TaskCompletionSource<TwinSpace> spaceChoice;
         public static AppBootstrap Instance { get; private set; }
         public bool Ready { get; private set; }
+        public bool Starting => starting;
         public string Status { get; private set; } = "Starting TwinInspector";
-        public string DisplayStatus=>Ready&&Loader&&!Loader.Manifest.demo?L.Format("status.region",Loader.Manifest.region.name):L.Get(Status);
+        public string DisplayStatus=>Ready&&Loader?(Loader.Manifest.demo?L.Format("status.builtIn",Space.name):L.Format("status.region",Loader.Manifest.region.name))
+            :starting&&Space!=null?L.Format("status.loadingSpace",Space.name):L.Get(Status);
+        public SpaceCatalog Spaces { get; private set; }
+        /// <summary>The space chosen at start-up; null until chosen and again after a failed start.</summary>
+        public TwinSpace Space { get; private set; }
+        public bool ChoosingSpace => spaceChoice != null;
         public Camera Viewer => viewer;
         public Settings Config => settings;
         public ARMeshManager MeshManager => meshManager;
@@ -88,18 +95,29 @@ namespace TwinInspector
                 }
                 Tokens = Resources.Load<DesignTokens>("DesignTokens");
                 if (!Tokens) throw new Exception("Design resources are missing");
+                CjkFonts.Install(Tokens);
+                Spaces ??= await SpaceCatalog.LoadAsync(lifetime.Token);
+                if (Space == null)
+                {
+                    spaceChoice = new TaskCompletionSource<TwinSpace>();
+                    using (lifetime.Token.Register(() => spaceChoice?.TrySetCanceled()))
+                    { EnsureUI(); UI.Show("space"); Space = await spaceChoice.Task; }
+                    spaceChoice = null;
+                }
+                if (UI) UI.Show("setup"); // loading status, without Retry while starting
+                DevLog.Write("Space: "+Space.id+" ("+Space.scan+")");
                 if (!Root) { Root = new GameObject("TwinRoot").AddComponent<TwinRoot>(); Root.transform.position=new Vector3(0,0,-10); }
                 Loader = gameObject.AddComponent<TwinLoader>();
-                await Loader.InitializeAsync(settings,Root,viewer,Tokens.TwinMaterial);
-                Anchors = gameObject.AddComponent<AnchorPersistence>(); Anchors.Initialize(Root,anchorManager,settings.Scan);
+                await Loader.InitializeAsync(settings,Space,Root,viewer,Tokens.TwinMaterial);
+                Anchors = gameObject.AddComponent<AnchorPersistence>(); Anchors.Initialize(Root,anchorManager,Space.Storage);
                 await Anchors.RestoreAsync();
-                Annotations = new AnnotationStore(settings.Scan);
+                Annotations = new AnnotationStore(Space.Storage);
                 var visuals = gameObject.AddComponent<AnnotationVisuals>(); visuals.Initialize(Annotations,Root,Tokens);
                 Style = gameObject.AddComponent<TwinStyle>(); Style.Initialize(Loader,Root,viewer,cameraManager,Tokens);
                 Manual = gameObject.AddComponent<ManualAlignment>();
                 Manual.Initialize(Root,Anchors,planeManager,Input);
                 Markers = gameObject.AddComponent<MarkerAlignment>();
-                await Markers.InitializeAsync(Root,Anchors,imageManager,Loader.DataRoot,settings.Scan,lifetime.Token);
+                await Markers.InitializeAsync(Root,Anchors,imageManager,Loader.DataRoot,TwinPaths.PackagedRoot(Space),Space.scan,lifetime.Token);
                 Placer = gameObject.AddComponent<AnnotationPlacer>(); Placer.Initialize(Root,Annotations,viewer,Input);
                 gameObject.AddComponent<SwissReticle>().Initialize(this);
                 Roam=gameObject.AddComponent<HandLocomotion>(); Roam.Initialize(this);
@@ -110,25 +128,59 @@ namespace TwinInspector
                 if(!Application.isEditor) {var source=gameObject.AddComponent<SceneSurfaceSource>();source.Initialize(meshManager);SceneSource=source;}
                 Diff=gameObject.AddComponent<DiffEngine>();Diff.Initialize(this);
                 gameObject.AddComponent<CandidateVisuals>().Initialize(this);
-                Ready = true; Status = Loader.Manifest.demo ? "Built-in hall · low detail" : "Region "+Loader.Manifest.region.name+" · external data";
+                Ready = true; Status = Space.name+(Loader.Manifest.demo ? " · built-in data" : " · Region "+Loader.Manifest.region.name+" · external data");
                 EnsureUI(); UI.Show("setup");
                 DevLog.Write("Ready: "+Status);
             }
             catch (OperationCanceledException) { }
             catch (Exception error)
             {
-                Ready=false;
-                foreach(var service in GetComponents<MonoBehaviour>())
-                    if(service!=this && !(service is InspectorUI) && !(service is InputRouter) && !(service is EditorDesktopDriver)) Destroy(service);
-                if(Root) Destroy(Root.gameObject);
-                Root=null; Loader=null; Anchors=null; Style=null; Manual=null; Markers=null; Placer=null; Performance=null;
-                Annotations=null;
+                Teardown();
+                // Retry offers the space choice again, in case the chosen space caused the failure.
+                Space=null; spaceChoice=null;
                 Status = error is UnauthorizedAccessException ? "Permissions needed to continue" : "Setup needs attention";
                 DevLog.Write("Startup failed: "+error);
                 Tokens = Resources.Load<DesignTokens>("DesignTokens");
                 if (Tokens) { EnsureUI(); UI.Show("setup"); UI.Notify(L.Get(Status)); }
             }
             finally { starting = false; }
+        }
+
+        /// <summary>Unload the current space and load another; annotations and saved alignment stay with their own scan.</summary>
+        public async Task SwitchSpaceAsync(string id)
+        {
+            var target = Spaces?.Find(id);
+            if (!Ready || starting || target == null || target == Space || !TwinPaths.Available(settings, target)) return;
+            DevLog.Write("Switching space: "+Space.id+" -> "+target.id);
+            Style.SetMode(ViewMode.Overlay); // leaves Twin roaming and restores the physical frame first
+            Teardown();
+            Space = target; Status = "Starting TwinInspector";
+            UI.Show("setup");
+            await Task.Yield(); // destroyed services must be gone before their replacements are added
+            await InitializeAsync();
+        }
+
+        /// <summary>Destroy every per-space service, keeping the UI, input and Editor driver.</summary>
+        void Teardown()
+        {
+            Ready=false;
+            if(UI) UI.ReleaseServices();
+            foreach(var service in GetComponents<MonoBehaviour>())
+                if(service!=this && !(service is InspectorUI) && !(service is InputRouter) && !(service is EditorDesktopDriver)) Destroy(service);
+            if(SceneSource is MonoBehaviour source && source && source.gameObject!=gameObject) Destroy(source.gameObject);
+            if(Root) Destroy(Root.gameObject);
+            // Explicit nulls: callers use ?. which does not see destroyed Unity objects as null.
+            Root=null; Loader=null; Anchors=null; Style=null; Manual=null; Markers=null; Placer=null; Performance=null;
+            Probes=null; Picker=null; Roam=null; Feedback=null; Diff=null; SceneSource=null; Annotations=null;
+        }
+
+        /// <summary>Answer the start-up question; null or an unknown id opens the configured default space.</summary>
+        public void ChooseSpace(string id)
+        {
+            if (spaceChoice == null || Spaces == null) return;
+            var space = Spaces.Find(id);
+            bool usable(TwinSpace s) => TwinPaths.Available(settings, s);
+            spaceChoice.TrySetResult(space != null && usable(space) ? space : Spaces.Default(settings.DefaultSpace, usable));
         }
 
         void EnsureUI() { if (!UI) { UI = gameObject.AddComponent<InspectorUI>(); UI.Initialize(this); } }

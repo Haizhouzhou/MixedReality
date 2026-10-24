@@ -10,6 +10,8 @@ namespace TwinInspector
         public string scan;
         public bool demo;
         public float[] origin_world;
+        /// <summary>Main floor height in twin metres; absent (0) in manifests written before CAB.</summary>
+        public float datum_z;
         public Region region;
         public List<Tile> tiles;
         [Serializable] public sealed class Region { public string name; public float[] min, max; }

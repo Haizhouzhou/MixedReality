@@ -10,14 +10,33 @@ namespace TwinInspector
     /// <summary>Resolves external data, an Editor override, or packaged Android assets.</summary>
     public static class TwinPaths
     {
-        public static string ModelsRoot(Settings settings) => Application.isEditor ? settings.EditorModelsPath : Path.Combine(Application.persistentDataPath,"twin",settings.DataFolder,"models");
-        public static string Resolve(Settings settings)
+        /// <summary>StreamingAssets folder holding one subfolder per packaged space.</summary>
+        public static string SpacesRoot => Application.streamingAssetsPath + "/twins";
+        public static string PackagedRoot(TwinSpace space) => space.packaged ? SpacesRoot + "/" + space.id : null;
+        static string ExternalRoot(TwinSpace space) => Path.Combine(Application.persistentDataPath, "twin", space.id);
+        /// <summary>Editor only: the workstation's pipeline output, settings.EditorDataPath/id.</summary>
+        static string EditorRoot(Settings settings, TwinSpace space) => Application.isEditor && !string.IsNullOrWhiteSpace(settings.EditorDataPath) ? Path.Combine(RepositoryPath(settings.EditorDataPath), space.id) : null;
+        /// <summary>Relative settings paths are relative to the repository root (the folder above the Unity project).</summary>
+        public static string RepositoryPath(string path) => Path.IsPathRooted(path) ? path : Path.GetFullPath(Path.Combine(Application.dataPath, "..", "..", path));
+        /// <summary>Packaged in the app, or transferred to this device (or the workstation in the Editor); other spaces are offered greyed out.</summary>
+        public static bool Available(Settings settings, TwinSpace space) => space.packaged || File.Exists(Path.Combine(ExternalRoot(space), "manifest.json")) || ManifestScan(EditorRoot(settings, space)) == space.scan;
+        public static string ModelsRoot(Settings settings) => Application.isEditor ? RepositoryPath(settings.EditorModelsPath) : Path.Combine(Application.persistentDataPath, "models");
+        public static string Resolve(Settings settings, TwinSpace space)
         {
-#if UNITY_EDITOR
-            if (File.Exists(Path.Combine(settings.EditorDataPath, "manifest.json"))) return settings.EditorDataPath;
-#endif
-            var external = Path.Combine(Application.persistentDataPath, "twin", settings.DataFolder);
-            return File.Exists(Path.Combine(external, "manifest.json")) ? external : Application.streamingAssetsPath + "/twin_demo";
+            var editor = EditorRoot(settings, space);
+            if (editor != null && ManifestScan(editor) == space.scan) return editor;
+            var external = ExternalRoot(space);
+            if (File.Exists(Path.Combine(external, "manifest.json"))) return external;
+            return PackagedRoot(space) ?? throw new FileNotFoundException("Space data is not on this device: " + space.id);
+        }
+
+        static string ManifestScan(string root)
+        {
+            if (root == null) return null;
+            var path = Path.Combine(root, "manifest.json");
+            if (!File.Exists(path)) return null;
+            try { return Newtonsoft.Json.JsonConvert.DeserializeObject<TwinManifest>(File.ReadAllText(path))?.scan; }
+            catch (Newtonsoft.Json.JsonException) { return null; }
         }
 
         public static string Url(string root, string relative)

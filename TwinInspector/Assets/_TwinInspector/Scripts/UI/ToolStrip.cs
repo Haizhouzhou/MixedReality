@@ -7,7 +7,10 @@ namespace TwinInspector
     [DefaultExecutionOrder(1200)]
     public sealed class ToolStrip : MonoBehaviour
     {
-        AppBootstrap app; SwissButton[] cells; PanelBase dockedPanel;
+        AppBootstrap app; SwissButton[] cells; SwissButton gear; PanelBase dockedPanel;
+        /// <summary>Select() index of the Setup cell, left of the four numbered tools.</summary>
+        public const int SetupIndex=4;
+        const float GearWidth=64.75f, Step=139.75f;
         Vector3 fromPosition,targetPosition,anchorForward;
         Quaternion fromRotation,targetRotation;
         float movedAt,palmSince=-1;
@@ -16,12 +19,17 @@ namespace TwinInspector
         public bool PalmAnchored => false;
         public void Initialize(AppBootstrap application,PanelBase panel)
         {
-            app=application; panel.StripLayout(); cells=new SwissButton[4];
+            app=application; panel.StripLayout(GearWidth-1+4*Step+1); cells=new SwissButton[4];
+            var setup=panel.Button("",0,0,GearWidth,()=>app.UI.Show("setup")); setup.name="Setup"; gear=setup.GetComponent<SwissButton>();
+            ((RectTransform)setup.transform).sizeDelta=new Vector2(GearWidth,64);
+            ((RectTransform)setup.transform.Find("Fill")).sizeDelta=new Vector2(GearWidth-2,62);
+            var glyph=PanelBase.Rectangle("Gear",setup.transform,(GearWidth-28)/2,18,28,28).gameObject.AddComponent<GearGlyph>();
+            glyph.Ink=setup.GetComponentInChildren<TMP_Text>(); glyph.raycastTarget=false;
             string[] labels={"MODE","ALIGN","ANNOTATE","LIST"};
             System.Action[] actions={()=>app.UI.Show("mode"),()=>app.UI.Show("align"),()=>app.UI.BeginAnnotation(),()=>app.UI.Show("list")};
             for(int i=0;i<4;i++)
             {
-                var button=panel.Button(L.Get(labels[i]),i*139.75f,0,140.75f,actions[i]); cells[i]=button.GetComponent<SwissButton>();
+                var button=panel.Button(L.Get(labels[i]),GearWidth-1+i*Step,0,140.75f,actions[i]); cells[i]=button.GetComponent<SwissButton>();
                 ((RectTransform)button.transform).sizeDelta=new Vector2(140.75f,64);
                 ((RectTransform)button.transform.Find("Fill")).sizeDelta=new Vector2(138.75f,62);
                 var text=button.GetComponentInChildren<TMP_Text>(); text.rectTransform.anchoredPosition=new Vector2(12,-28); text.rectTransform.sizeDelta=new Vector2(116.75f,26);
@@ -31,7 +39,7 @@ namespace TwinInspector
             Recenter(true);
         }
         public void RefreshLabels() { string[] labels={"MODE","ALIGN","ANNOTATE","LIST"}; for(int i=0;i<cells.Length;i++) cells[i].GetComponentInChildren<TMP_Text>().text=L.Get(labels[i]); }
-        public void Select(int index) { if(cells!=null) for(int i=0;i<cells.Length;i++) cells[i].SetSelected(i==index); }
+        public void Select(int index) { if(cells!=null) for(int i=0;i<cells.Length;i++) cells[i].SetSelected(i==index); if(gear) gear.SetSelected(index==SetupIndex); }
         public void Dock(PanelBase panel) { dockedPanel=panel; PositionPanel(); }
         void PositionPanel()
         {

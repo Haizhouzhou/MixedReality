@@ -52,8 +52,8 @@ namespace TwinInspector
             transform.SetPositionAndRotation(settled, Quaternion.LookRotation(forward, Vector3.up));
             shownAt = Time.unscaledTime;
         }
-        public void StripLayout()
-        { ((RectTransform)transform).sizeDelta = new Vector2(560,64); content.sizeDelta = new Vector2(560,64); section.gameObject.SetActive(false); title.gameObject.SetActive(false); meta.gameObject.SetActive(false); foreach(Transform child in transform) if(child.name=="Registration rule") child.gameObject.SetActive(false); }
+        public void StripLayout(float width)
+        { ((RectTransform)transform).sizeDelta = new Vector2(width,64); content.sizeDelta = new Vector2(width,64); section.gameObject.SetActive(false); title.gameObject.SetActive(false); meta.gameObject.SetActive(false); foreach(Transform child in transform) if(child.name=="Registration rule") child.gameObject.SetActive(false); }
         public void Notify(string message) { toast.text = message; toastUntil = Time.unscaledTime + 2.5f; toast.transform.parent.gameObject.SetActive(true); }
         void Update()
         {

@@ -20,12 +20,12 @@ The packaged demo is sufficient to try the application. Process external data on
 
 ```powershell
 & 'D:\miniforge3\envs\mr\python.exe' -I tools\tests\test_twin_pipeline.py
-& 'D:\miniforge3\envs\mr\python.exe' -I tools\twin_pipeline.py all --session dataset\raw\HGE\sessions\navvis_2022-02-06_12.55.11 --region a --out work\twin\HGE_2022-02-06\region_a
-& 'D:\miniforge3\envs\mr\python.exe' -I tools\verify_seams.py work\twin\HGE_2022-02-06\region_a
-& 'D:\miniforge3\envs\mr\python.exe' -I tools\verify_tiles.py work\twin\HGE_2022-02-06\region_a
+& 'D:\miniforge3\envs\mr\python.exe' -I tools\twin_pipeline.py all --session dataset\raw\HGE\sessions\navvis_2022-02-06_12.55.11 --region a --out work\twin\HG_MainHall
+& 'D:\miniforge3\envs\mr\python.exe' -I tools\verify_seams.py work\twin\HG_MainHall
+& 'D:\miniforge3\envs\mr\python.exe' -I tools\verify_tiles.py work\twin\HG_MainHall
 ```
 
-Repeat with `--region b` and `--out work\twin\HGE_2022-02-06\region_b` for the floor. Regions A and B use fixed measured extents rather than semantic indoor segmentation. Centroid clipping retains complete boundary triangles; a triangle can extend outside its cell or region.
+Repeat with `--region b` and `--out work\twin\HG_RegionB` for the floor. Regions A and B use fixed measured extents rather than semantic indoor segmentation. Centroid clipping retains complete boundary triangles; a triangle can extend outside its cell or region.
 
 The pipeline reads fixed-size PLY batches through read-only memory maps. Checkpointed batches and completed tiles are skipped on rerun. The `config.json` fingerprint rejects a different source/configuration in an existing output. Choose a new output directory for changed settings. `--force` reruns the selected stage; `all --force` rebuilds all stages. Do not run two writers against the same output directory. `--target-ratio` defaults to 0.013 and is reduced automatically if the region triangle budget would be exceeded.
 
@@ -33,10 +33,34 @@ Each compact tile is simplified as a whole up to eight million triangles. Larger
 
 Run `tools/verify_seams.py <output>` before `tools/verify_tiles.py <output>`. The seam verifier independently compares every exported GLB against the source chunk's open edges, with a 20 micrometre export-rounding tolerance and zero missing edges. v1.1 reduction checkpoints are versioned by boundary policy; old reductions are rebuilt automatically. The original Region B baseline is verified for geometry and budgets but has not been regenerated with the new seam policy.
 
-Stages can be run separately: `chunk`, `simplify`, `export`, `manifest`, `preview`. Raw data and intermediate chunks stay outside the APK. The only bundled data is Region A LOD2, packaged with:
+Stages can be run separately: `chunk`, `simplify`, `export`, `manifest`, `preview`. Raw data and intermediate chunks stay outside the APK. Every space is named by one id, used everywhere: its entry in `Assets/StreamingAssets/twins/spaces.json`, its packaged LOD2 folder `twins/<id>/` (spaces with `"packaged": true`), its pipeline output `work/twin/<id>/`, its headset folder `files/twin/<id>/` and its annotation/alignment/dismissal files. HG Region A is packaged with:
 
 ```powershell
-& 'D:\miniforge3\envs\mr\python.exe' -I tools\package_demo.py work\twin\HGE_2022-02-06\region_a TwinInspector\Assets\StreamingAssets\twin_demo
+& 'D:\miniforge3\envs\mr\python.exe' -I tools\package_demo.py work\twin\HG_MainHall TwinInspector\Assets\StreamingAssets\twins\HG_MainHall
+```
+
+`CAB_MainHall` comes from a cropped mesh in the CAB session (`proc/meshes/entrance_hall.ply`). `--region auto` uses the whole mesh, `--origin auto` picks the nearest 10 m grid point to its centre, and `--datum-z` records the main floor height (−4.8 m in the CAB frame):
+
+```bash
+python -I tools/twin_pipeline.py all --session <CAB>/navvis_2022-06-25_11.14.36 --mesh proc/meshes/entrance_hall.ply --region auto --region-name "Main Hall" --origin auto --building CAB --datum-z -4.8 --workers 2 --out work/twin/CAB_MainHall
+python -I tools/package_demo.py work/twin/CAB_MainHall TwinInspector/Assets/StreamingAssets/twins/CAB_MainHall --building CAB
+```
+
+To add another space, choose its id, run the pipeline with `--out work/twin/<id>`, add an entry to `twins/spaces.json`, and either package it (`package_demo.py` into `twins/<id>`, `"packaged": true`; create its `.meta` files by opening the project in Unity before committing) or transfer it with `push_space.py <id>`.
+
+At start-up the app lists `twins/spaces.json` and asks which space to open; Skip opens `Settings.defaultSpace` (`HG_MainHall`). Later, the gear cell → Space switches after a confirmation: the per-space services are destroyed and rebuilt for the new space. Data on the headset (`files/twin/<id>`) replaces the packaged copy when it holds a `manifest.json`; in the Editor, `Settings.editorDataPath` (default `work/twin`, relative to the repository) is checked first, so full pipeline outputs load on the workstation. Spaces with neither packaged nor transferred data appear greyed out. HG_E3_Hall and HG_E7_Hall are not packaged (their LOD2 adds about 20 MB, which would push the APK past 95 MB):
+
+```bash
+python -I tools/push_space.py HG_E3_Hall
+python -I tools/push_space.py HG_E7_Hall
+```
+
+Both were cut from the 2022-02-06 HG scan with `--region 16,69,-33,4,-1,8 --region-name "E3 Hall"` and `--region 16,69,16,52,-1,8 --region-name "E7 Hall"` (`--origin auto`, `--out work/twin/HG_E3_Hall` / `HG_E7_Hall`). Annotations, alignment and dismissed candidates are stored per space id, so spaces never share them, even when cut from the same scan: each space is aligned on its own. A space without `markers.json` loads normally with Use marker disabled. The manifest's `datum_z` sets the datum grid, contours and the diff floor; manifests without it use 0.
+
+Chinese text uses subsets of Noto Sans SC in `Resources/Fonts`, added at runtime as fallbacks of the Inter fonts. After changing any `Strings/*.json`, regenerate the subsets from the full fonts ([notofonts/noto-cjk](https://github.com/notofonts/noto-cjk), `Sans/SubsetOTF/SC`):
+
+```bash
+python -I tools/subset_cjk_font.py <folder with NotoSansSC-Regular/Medium/Bold.otf>
 ```
 
 ## Coordinates
@@ -49,17 +73,45 @@ Annotations and measured marker coordinates always use the original twin frame, 
 
 On the headset, open Settings → About headset → Software information, tap Build number seven times, then enable USB debugging in Developer options. Connect USB-C and accept the RSA prompt. `adb devices` must show an authorized device.
 
-After installing and first launching the APK, push a verified region:
+After installing and first launching the APK, push a space's verified data (`push_space.py` works on macOS, Linux and Windows; `push_twin.ps1` is the Windows equivalent):
 
-```powershell
-.\tools\push_twin.ps1 -Region region_a
-.\tools\push_twin.ps1 -Models
-# Or region_b; -Serial selects a device when more than one is connected.
+```bash
+python -I tools/push_space.py HG_MainHall
 ```
 
-Only runtime GLBs, marker configuration and the manifest are transferred. Tiles go into a manifest-hash revision directory; the manifest is activated last, so interrupted transfers cannot replace files referenced by the previous manifest. Device destination: `/sdcard/Android/data/com.mrtwin.inspector/files/twin/HGE_2022-02-06/`. Previous tile revisions are retained. Restart the app after replacing a dataset. A missing external dataset uses a packaged selection of complete nearby Region A LOD2 tiles, capped below 15 MB. External data retains the entire region.
+```powershell
+.\tools\push_twin.ps1 -Space HG_MainHall
+.\tools\push_twin.ps1 -Models
+# -Serial selects a device when more than one is connected.
+```
+
+Only runtime GLBs, marker configuration and the manifest are transferred. Tiles go into a manifest-hash revision directory; the manifest is activated last, so interrupted transfers cannot replace files referenced by the previous manifest. Device destination: `/sdcard/Android/data/com.mrtwin.inspector/files/twin/<space id>/`; SAM models go to `files/models/`. Previous tile revisions are retained. Restart the app after replacing a dataset. A missing external dataset uses a packaged selection of complete nearby Region A LOD2 tiles, capped below 15 MB. External data retains the entire region.
 
 Grant the camera, scene-understanding and hand-tracking permissions. For marker alignment, print `tools/markers/marker_00.png` on A4 at 100%, check the black square is 150 mm, and place it at a surveyed pose. Follow the [marker measurement instructions](../tools/markers/README.md). Shipped coordinates are examples with `measured:false`; automatic headset alignment rejects them. A marker must remain tracked for one second before confirmation.
+
+### Download space data from GitHub Releases
+
+Full-detail space data is not stored in Git. Release [`data-2026-10-24`](https://github.com/Haizhouzhou/MixedReality/releases/tag/data-2026-10-24) holds one zip per space; each contains a folder named by the space id, with `manifest.json`, all LOD tiles and `LICENSE.txt` (CC BY-SA 4.0, LaMAR).
+
+| Asset | Space | Headset folder | Tiles | Size |
+|---|---|---|---|---|
+| `twin-HG_MainHall.zip` | HG Main Hall (Region A, full detail) | `HG_MainHall` | 45 | 43.5 MB |
+| `twin-HG_E3_Hall.zip` | HG E3 Hall (external only) | `HG_E3_Hall` | 28 | 26.5 MB |
+| `twin-HG_E7_Hall.zip` | HG E7 Hall (external only) | `HG_E7_Hall` | 28 | 20.1 MB |
+| `twin-CAB_MainHall.zip` | CAB Main Hall (full detail) | `CAB_MainHall` | 8 | 12.8 MB |
+
+HG E3 Hall and HG E7 Hall stay greyed out in the app until their data is transferred; the other two also work from their built-in LOD2 copies. To install the data, connect and authorize the headset, install and launch the app once, then from the repository root:
+
+```bash
+mkdir -p work/release && cd work/release
+# download the zips and SHA256SUMS.txt from the release page into this folder, then:
+shasum -a 256 -c SHA256SUMS.txt
+for z in twin-*.zip; do unzip -oq "$z" -d ../twin; done
+cd ../..
+for space in HG_MainHall HG_E3_Hall HG_E7_Hall CAB_MainHall; do python3 -I tools/push_space.py "$space"; done
+```
+
+Each zip unpacks to `work/twin/<id>`, the same place the pipeline writes, so the Editor also loads them in full detail. `push_space.py` needs only Python 3 and `adb`; it finds `adb` on the `PATH` or in Unity Hub's Android module, otherwise pass `--adb <path>` (on Windows use `py -3` and `Get-FileHash` instead of `shasum`). Reopen the app afterwards. Uninstalling the app deletes these folders; an update from the same computer keeps them.
 
 ## Build, install and launch
 
@@ -93,7 +145,7 @@ $adb='E:\Unity\Editor\6000.3.26f1\Editor\Data\PlaybackEngines\AndroidPlayer\SDK\
 
 ## Use in the Editor and on Galaxy XR
 
-Enter Play mode in Inspector and focus the Game view. With no actively tracked HMD, the Editor selects mouse and keyboard automatically. The XRI device simulator stays disabled; v1.3's independent scene-surface fixture simulates reality when external Region A exists. The Editor loads `Settings.editorDataPath`; the packaged LOD2 demo is used when external data is absent.
+Enter Play mode in Inspector and focus the Game view. With no actively tracked HMD, the Editor selects mouse and keyboard automatically. The XRI device simulator stays disabled; v1.3's independent scene-surface fixture simulates reality when external Region A exists. The Editor loads the chosen space from `work/twin/<id>` (`Settings.editorDataPath`, relative to the repository) when that pipeline output exists; otherwise it uses the packaged LOD2 copy, and spaces without either stay greyed out.
 
 | Action | Editor input |
 |---|---|

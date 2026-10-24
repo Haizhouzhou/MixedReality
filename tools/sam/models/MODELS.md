@@ -12,6 +12,6 @@ The encoder yields `1×256×64×64` embeddings. The decoder receives one positiv
 
 Back-projection samples a 64×64 grid, rejects depths beyond `max(0.5 m, 25% of prompt distance)`, and requires at least 12 accepted hits. A conservative normal-coherence gate additionally excludes surfaces more than 30° from the prompted surface (sign-independent for two-sided meshes). The region is fitted to actual accepted mask samples, with adjacent sample triangles and a 0.5 m discontinuity cutoff; original LOD2 triangle references are retained separately. This produces a visible surface patch rather than guaranteeing a complete semantic 3D object, and can omit sharp side faces. The gate was added after a real test exposed bleeding onto an adjoining angled surface.
 
-On the headset these files belong in `/sdcard/Android/data/com.mrtwin.inspector/files/twin/HGE_2022-02-06/models/`. On this workstation the configured path is `E:/MixedReality/tools/sam/models`. `tools/push_twin.ps1 -Models` transfers only the two models and their manifest. Restart the app after transfer.
+On the headset these files belong in `/sdcard/Android/data/com.mrtwin.inspector/files/models/`. On a workstation the Editor reads `tools/sam/models` (relative to the repository root). `tools/push_twin.ps1 -Models` transfers only the two models and their manifest. Restart the app after transfer.
 
 Headset latency, GPU memory and selection quality remain unverified until physical device acceptance. A model-predicted IoU score is not an accuracy measurement against annotated ground truth.

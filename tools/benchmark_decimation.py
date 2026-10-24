@@ -8,7 +8,7 @@ import psutil
 spec = importlib.util.spec_from_file_location("pipeline", Path(__file__).with_name("twin_pipeline.py"))
 p = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(p)
-root = Path(__file__).parents[1] / "work/twin/HGE_2022-02-06/region_a"
+root = Path(__file__).parents[1] / "work/twin/HG_MainHall"
 tile = "x-1_y0"
 start = time.perf_counter()
 with np.load(root / "chunks" / (tile + ".npz")) as data:

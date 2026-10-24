@@ -37,8 +37,9 @@ namespace TwinInspector
         public void Initialize(AppBootstrap application)
         {
             app=application;settings=app.Config;visibleSetting=settings.DiffEnabled;
-            dismissedPath=TwinPaths.SaveFile("diff",settings.Scan+"-dismissed");dismissed=JsonStore.Read<DismissedDocument>(dismissedPath)??new DismissedDocument{scan=settings.Scan};
-            if(dismissed.schema!="twin-dismissed/1"||dismissed.scan!=settings.Scan) {DevLog.Write("Dismissal document ignored: schema/scan mismatch");dismissed=new DismissedDocument{scan=settings.Scan};}
+            string scan=app.Space.Storage;
+            dismissedPath=TwinPaths.SaveFile("diff",scan+"-dismissed");dismissed=JsonStore.Read<DismissedDocument>(dismissedPath)??new DismissedDocument{scan=scan};
+            if(dismissed.schema!="twin-dismissed/1"||dismissed.scan!=scan) {DevLog.Write("Dismissal document ignored: schema/scan mismatch");dismissed=new DismissedDocument{scan=scan};}
             app.Loader.CollisionLoaded+=Loaded;app.Loader.CollisionReleasing+=Released;app.Annotations.Changed+=AnnotationChanged;
             foreach(var t in app.Loader.Tiles)if(t.Collision)Loaded(t);
             rootPosition=app.Root.transform.position;rootRotation=app.Root.transform.rotation;resumeAt=Time.unscaledTime+1;
@@ -95,11 +96,11 @@ namespace TwinInspector
                 var stamp=new BatchStamp(app.Loader.TileVersion,sourceVersion,generation);
                 var coverage=tiles.Values.Select(t=>{var b=new Bounds((TwinRoot.Vector(t.Handle.Data.min)+TwinRoot.Vector(t.Handle.Data.max))/2,TwinRoot.Vector(t.Handle.Data.max)-TwinRoot.Vector(t.Handle.Data.min));b.Expand(settings.DiffDistanceMax*2);return b;}).ToArray();
                 var unknown=app.Loader.Tiles.Where(t=>!t.Collision).Select(t=>{var b=new Bounds((TwinRoot.Vector(t.Data.min)+TwinRoot.Vector(t.Data.max))/2,TwinRoot.Vector(t.Data.max)-TwinRoot.Vector(t.Data.min));b.Expand(settings.DiffDistanceMax*2);return b;}).ToArray();
-                if(chunk!=null)work=new DiffWork(chunk.Id,false,chunk.Version,stamp,chunk.Vertices,chunk.Normals,chunk.Triangles,Matrix4x4.identity,app.Root.WorldToTwinMatrix,coverage,unknown,settings);
+                if(chunk!=null)work=new DiffWork(chunk.Id,false,chunk.Version,stamp,chunk.Vertices,chunk.Normals,chunk.Triangles,Matrix4x4.identity,app.Root.WorldToTwinMatrix,coverage,unknown,settings,app.Loader.Manifest.datum_z);
                 else
                 {
                     var list=tiles.Keys.OrderBy(id=>id,StringComparer.Ordinal).ToArray();nextTile%=list.Length;var tile=tiles[list[nextTile++]];
-                    work=new DiffWork(tile.Handle.Data.id,true,app.Loader.TileVersion,stamp,tile.Vertices,null,tile.Triangles,app.Root.WorldToTwinMatrix.inverse,app.Root.WorldToTwinMatrix,coverage,unknown,settings);
+                    work=new DiffWork(tile.Handle.Data.id,true,app.Loader.TileVersion,stamp,tile.Vertices,null,tile.Triangles,app.Root.WorldToTwinMatrix.inverse,app.Root.WorldToTwinMatrix,coverage,unknown,settings,app.Loader.Manifest.datum_z);
                 }
             }
             catch(Exception error){DevLog.Write("Diff evaluation failed: "+error);if(work!=null&&work.CanDispose){work.Dispose();work=null;}resumeAt=Time.unscaledTime+1;}

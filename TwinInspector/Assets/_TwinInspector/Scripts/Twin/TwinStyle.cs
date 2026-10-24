@@ -20,7 +20,7 @@ namespace TwinInspector
         public bool LensActive => Lens && Mode==ViewMode.Overlay;
         public void Initialize(TwinLoader twin,TwinRoot twinRoot,Camera camera,ARCameraManager cameraManager,DesignTokens design)
         {
-            loader=twin; root=twinRoot; viewer=camera; passthrough=cameraManager; tokens=design;
+            loader=twin; root=twinRoot; viewer=camera; passthrough=cameraManager; tokens=design; DatumZ=loader.Manifest.datum_z;
             grid=new GameObject("Metre floor grid",typeof(MeshFilter),typeof(MeshRenderer)); grid.transform.SetParent(root.transform,false);
             var lo=root.ToLocal(TwinRoot.Vector(loader.Manifest.region.min)); var hi=root.ToLocal(TwinRoot.Vector(loader.Manifest.region.max));
             float y=DatumZ-root.Origin.z+.006f;

@@ -4,7 +4,7 @@ bool assertPatches=System.IO.File.Exists("../work/assert-patches-v13.flag");
 System.Func<System.Threading.Tasks.Task> run=async()=>
 {
  var log=new System.Text.StringBuilder();string created=null;
- var dismissalPath=TwinInspector.TwinPaths.SaveFile("diff",app.Config.Scan+"-dismissed");
+ var dismissalPath=TwinInspector.TwinPaths.SaveFile("diff",app.Space.scan+"-dismissed");
  var saved=System.IO.File.Exists(dismissalPath)?System.IO.File.ReadAllBytes(dismissalPath):null;
  var backup=System.IO.File.Exists(dismissalPath+".bak")?System.IO.File.ReadAllBytes(dismissalPath+".bak"):null;
  var mouse=UnityEngine.InputSystem.Mouse.current??UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Mouse>();
@@ -32,7 +32,7 @@ System.Func<System.Threading.Tasks.Task> run=async()=>
   await click(button(row));check(app.UI.Page=="picker"&&app.Diff.Selected?.id==candidate.id,"candidate selected through list row");capture("picker-candidate");
   await click(button("Confirm"));created=app.Annotations.Selected?.id;check(created!=null&&app.Annotations.Selected.region?.source=="diff"&&app.UI.Page=="list","UI Confirm creates region annotation and returns to list");
   var item=app.Annotations.Selected;
-  var reloaded=new TwinInspector.AnnotationStore(app.Config.Scan);check(System.Linq.Enumerable.Any(reloaded.Items,a=>a.id==created&&a.region!=null),"confirmed region survives reload");
+  var reloaded=new TwinInspector.AnnotationStore(app.Space.scan);check(System.Linq.Enumerable.Any(reloaded.Items,a=>a.id==created&&a.region!=null),"confirmed region survives reload");
   if(assertPatches)
   {
    string exported=TwinInspector.AnnotationExporter.Export(app.Annotations);string folder=System.IO.Path.Combine(System.IO.Path.GetDirectoryName(exported),System.IO.Path.GetFileNameWithoutExtension(exported)+"-patches");

@@ -27,7 +27,7 @@ namespace TwinInspector
                 var token=lifetime.Token; var root=app.Root;
                 // Capture alignment once. Later twin movement deliberately makes reality and twin disagree.
                 var fixedMatrix=root.transform.localToWorldMatrix;var origin=root.Origin;
-                Fixture=DiffFixture.Load(Path.GetFullPath(Path.Combine(Application.dataPath,"../../tools/fixtures/reality_edits_a.json")),app.Config.Scan);
+                Fixture=DiffFixture.Load(Path.GetFullPath(Path.Combine(Application.dataPath,"../../tools/fixtures/reality_edits_a.json")),app.Space.scan);
                 var groups=new List<(string id,Vector3[] v,int[] t,Vector3[] n)>();
                 var allV=new List<Vector3>();var allT=new List<int>();var coverage=new List<Bounds>();
                 foreach(var tile in app.Loader.Manifest.tiles)

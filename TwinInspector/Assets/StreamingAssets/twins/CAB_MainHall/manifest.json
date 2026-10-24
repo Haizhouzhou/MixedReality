@@ -1,0 +1,535 @@
+{
+  "schema": "twin-manifest/1",
+  "scan": "navvis_2022-06-25_11.14.36",
+  "source": {
+    "mesh": "raw/CAB/sessions/navvis_2022-06-25_11.14.36/proc/meshes/entrance_hall.ply",
+    "sha256_header": "b29a90f65fb4933403ec7d8b3f72c13bad1f2d89a59976c07616d070d6f33fa2",
+    "sha256_alignment": "16734c7d14257a5ef8211141a5267407f21ab1d6b5368f88905881b45bdd7e79",
+    "bytes": 162388301
+  },
+  "frame": {
+    "up": "z",
+    "units": "m",
+    "alignment": "pose_graph_optimized",
+    "gltf_axis_convention": "twin(x,y,z)-origin -> gltf(x,z,-y); glTFast reflects X; Unity adapter yaw=180deg -> local(x,z,y); inverse local(x,z,y)+origin"
+  },
+  "origin_world": [
+    60.0,
+    30.0,
+    0.0
+  ],
+  "datum_z": -4.8,
+  "region": {
+    "name": "Main Hall",
+    "min": [
+      46.0,
+      21.0,
+      -9.0
+    ],
+    "max": [
+      70.0,
+      48.0,
+      -1.0
+    ]
+  },
+  "chunk_size_m": 10,
+  "lods": [
+    {
+      "level": 2,
+      "max_distance_m": 80
+    }
+  ],
+  "tiles": [
+    {
+      "id": "x5_y3",
+      "min": [
+        49.96928024291992,
+        29.919639587402344,
+        -8.52922534942627
+      ],
+      "max": [
+        60.048648834228516,
+        40.08975601196289,
+        -1.0265246629714966
+      ],
+      "files": {
+        "2": "tiles/x5_y3/lod2.glb"
+      },
+      "triangles": {
+        "2": 61111
+      },
+      "bytes": {
+        "2": 1444804
+      },
+      "bounds_lod": {
+        "2": {
+          "min": [
+            49.96928024291992,
+            29.919639587402344,
+            -8.52922534942627
+          ],
+          "max": [
+            60.048648834228516,
+            40.08975601196289,
+            -1.0265246629714966
+          ]
+        }
+      },
+      "reduction": {
+        "0": {
+          "triangles": 61381,
+          "fragment_weld_m": 0,
+          "boundary_policy": "exact-open-boundary-v1",
+          "target_triangles": 25786,
+          "preserved_fragment_excess": 35595
+        },
+        "1": {
+          "triangles": 61141,
+          "fragment_weld_m": 0,
+          "boundary_policy": "exact-open-boundary-v1",
+          "target_triangles": 6446,
+          "preserved_fragment_excess": 54695
+        },
+        "2": {
+          "triangles": 61111,
+          "fragment_weld_m": 0,
+          "boundary_policy": "exact-open-boundary-v1",
+          "target_triangles": 1547,
+          "preserved_fragment_excess": 59564
+        }
+      }
+    },
+    {
+      "id": "x6_y3",
+      "min": [
+        59.88217544555664,
+        29.946815490722656,
+        -8.530304908752441
+      ],
+      "max": [
+        69.68611907958984,
+        40.198829650878906,
+        -1.028712272644043
+      ],
+      "files": {
+        "2": "tiles/x6_y3/lod2.glb"
+      },
+      "triangles": {
+        "2": 81013
+      },
+      "bytes": {
+        "2": 1873628
+      },
+      "bounds_lod": {
+        "2": {
+          "min": [
+            59.88217544555664,
+            29.946815490722656,
+            -8.530304908752441
+          ],
+          "max": [
+            69.68611907958984,
+            40.198829650878906,
+            -1.028712272644043
+          ]
+        }
+      },
+      "reduction": {
+        "0": {
+          "triangles": 81552,
+          "fragment_weld_m": 0,
+          "boundary_policy": "exact-open-boundary-v1",
+          "target_triangles": 22433,
+          "preserved_fragment_excess": 59119
+        },
+        "1": {
+          "triangles": 81083,
+          "fragment_weld_m": 0,
+          "boundary_policy": "exact-open-boundary-v1",
+          "target_triangles": 5608,
+          "preserved_fragment_excess": 75475
+        },
+        "2": {
+          "triangles": 81013,
+          "fragment_weld_m": 0,
+          "boundary_policy": "exact-open-boundary-v1",
+          "target_triangles": 1345,
+          "preserved_fragment_excess": 79668
+        }
+      }
+    },
+    {
+      "id": "x5_y2",
+      "min": [
+        49.92842102050781,
+        21.746841430664062,
+        -8.530238151550293
+      ],
+      "max": [
+        60.10436248779297,
+        30.07150650024414,
+        -1.0275613069534302
+      ],
+      "files": {
+        "2": "tiles/x5_y2/lod2.glb"
+      },
+      "triangles": {
+        "2": 53542
+      },
+      "bytes": {
+        "2": 1250296
+      },
+      "bounds_lod": {
+        "2": {
+          "min": [
+            49.92842102050781,
+            21.746841430664062,
+            -8.530238151550293
+          ],
+          "max": [
+            60.10436248779297,
+            30.07150650024414,
+            -1.0275613069534302
+          ]
+        }
+      },
+      "reduction": {
+        "0": {
+          "triangles": 53873,
+          "fragment_weld_m": 0,
+          "boundary_policy": "exact-open-boundary-v1",
+          "target_triangles": 15570,
+          "preserved_fragment_excess": 38303
+        },
+        "1": {
+          "triangles": 53587,
+          "fragment_weld_m": 0,
+          "boundary_policy": "exact-open-boundary-v1",
+          "target_triangles": 3892,
+          "preserved_fragment_excess": 49695
+        },
+        "2": {
+          "triangles": 53542,
+          "fragment_weld_m": 0,
+          "boundary_policy": "exact-open-boundary-v1",
+          "target_triangles": 934,
+          "preserved_fragment_excess": 52608
+        }
+      }
+    },
+    {
+      "id": "x6_y2",
+      "min": [
+        59.93585205078125,
+        24.941856384277344,
+        -8.530243873596191
+      ],
+      "max": [
+        63.510459899902344,
+        30.113548278808594,
+        -1.0302268266677856
+      ],
+      "files": {
+        "2": "tiles/x6_y2/lod2.glb"
+      },
+      "triangles": {
+        "2": 12070
+      },
+      "bytes": {
+        "2": 298624
+      },
+      "bounds_lod": {
+        "2": {
+          "min": [
+            59.93585205078125,
+            24.941856384277344,
+            -8.530243873596191
+          ],
+          "max": [
+            63.510459899902344,
+            30.113548278808594,
+            -1.0302268266677856
+          ]
+        }
+      },
+      "reduction": {
+        "0": {
+          "triangles": 12105,
+          "fragment_weld_m": 0,
+          "boundary_policy": "exact-open-boundary-v1",
+          "target_triangles": 3061,
+          "preserved_fragment_excess": 9044
+        },
+        "1": {
+          "triangles": 12082,
+          "fragment_weld_m": 0,
+          "boundary_policy": "exact-open-boundary-v1",
+          "target_triangles": 765,
+          "preserved_fragment_excess": 11317
+        },
+        "2": {
+          "triangles": 12070,
+          "fragment_weld_m": 0,
+          "boundary_policy": "exact-open-boundary-v1",
+          "target_triangles": 183,
+          "preserved_fragment_excess": 11887
+        }
+      }
+    },
+    {
+      "id": "x5_y4",
+      "min": [
+        53.38419723510742,
+        39.88037872314453,
+        -8.526851654052734
+      ],
+      "max": [
+        60.27465057373047,
+        45.42671585083008,
+        -1.0266748666763306
+      ],
+      "files": {
+        "2": "tiles/x5_y4/lod2.glb"
+      },
+      "triangles": {
+        "2": 21686
+      },
+      "bytes": {
+        "2": 502004
+      },
+      "bounds_lod": {
+        "2": {
+          "min": [
+            53.38419723510742,
+            39.88037872314453,
+            -8.526851654052734
+          ],
+          "max": [
+            60.27465057373047,
+            45.42671585083008,
+            -1.0266748666763306
+          ]
+        }
+      },
+      "reduction": {
+        "0": {
+          "triangles": 21835,
+          "fragment_weld_m": 0,
+          "boundary_policy": "exact-open-boundary-v1",
+          "target_triangles": 4286,
+          "preserved_fragment_excess": 17549
+        },
+        "1": {
+          "triangles": 21704,
+          "fragment_weld_m": 0,
+          "boundary_policy": "exact-open-boundary-v1",
+          "target_triangles": 1071,
+          "preserved_fragment_excess": 20633
+        },
+        "2": {
+          "triangles": 21686,
+          "fragment_weld_m": 0,
+          "boundary_policy": "exact-open-boundary-v1",
+          "target_triangles": 257,
+          "preserved_fragment_excess": 21429
+        }
+      }
+    },
+    {
+      "id": "x6_y4",
+      "min": [
+        59.82752990722656,
+        39.815345764160156,
+        -8.529059410095215
+      ],
+      "max": [
+        68.65860748291016,
+        47.33525085449219,
+        -1.0274840593338013
+      ],
+      "files": {
+        "2": "tiles/x6_y4/lod2.glb"
+      },
+      "triangles": {
+        "2": 43378
+      },
+      "bytes": {
+        "2": 1010056
+      },
+      "bounds_lod": {
+        "2": {
+          "min": [
+            59.82752990722656,
+            39.815345764160156,
+            -8.529059410095215
+          ],
+          "max": [
+            68.65860748291016,
+            47.33525085449219,
+            -1.0274840593338013
+          ]
+        }
+      },
+      "reduction": {
+        "0": {
+          "triangles": 43660,
+          "fragment_weld_m": 0,
+          "boundary_policy": "exact-open-boundary-v1",
+          "target_triangles": 11164,
+          "preserved_fragment_excess": 32496
+        },
+        "1": {
+          "triangles": 43410,
+          "fragment_weld_m": 0,
+          "boundary_policy": "exact-open-boundary-v1",
+          "target_triangles": 2791,
+          "preserved_fragment_excess": 40619
+        },
+        "2": {
+          "triangles": 43378,
+          "fragment_weld_m": 0,
+          "boundary_policy": "exact-open-boundary-v1",
+          "target_triangles": 669,
+          "preserved_fragment_excess": 42709
+        }
+      }
+    },
+    {
+      "id": "x4_y3",
+      "min": [
+        46.56132507324219,
+        29.862789154052734,
+        -8.527074813842773
+      ],
+      "max": [
+        50.0662841796875,
+        36.01496887207031,
+        -1.0264678001403809
+      ],
+      "files": {
+        "2": "tiles/x4_y3/lod2.glb"
+      },
+      "triangles": {
+        "2": 15677
+      },
+      "bytes": {
+        "2": 376168
+      },
+      "bounds_lod": {
+        "2": {
+          "min": [
+            46.56132507324219,
+            29.862789154052734,
+            -8.527074813842773
+          ],
+          "max": [
+            50.0662841796875,
+            36.01496887207031,
+            -1.0264678001403809
+          ]
+        }
+      },
+      "reduction": {
+        "0": {
+          "triangles": 15768,
+          "fragment_weld_m": 0,
+          "boundary_policy": "exact-open-boundary-v1",
+          "target_triangles": 4011,
+          "preserved_fragment_excess": 11757
+        },
+        "1": {
+          "triangles": 15684,
+          "fragment_weld_m": 0,
+          "boundary_policy": "exact-open-boundary-v1",
+          "target_triangles": 1002,
+          "preserved_fragment_excess": 14682
+        },
+        "2": {
+          "triangles": 15677,
+          "fragment_weld_m": 0,
+          "boundary_policy": "exact-open-boundary-v1",
+          "target_triangles": 240,
+          "preserved_fragment_excess": 15437
+        }
+      }
+    },
+    {
+      "id": "x4_y2",
+      "min": [
+        47.69160079956055,
+        28.238605499267578,
+        -8.52728271484375
+      ],
+      "max": [
+        50.14271926879883,
+        30.214078903198242,
+        -1.0277912616729736
+      ],
+      "files": {
+        "2": "tiles/x4_y2/lod2.glb"
+      },
+      "triangles": {
+        "2": 5253
+      },
+      "bytes": {
+        "2": 128964
+      },
+      "bounds_lod": {
+        "2": {
+          "min": [
+            47.69160079956055,
+            28.238605499267578,
+            -8.52728271484375
+          ],
+          "max": [
+            50.14271926879883,
+            30.214078903198242,
+            -1.0277912616729736
+          ]
+        }
+      },
+      "reduction": {
+        "0": {
+          "triangles": 5288,
+          "fragment_weld_m": 0,
+          "boundary_policy": "exact-open-boundary-v1",
+          "target_triangles": 860,
+          "preserved_fragment_excess": 4428
+        },
+        "1": {
+          "triangles": 5259,
+          "fragment_weld_m": 0,
+          "boundary_policy": "exact-open-boundary-v1",
+          "target_triangles": 215,
+          "preserved_fragment_excess": 5044
+        },
+        "2": {
+          "triangles": 5253,
+          "fragment_weld_m": 0,
+          "boundary_policy": "exact-open-boundary-v1",
+          "target_triangles": 64,
+          "preserved_fragment_excess": 5189
+        }
+      }
+    }
+  ],
+  "totals": {
+    "triangles_lod0": 0,
+    "bytes_lod0": 0,
+    "bytes": 6884544
+  },
+  "generated_utc": "2026-10-24T17:11:04.564603+00:00",
+  "tool_version": "twin_pipeline 0.1",
+  "attribution": "LaMAR (ETH Zurich / Microsoft), CAB NavVis; derived decimated vertex-coloured geometry, CC BY-SA 4.0",
+  "demo_selection": {
+    "source_region_tiles": 8,
+    "included_tiles": 8,
+    "priority_twin_point": [
+      58.0,
+      34.5,
+      -5.0
+    ],
+    "glb_budget_bytes": 14000000
+  },
+  "demo": true
+}
