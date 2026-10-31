@@ -2,7 +2,7 @@
 
 TwinInspector is a Unity application for inspecting a scanned building on Samsung Galaxy XR. It combines a digital twin with camera passthrough, supports manual, surveyed-marker and automatic scene-mesh alignment, and stores inspection notes in the building's original coordinate frame. The same project runs in the Unity Editor with a mouse and keyboard.
 
-**Version 1.5.1** · Android XR · Unity 6000.3.26f1
+**Version 1.5.2** · Android XR · Unity 6000.3.26f1
 
 [Releases](https://github.com/Haizhouzhou/MixedReality/releases) · [Setup and development guide](TwinInspector/README.md) · [Development notes](TwinInspector/docs/DEVLOG.md)
 
@@ -16,7 +16,7 @@ v1.3 adds automatic geometry-change candidates, region annotations, OBJ refineme
 
 v1.4 adds inspection spaces. The app starts by asking which space to inspect — **HG Main Hall**, **CAB Main Hall**, **HG E3 Hall** or **HG E7 Hall** (Skip opens HG Main Hall) — and a gear cell left of the tool strip opens **00 Setup** from any view to switch space after a confirmation, open Preferences (including Language), the Guide, or close the panel. Each space keeps its own annotations, alignment and dismissed candidates, even when cut from the same scan. HG E3/E7 Hall are not packaged in the APK and stay greyed out until their data is transferred. The interface starts in English and offers five languages: English, 中文, Deutsch, Français and Italiano. Chinese is machine translated by the implementation agent and unreviewed; its glyphs come from a subset of Noto Sans SC (SIL OFL 1.1).
 
-v1.5 adds **automatic alignment**. Align → Auto align hides the twin and shows the headset's scene mesh as it is scanned: blue for walls, green for floor. Align now unlocks once enough wall, floor and cross-direction wall has been seen. The match moves the twin for review, showing match %, deviation and the distance moved and angle turned. Confirm saves it like any other alignment; Cancel puts the twin back; Reset scan discards an earlier, confusing scan. Fits near the current alignment are preferred, so rough manual placement first makes symmetric halls unambiguous. A scan that saw only parallel walls is flagged rather than trusted. Scene meshing now uses Google's Android XR Extensions feature instead of Unity's, which never produced meshes on the Galaxy XR. `tools/record_headset.py` records what the wearer sees, passthrough included, over adb.
+v1.5 adds **automatic alignment**. Align → Auto align hides the twin and shows the headset's scene mesh as it is scanned: blue for walls, green for floor. Align now unlocks once enough wall, floor and cross-direction wall has been seen. The match moves the twin for review, showing match %, deviation and the distance moved and angle turned. Confirm saves it like any other alignment; Cancel puts the twin back; Reset scan discards an earlier, confusing scan. Fits near the current alignment are preferred, so rough manual placement first makes symmetric halls unambiguous. A scan that saw only parallel walls is flagged rather than trusted. Scene meshing now uses Google's Android XR Extensions feature instead of Unity's, which never produced meshes on the Galaxy XR. `tools/record_headset.py` records what the wearer sees, passthrough included, over adb. v1.5.2 adds Align → Forget alignment for demonstrations: after a confirmation, it deletes the space's saved alignment and throws the twin out of place, so Auto align can be shown starting from a mess.
 
 | Candidate review | German interface |
 | --- | --- |
@@ -103,15 +103,17 @@ Enable USB debugging on the headset, connect it to the development computer, and
 
 ```powershell
 adb devices -l
-adb install -r TwinInspector-1.5.1.apk
+adb install -r TwinInspector-1.5.2.apk
 adb shell am start -n com.mrtwin.inspector/com.unity3d.player.UnityPlayerGameActivity
 ```
 
 Grant the requested camera, scene-understanding and hand-tracking permissions. The APK includes LOD2 copies of HG Main Hall and CAB Main Hall; full-detail data and the HG E3/E7 Hall spaces come from the [space data release](TwinInspector/README.md#download-space-data-from-github-releases). See the [project guide](TwinInspector/README.md#headset-setup-and-data-transfer) for full-region transfer and surveyed-marker setup.
 
-The application version is **1.5.1** (Android version code **7**) and the package ID is **`com.mrtwin.inspector`**; a published release lists the APK's size and SHA-256. Installing with `-r` updates an existing installation while preserving its data, provided it was signed with the same key; an APK built on another computer must be uninstalled first, which deletes the app's data folder. The previous v1.3 build remains at `TwinInspector/Builds/TwinInspector-0.1.0.apk`. Repository access is required to download these private builds.
+The application version is **1.5.2** (Android version code **8**) and the package ID is **`com.mrtwin.inspector`**; a published release lists the APK's size and SHA-256. Installing with `-r` updates an existing installation while preserving its data, provided it was signed with the same key; an APK built on another computer must be uninstalled first, which deletes the app's data folder. The previous v1.3 build remains at `TwinInspector/Builds/TwinInspector-0.1.0.apk`. Repository access is required to download these private builds.
 
 ## Verification status
+
+v1.5.2 (Forget alignment) was checked on 31 October 2026: the assemblies compile with 0 errors, the solver tests pass in a standalone .NET harness (including recovery of a scrambled twin), the 11 Python tests pass, and `tools/check_text_fit.py` passes for 439 strings. On the Galaxy XR, Forget ran once in HG E3 Hall and logged the alignment forgotten and the twin scrambled. A following auto-alignment and a restart without a saved alignment are not recorded in the log. The Unity Test Runner was not run.
 
 v1.5.1 (dock and change-detection fixes) was checked on 31 October 2026: the Runtime, Editor and Test assemblies compile with 0 errors, the 11 Python tests pass, and `tools/check_text_fit.py` passes for 414 strings. On the Galaxy XR, the fixed build logged the app hiding and returning as the system came to the front and left it (`System in front=`). The Unity Test Runner was not run.
 

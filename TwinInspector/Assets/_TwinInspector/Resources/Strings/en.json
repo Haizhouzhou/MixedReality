@@ -182,7 +182,7 @@
   "text.diffPausedDuringAlignment": "Diff paused during alignment",
   "desktop.hint": "RMB look · WASD move · E/Q height · Alt boost · RMB + wheel speed {0:F1} m/s\n1 Mode · 2 Align · 3 Annotate · 4 List · M marker · Tab summon",
   "status.region": "Region {0} · external data",
-  "meta.version": "v1.5.1",
+  "meta.version": "v1.5.2",
   "meta.step.coarse": "5 cm / 2°",
   "meta.step.fine": "1 cm / 0.5°",
   "list.annotationRow": "{0:D2}  {1}   {2:F1} m\n{3}",
@@ -239,5 +239,9 @@
   "button.markSurface": "Mark a surface",
   "button.detectOn": "Change detection: on",
   "button.detectOff": "Change detection: off",
-  "text.detectHint": "Off by default. When on, the scan is compared with the twin."
+  "text.detectHint": "Off by default. When on, the scan is compared with the twin.",
+  "button.forgetAlignment": "Forget alignment",
+  "button.forget": "Forget",
+  "text.forgetBody": "Deletes this space's saved alignment and moves the twin to a random wrong position. Annotations are kept. Auto align can then align it again.",
+  "toast.alignmentForgotten": "Alignment forgotten. Try Auto align."
 }

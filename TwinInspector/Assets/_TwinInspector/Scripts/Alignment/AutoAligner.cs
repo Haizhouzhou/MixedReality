@@ -58,6 +58,14 @@ namespace TwinInspector
             return sums.ToCloud();
         }
 
+        /// <summary>A visibly wrong placement for showing alignment from a mess: 30–60° and 2.5–4 m off, beyond what Solve treats as near the current alignment.</summary>
+        public static (float yaw, Vector3 shift) Scramble(System.Random random)
+        {
+            float Between(float low, float high) => low + (float)random.NextDouble() * (high - low);
+            float yaw = Between(30, 60) * Mathf.Deg2Rad * (random.Next(2) == 0 ? -1 : 1), heading = Between(0, 2 * Mathf.PI), distance = Between(2.5f, 4);
+            return (yaw, new Vector3(Mathf.Sin(heading) * distance, .4f, Mathf.Cos(heading) * distance));
+        }
+
         /// <summary>Merges points per voxel, averaging position and normal, so dense and sparse sources weigh alike.</summary>
         public sealed class Accumulator
         {

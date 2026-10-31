@@ -361,6 +361,12 @@ After the restart, HG E3 Hall gave two reliable matches: 85–86% wall inliers, 
 
 Release of the work in the three sections above: Auto align with scan view, Reset scan and Rescan, the solver, and Google scene meshing. Also included are the large-boundary manifest property, Diagnostics → Scene probe and the recording script. Version 1.5.0, Android version code 6.
 
+## v1.5.2 — Forget alignment — 2026-10-31 (Europe/Paris)
+
+For demonstrating auto alignment from a mess. Align → Forget alignment asks for confirmation, deletes the space's saved pose (with its backup) and persistent anchor, and throws the twin 30–60° and 2.5–4 m off about the viewer, plus 40 cm up. That is beyond the 15° and 1.5 m in which `AutoAligner` keeps a fit near the current alignment, so the solver must find the position itself. Annotations are stored in twin coordinates and stay attached. Save alignment now shares the bottom row with Forget.
+
+Evidence: the assemblies compile with 0 errors; the solver tests pass in a standalone harness, including recovery of a scrambled twin; the text-fit check passes. On the Galaxy XR, Forget ran once in HG E3 Hall, logging `Alignment forgotten` and `Alignment scrambled: yaw=-39.7° shift=(0.70, 0.40, -3.30)`. A following auto-alignment and a restart without a saved alignment are not recorded in the log; the Unity Test Runner was not run. Version 1.5.2, Android version code 8.
+
 ## v1.5.1 — dock and detection fixes — 2026-10-31 (Europe/Paris)
 
 - **Grab bar removed.** It dragged unreliably and caught accidental pinches. The Menu position page is now the only way to move the dock.

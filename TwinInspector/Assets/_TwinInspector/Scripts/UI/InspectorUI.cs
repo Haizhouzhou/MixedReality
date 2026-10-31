@@ -90,9 +90,9 @@ namespace TwinInspector
             if(page=="dock"&&target!="dock")PlayerPrefs.Save();
             page = target;
             if(app.Roam) app.Roam.Move(Vector2.zero);
-            if(app.Ready && (target=="align" || target=="nudge" || target=="height" || target=="marker" || target=="auto") && app.Style.Mode!=ViewMode.Overlay) app.Style.SetMode(ViewMode.Overlay);
+            if(app.Ready && (target=="align" || target=="nudge" || target=="height" || target=="marker" || target=="auto" || target=="forget") && app.Style.Mode!=ViewMode.Overlay) app.Style.SetMode(ViewMode.Overlay);
             if(app.Placer) app.Placer.Active=false;
-            if(spatialStrip) spatialStrip.Select((target=="mode"||target=="display"||target=="roam")?0:target=="align"||target=="nudge"||target=="height"||target=="marker"||target=="auto"?1:target=="annotate"||target=="picker"?2:target=="list"?3:SetupPages.Contains(target)?ToolStrip.SetupIndex:-1);
+            if(spatialStrip) spatialStrip.Select((target=="mode"||target=="display"||target=="roam")?0:target=="align"||target=="nudge"||target=="height"||target=="marker"||target=="auto"||target=="forget"?1:target=="annotate"||target=="picker"?2:target=="list"?3:SetupPages.Contains(target)?ToolStrip.SetupIndex:-1);
             if (app.Manual) app.Manual.SetActive(target == "align" || target == "nudge" || target == "height");
             if (app.Performance) app.Performance.Visible = target == "diagnostics";
             if(spatialStrip) spatialStrip.Reveal();
@@ -130,6 +130,7 @@ namespace TwinInspector
                 case "height": HeightPage(); break;
                 case "marker": MarkerPage(); break;
                 case "auto": AutoAlignPage(); break;
+                case "forget": ForgetPage(); break;
                 case "list": ListPage(); break;
                 case "annotate": AnnotatePage(); break;
                 case "picker": PickerPage(); break;
@@ -227,7 +228,15 @@ namespace TwinInspector
             panel.Button(L.Get("button.fineAdjustment"),24,168,208,() => Show("nudge"));
             panel.Button(L.Get("button.heightFloor"),248,168,208,() => Show("height"));
             panel.Text(L.Get("text.dragTwinHint"),24,224,432,20,DesignTokens.Label);
-            panel.Button(L.Get("button.saveAlignment"),24,248,432,() => Run(app.Anchors.SaveAsync,() => { Show("setup"); Notify(L.Get(app.Anchors.Status)); }));
+            panel.Button(L.Get("button.forgetAlignment"),24,248,208,() => Show("forget"));
+            panel.Button(L.Get("button.saveAlignment"),248,248,208,() => Run(app.Anchors.SaveAsync,() => { Show("setup"); Notify(L.Get(app.Anchors.Status)); }));
+        }
+        void ForgetPage()
+        {
+            panel.Header(L.Get("page.align.label"),L.Get("button.forgetAlignment"),app.Space.name);
+            panel.Text(L.Get("text.forgetBody"),24,104,432,104,18);
+            panel.Button(L.Get("button.cancel"),24,248,208,() => Show("align"));
+            panel.Button(L.Get("button.forget"),248,248,208,() => Run(app.AutoAlign.ForgetAsync,() => { Show("align"); Notify(L.Get("toast.alignmentForgotten")); }),true);
         }
         void AutoAlignPage()
         {

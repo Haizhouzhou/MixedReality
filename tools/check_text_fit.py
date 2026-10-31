@@ -83,7 +83,11 @@ def main():
         for key in ("button.rescan", "button.resetScan", "button.alignNow"):
             check(f"{c} {key}", t[key], 120, 21, shrink_to=16)
         check(f"{c} toast.scanReset", t["toast.scanReset"], 432, 21, shrink_to=16)
-        check(f"{c} button.saveAlignment", t["button.saveAlignment"], 408, 21, shrink_to=16)
+        for key in ("button.saveAlignment", "button.forgetAlignment", "button.forget"):
+            check(f"{c} {key}", t[key], 184, 21, shrink_to=16)
+        check(f"{c} button.forgetAlignment heading", t["button.forgetAlignment"], 432, 24, "semibold")
+        check(f"{c} text.forgetBody (four lines)", t["text.forgetBody"], 4 * 432 * .85, 18)
+        check(f"{c} toast.alignmentForgotten", t["toast.alignmentForgotten"], 432, 21, shrink_to=16)
         check(f"{c} button.autoAlign heading", t["button.autoAlign"], 432, 24, "semibold")
         check(f"{c} text.dragTwinHint", t["text.dragTwinHint"], 432, 12)
         check(f"{c} text.detectHint", t["text.detectHint"], 432, 12)

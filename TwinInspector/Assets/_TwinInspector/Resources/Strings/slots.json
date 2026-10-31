@@ -74,5 +74,7 @@
   "button.autoAlign": 18,
   "button.alignNow": 12,
   "button.rescan": 12,
-  "button.resetScan": 12
+  "button.resetScan": 12,
+  "button.forgetAlignment": 20,
+  "button.forget": 18
 }

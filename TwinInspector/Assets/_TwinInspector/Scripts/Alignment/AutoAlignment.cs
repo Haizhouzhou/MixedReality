@@ -75,6 +75,17 @@ namespace TwinInspector
             attempt++; State = AutoAlignState.Idle; Changed?.Invoke();
         }
 
+        /// <summary>Deletes the saved alignment and throws the twin out of place about the viewer, so that alignment can be shown from a mess.</summary>
+        public async Task ForgetAsync()
+        {
+            Cancel();
+            await app.Anchors.ForgetAsync();
+            var root = app.Root.transform; var head = app.Viewer.transform.position;
+            var (yaw, shift) = AutoAligner.Scramble(new System.Random());
+            root.SetPositionAndRotation(head + AutoAligner.Rotate(root.position - head, yaw) + shift, Quaternion.Euler(0, yaw * Mathf.Rad2Deg, 0) * root.rotation);
+            DevLog.Write($"Alignment scrambled: yaw={yaw * Mathf.Rad2Deg:F1}° shift={shift:F2}");
+        }
+
         /// <summary>Discards what was scanned so far, so a confusing earlier scan (wrong spot, drift) cannot mix into the match.</summary>
         public void ResetScan()
         {

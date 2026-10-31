@@ -129,6 +129,38 @@ namespace TwinInspector.Tests
             foreach (var p in cloud.Points) Assert.That(p.x, Is.InRange(.99f, 5.01f), "matrix applied");
         }
 
+        [Test] public void ScrambleIsAlwaysFarFromTheCurrentAlignment()
+        {
+            var random = new System.Random(5);
+            for (int i = 0; i < 200; i++)
+            {
+                var (yaw, shift) = AutoAligner.Scramble(random);
+                float degrees = Mathf.Abs(yaw * Mathf.Rad2Deg), distance = new Vector2(shift.x, shift.z).magnitude;
+                Assert.That(degrees, Is.InRange(30, 60));
+                Assert.That(distance, Is.InRange(2.5f, 4));
+            }
+        }
+
+        [Test] public void AScrambledTwinIsRecovered()
+        {
+            // Viewer at (10, 2.5): the twin was thrown 45° and 3 m off about the viewer, as Forget does.
+            var hall = AutoAligner.Downsample(Hall());
+            float yaw = 45 * Mathf.Deg2Rad; var head = new Vector3(10, 0, 2.5f); var shift = new Vector3(2, .4f, 2.2f);
+            var points = new Vector3[hall.Count]; var normals = new Vector3[hall.Count];
+            for (int i = 0; i < hall.Count; i++) { points[i] = head + AutoAligner.Rotate(hall.Points[i] - head, yaw) + shift; normals[i] = AutoAligner.Rotate(hall.Normals[i], yaw); }
+            var thrown = new AutoAligner.Cloud { Points = points, Normals = normals };
+            var scene = AutoAligner.Downsample(Scan(Hall(), new Vector2(10, 2.5f), 6, 0, Vector3.zero));
+            var result = AutoAligner.Solve(thrown, scene, shift.y, 1.6f);
+            Assert.That(result.Found, Is.True, result.Reason);
+            Assert.That(Mathf.Abs(Mathf.DeltaAngle(result.Yaw * Mathf.Rad2Deg, 45)), Is.LessThan(.5f));
+            for (int i = 0; i < 3; i++)
+            {
+                var p = new[] { new Vector3(10, 1, 2.5f), new Vector3(5, 2, 0), new Vector3(14, 1, 3) }[i];
+                var expected = head + AutoAligner.Rotate(p - head, yaw) + shift;
+                Assert.That(Vector3.Distance(AutoAligner.Rotate(p, result.Yaw) + result.Translation, expected), Is.LessThan(.03f));
+            }
+        }
+
         [Test] public void RotateMatchesUnityYawConvention()
         {
             var v = new Vector3(1, 2, 3);

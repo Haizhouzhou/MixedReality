@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
@@ -90,6 +91,29 @@ namespace TwinInspector
                 DevLog.Write(Status);
             }
             catch (Exception error) { Status = "Saved locally · anchor unavailable"; DevLog.Write(Status + ": " + error.Message); }
+            finally { saving = false; }
+        }
+
+        /// <summary>Removes the saved pose and persistent anchor, so the space starts unaligned; the twin stays where it is.</summary>
+        public async Task ForgetAsync()
+        {
+            if (saving) return;
+            saving = true;
+            following = false;
+            var previousId = state?.anchor_id; var previousAnchor = active;
+            state = null; active = null;
+            try
+            {
+                foreach (var suffix in new[] { "", ".bak", ".pending" }) if (File.Exists(path + suffix)) File.Delete(path + suffix);
+                Status = "Not aligned";
+                if (!Application.isEditor && manager?.subsystem != null)
+                {
+                    if (previousAnchor) manager.TryRemoveAnchor(previousAnchor);
+                    if (Guid.TryParse(previousId, out var id) && manager.descriptor.supportsEraseAnchor) await manager.TryEraseAnchorAsync(new SerializableGuid(id));
+                }
+                DevLog.Write("Alignment forgotten");
+            }
+            catch (Exception error) { DevLog.Write("Forget alignment: " + error.Message); }
             finally { saving = false; }
         }
 

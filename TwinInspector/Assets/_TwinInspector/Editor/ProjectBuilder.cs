@@ -30,8 +30,8 @@ namespace TwinInspector.Editor
             if(EditorApplication.isPlaying) throw new InvalidOperationException("Stop Play mode before authoring Main");
             foreach(var folder in new[]{"Resources","Prefabs","Materials","Scenes","Fonts"}) Directory.CreateDirectory(Root+"/"+folder);
             AssetDatabase.Refresh();
-            PlayerSettings.companyName="MR Twin Team"; PlayerSettings.productName="TwinInspector"; PlayerSettings.bundleVersion="1.5.1";
-            PlayerSettings.Android.bundleVersionCode=7;
+            PlayerSettings.companyName="MR Twin Team"; PlayerSettings.productName="TwinInspector"; PlayerSettings.bundleVersion="1.5.2";
+            PlayerSettings.Android.bundleVersionCode=8;
             var tags = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset")[0]);
             var layers = tags.FindProperty("layers");
             string[] layerNames = { "Building", "SceneMesh", "Annotation", "TwinVisual", "DiffPatch" };

@@ -182,7 +182,7 @@
   "text.0F1M1F1M": "{0:F1} m² · {1:F1} m",
   "_note": "German terminology reviewed against the v1.3 glossary by the implementation agent; no human language review.",
   "status.region": "Bereich {0} · externe Daten",
-  "meta.version": "v1.5.1",
+  "meta.version": "v1.5.2",
   "meta.step.coarse": "5 cm / 2°",
   "meta.step.fine": "1 cm / 0.5°",
   "list.annotationRow": "{0:D2}  {1}   {2:F1} m\n{3}",
@@ -239,5 +239,9 @@
   "button.markSurface": "Fläche markieren",
   "button.detectOn": "Änderungserkennung: an",
   "button.detectOff": "Änderungserkennung: aus",
-  "text.detectHint": "Standardmäßig aus. Wenn an: Scan mit Zwilling vergleichen."
+  "text.detectHint": "Standardmäßig aus. Wenn an: Scan mit Zwilling vergleichen.",
+  "button.forgetAlignment": "Ausrichtung löschen",
+  "button.forget": "Löschen",
+  "text.forgetBody": "Löscht die gespeicherte Ausrichtung dieses Raums und verschiebt den Zwilling zufällig. Anmerkungen bleiben. Danach kann Auto-Ausrichten neu ausrichten.",
+  "toast.alignmentForgotten": "Ausrichtung gelöscht. Auto-Ausrichten testen."
 }

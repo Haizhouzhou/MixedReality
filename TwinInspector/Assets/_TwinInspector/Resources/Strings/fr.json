@@ -182,7 +182,7 @@
   "text.0F1M1F1M": "{0:F1} m² · {1:F1} m",
   "_note": "machine translated, unreviewed",
   "status.region": "Région {0} · données externes",
-  "meta.version": "v1.5.1",
+  "meta.version": "v1.5.2",
   "meta.step.coarse": "5 cm / 2°",
   "meta.step.fine": "1 cm / 0.5°",
   "list.annotationRow": "{0:D2}  {1}   {2:F1} m\n{3}",
@@ -239,5 +239,9 @@
   "button.markSurface": "Marquer une surface",
   "button.detectOn": "Détection des changements : oui",
   "button.detectOff": "Détection des changements : non",
-  "text.detectHint": "Désactivée par défaut. Activée, elle compare le scan au jumeau."
+  "text.detectHint": "Désactivée par défaut. Activée, elle compare le scan au jumeau.",
+  "button.forgetAlignment": "Oublier l'alignement",
+  "button.forget": "Oublier",
+  "text.forgetBody": "Supprime l'alignement enregistré de cet espace et déplace le jumeau au hasard. Les annotations restent. L'alignement auto peut ensuite le réaligner.",
+  "toast.alignmentForgotten": "Alignement oublié. Essayez l'alignement auto."
 }
