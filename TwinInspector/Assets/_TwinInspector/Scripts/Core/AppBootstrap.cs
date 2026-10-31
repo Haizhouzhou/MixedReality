@@ -25,7 +25,8 @@ namespace TwinInspector
         [SerializeField] ARTrackedImageManager imageManager;
         [SerializeField] ARMeshManager meshManager;
         readonly CancellationTokenSource lifetime = new CancellationTokenSource();
-        bool starting;
+        bool starting, applicationFocused=true, systemInFront;
+        int viewerMask; Color viewerBackground;
         TaskCompletionSource<TwinSpace> spaceChoice;
         public static AppBootstrap Instance { get; private set; }
         public bool Ready { get; private set; }
@@ -76,6 +77,16 @@ namespace TwinInspector
             if(Application.isEditor) gameObject.AddComponent<EditorDesktopDriver>().Initialize(this);
         }
         async void Start() => await InitializeAsync();
+        // Nothing of the app may show over the system's own interface: the camera draws nothing and stays transparent.
+        void Update()
+        {
+            if(Application.isEditor || !viewer) return;
+            bool front=!applicationFocused || !TrackingSpace.SessionFocused;
+            if(front==systemInFront) return;
+            systemInFront=front; DevLog.Write("System in front="+front+" "+LifecycleState());
+            if(front) { viewerMask=viewer.cullingMask; viewerBackground=viewer.backgroundColor; viewer.cullingMask=0; viewer.backgroundColor=Color.clear; }
+            else { viewer.cullingMask=viewerMask; viewer.backgroundColor=viewerBackground; }
+        }
 
         public async Task InitializeAsync()
         {
@@ -211,7 +222,7 @@ namespace TwinInspector
 #endif
         }
         // Lifecycle evidence for system minimize/boundary investigations: which view, passthrough and tracking space were active.
-        void OnApplicationFocus(bool focus) => DevLog.Write("Application focus="+focus+" "+LifecycleState());
+        void OnApplicationFocus(bool focus) { applicationFocused=focus; DevLog.Write("Application focus="+focus+" "+LifecycleState()); }
         void OnApplicationPause(bool paused) => DevLog.Write("Application pause="+paused+" "+LifecycleState());
         string LifecycleState() => "view="+(Style?Style.Mode.ToString():"-")+" passthrough="+(cameraManager&&cameraManager.enabled)+" "+TrackingSpace.Describe()+" head="+(viewer?viewer.transform.position.ToString("F2"):"-");
         void OnDestroy() { lifetime.Cancel(); lifetime.Dispose(); if (Instance==this) Instance=null; }

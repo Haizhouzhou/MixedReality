@@ -52,7 +52,7 @@ namespace TwinInspector
             if(!app.Ready || !app.UI) return;
             if(keys.digit1Key.wasPressedThisFrame) app.UI.Show("mode");
             if(keys.digit2Key.wasPressedThisFrame) app.UI.Show("align");
-            if(keys.digit3Key.wasPressedThisFrame) app.UI.BeginAnnotation();
+            if(keys.digit3Key.wasPressedThisFrame) app.UI.Show("annotate");
             if(keys.digit4Key.wasPressedThisFrame) app.UI.Show("list");
             if(keys.mKey.wasPressedThisFrame) { app.Markers.SimulateFirst(); app.UI.Show("marker"); }
             if(keys.tabKey.wasPressedThisFrame) app.UI.Summon();

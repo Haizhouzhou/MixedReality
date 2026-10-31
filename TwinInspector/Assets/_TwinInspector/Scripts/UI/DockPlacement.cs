@@ -25,14 +25,6 @@ namespace TwinInspector
             return Quaternion.LookRotation(away.sqrMagnitude>.0001f?away.normalized:Vector3.forward,Vector3.up);
         }
 
-        /// <summary>Placement offsets that reproduce a dragged dock pose, clamped to the Preferences ranges.</summary>
-        public static (float distance,float yaw,float height) Offsets(Vector3 head,float bodyYaw,Vector3 dock)
-        {
-            var away=Vector3.ProjectOnPlane(dock-head,Vector3.up);
-            float yaw=Mathf.DeltaAngle(bodyYaw,Mathf.Atan2(away.x,away.z)*Mathf.Rad2Deg);
-            return (Mathf.Clamp(away.magnitude,.4f,.9f),Mathf.Clamp(yaw,-45,45),Mathf.Clamp(dock.y-head.y,-.3f,.2f));
-        }
-
         /// <summary>An unpinned dock starts fading once nobody has raised a palm, looked at or used it for HideDelay seconds.</summary>
         public static bool ShouldHide(bool pinned,bool palmUp,bool looking,bool busy,float idleSeconds)
             => !pinned&&!palmUp&&!looking&&!busy&&idleSeconds>=HideDelay;

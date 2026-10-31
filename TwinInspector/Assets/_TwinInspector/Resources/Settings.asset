@@ -22,7 +22,7 @@ MonoBehaviour:
   loadConcurrency: 2
   targetRefreshRate: 90
   loadingRefreshRate: 72
-  diffEnabled: 1
+  diffEnabled: 0
   diffDistanceMax: 0.35
   diffMinAreaM2: 0.15
   diffMinExtentM: 0.25

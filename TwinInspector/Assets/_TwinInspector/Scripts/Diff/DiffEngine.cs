@@ -26,7 +26,8 @@ namespace TwinInspector
         public IReadOnlyList<Candidate> Members=>members;
         public Candidate Selected {get;private set;}
         public AnnotationType PendingType {get;set;}
-        public bool Visible {get=>visibleSetting;set{visibleSetting=value;Changed?.Invoke();}}
+        /// <summary>Change detection: off until asked for. Switching either way starts from a clean slate, so no stale candidates stay listed.</summary>
+        public bool Visible {get=>visibleSetting;set{if(visibleSetting==value)return;visibleSetting=value;Reevaluate();}}
         public bool Paused=>paused;
         public bool HasPendingWork=>work!=null;
         public bool Settled=>source!=null&&source.Ready&&queued.Count==0&&evaluatedTiles.Count==tiles.Count&&members.All(c=>c.stable);

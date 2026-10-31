@@ -3,17 +3,17 @@ using UnityEngine;
 using UnityEngine.UI;
 namespace TwinInspector
 {
-    /// <summary>A body-relative world dock: follows at the saved offset, drags by its grab bar, and when unpinned
+    /// <summary>A body-relative world dock: follows at the saved offset, and when unpinned
     /// opens on a raised palm and fades once the hand is down and the viewer looks away.</summary>
     [DefaultExecutionOrder(1200)]
     public sealed class ToolStrip : MonoBehaviour
     {
-        AppBootstrap app; SwissButton[] cells; SwissButton gear, pin; PanelBase strip, dockedPanel; GrabBar grab;
+        AppBootstrap app; SwissButton[] cells; SwissButton gear, pin; PanelBase strip, dockedPanel;
         /// <summary>Select() index of the Setup cell, left of the four numbered tools.</summary>
         public const int SetupIndex=4;
         const float SideWidth=64.75f, Step=139.75f, Follow=.12f;
         float bodyYaw, palmSince=-1, idleSince, fade=1;
-        bool palmArmed=true, dragging, initialized;
+        bool palmArmed=true, initialized;
         public Pose WorldPose { get; private set; }
         public bool PalmAnchored => false;
         public bool Shown { get; private set; } = true;
@@ -24,7 +24,7 @@ namespace TwinInspector
             var glyph=PanelBase.Rectangle("Gear",gear.transform,(SideWidth-28)/2,18,28,28).gameObject.AddComponent<GearGlyph>();
             glyph.Ink=gear.GetComponentInChildren<TMP_Text>(); glyph.raycastTarget=false;
             string[] labels={"MODE","ALIGN","ANNOTATE","LIST"};
-            System.Action[] actions={()=>app.UI.Show("mode"),()=>app.UI.Show("align"),()=>app.UI.BeginAnnotation(),()=>app.UI.Show("list")};
+            System.Action[] actions={()=>app.UI.Show("mode"),()=>app.UI.Show("align"),()=>app.UI.Show("annotate"),()=>app.UI.Show("list")};
             for(int i=0;i<4;i++)
             {
                 var button=panel.Button(L.Get(labels[i]),SideWidth-1+i*Step,0,140.75f,actions[i]); cells[i]=button.GetComponent<SwissButton>();
@@ -38,12 +38,6 @@ namespace TwinInspector
             pin=pinButton.GetComponent<SwissButton>();
             var pinGlyph=PanelBase.Rectangle("Pin glyph",pin.transform,(SideWidth-28)/2,18,28,28).gameObject.AddComponent<PinGlyph>();
             pinGlyph.Ink=pin.GetComponentInChildren<TMP_Text>(); pinGlyph.raycastTarget=false;
-            // A wide transparent hit area keeps the short handle easy to catch with a ray or a pinch.
-            float width=((RectTransform)transform).sizeDelta.x;
-            var area=PanelBase.Rectangle("Grab bar",panel.Content,(width-200)/2,70,200,32); area.gameObject.AddComponent<Image>().color=Color.clear;
-            var handle=PanelBase.Rectangle("Handle",area,100,16,72,4); handle.anchorMin=handle.anchorMax=new Vector2(0,1); handle.pivot=new Vector2(.5f,.5f);
-            var ink=handle.gameObject.AddComponent<Image>(); ink.color=app.Tokens.Ink; ink.raycastTarget=false;
-            grab=area.gameObject.AddComponent<GrabBar>(); grab.Initialize(app,this,handle,ink);
             RefreshPin(); Recenter(true);
         }
         Button SideCell(PanelBase panel,string name,float x,System.Action action)
@@ -91,19 +85,6 @@ namespace TwinInspector
             if(!Shown && app) Recenter(true);
             Shown=true; idleSince=Time.unscaledTime;
         }
-        public void BeginDrag() { dragging=true; Reveal(); }
-        public void DragTo(Vector3 position)
-        {
-            var head=app.Viewer.transform.position;
-            WorldPose=new Pose(position,DockPlacement.Facing(head,position));
-        }
-        /// <summary>The dropped pose becomes the saved offset, shared with the Menu position sliders.</summary>
-        public void EndDrag()
-        {
-            dragging=false;
-            var (distance,yaw,height)=DockPlacement.Offsets(app.Viewer.transform.position,bodyYaw,WorldPose.position);
-            InteractionPreferences.DockDistance=distance; InteractionPreferences.DockYaw=yaw; InteractionPreferences.DockHeight=height; PlayerPrefs.Save();
-        }
         bool PalmUp(bool left)
         {
             if(!app.Input.TryPalm(left,out var palm)) return false;
@@ -125,7 +106,7 @@ namespace TwinInspector
             bodyYaw=DockPlacement.FollowBodyYaw(bodyYaw,Yaw(camera.forward));
             // Hold still under an active pointer so buttons do not slide away; otherwise ease toward the body-relative home.
             bool interacting=app.Input.OverUI || app.Input.Held;
-            if(!dragging && !interacting)
+            if(!interacting)
             {
                 var home=Home(); float t=1-Mathf.Exp(-Time.unscaledDeltaTime/Follow);
                 WorldPose=new Pose(Vector3.Lerp(WorldPose.position,home.position,t),Quaternion.Slerp(WorldPose.rotation,home.rotation,t));
@@ -139,7 +120,7 @@ namespace TwinInspector
             var center=dockedPanel && dockedPanel.gameObject.activeSelf?(WorldPose.position+dockedPanel.transform.position)/2:WorldPose.position;
             bool looking=DockPlacement.Looking(camera.position,camera.forward,center);
             // Space choice and loading always stay visible; so does a dock in use.
-            bool busy=interacting||dragging||!app.Ready||(app.Placer && app.Placer.Active)||(app.Probes && app.Probes.SceneRunning)||(app.AutoAlign && app.AutoAlign.Active);
+            bool busy=interacting||!app.Ready||(app.Placer && app.Placer.Active)||(app.Probes && app.Probes.SceneRunning)||(app.AutoAlign && app.AutoAlign.Active);
             if(pinned||palmUp||looking||busy) idleSince=Time.unscaledTime;
             if(Shown && DockPlacement.ShouldHide(pinned,palmUp,looking,busy,Time.unscaledTime-idleSince)) Shown=false;
             fade=Mathf.MoveTowards(fade,Shown?1:0,Time.unscaledDeltaTime/(Shown?.15f:DockPlacement.FadeSeconds));

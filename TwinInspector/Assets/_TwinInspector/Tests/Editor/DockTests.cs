@@ -25,14 +25,26 @@ namespace TwinInspector.Tests
             Assert.That(Vector3.Angle(DockPlacement.Facing(head,home)*Vector3.up,Vector3.up),Is.LessThan(.01f),"stays upright");
         }
 
-        [Test] public void DraggedPoseRoundTripsAndIsClamped()
+        [Test] public void DockStaysWithinReachAndResetsToFirstRun()
         {
-            var head=new Vector3(0,1.5f,0);
-            var dropped=DockPlacement.Home(head,90,.7f,-30,.1f);
-            var (distance,yaw,height)=DockPlacement.Offsets(head,90,dropped);
-            Assert.That(distance,Is.EqualTo(.7f).Within(1e-4f)); Assert.That(yaw,Is.EqualTo(-30).Within(1e-3f)); Assert.That(height,Is.EqualTo(.1f).Within(1e-4f));
-            (distance,yaw,height)=DockPlacement.Offsets(head,0,new Vector3(3,-2,.1f));
-            Assert.That(distance,Is.EqualTo(.9f)); Assert.That(yaw,Is.EqualTo(45)); Assert.That(height,Is.EqualTo(-.3f));
+            float distance=InteractionPreferences.DockDistance,yaw=InteractionPreferences.DockYaw,height=InteractionPreferences.DockHeight;
+            bool palm=InteractionPreferences.PalmSummon,pinned=InteractionPreferences.DockPinnedSetting;
+            try
+            {
+                InteractionPreferences.DockDistance=.9f; Assert.That(InteractionPreferences.DockDistance,Is.EqualTo(.6f));
+                PlayerPrefs.SetFloat("TwinInspector.dockDistance",.9f); Assert.That(InteractionPreferences.DockDistance,Is.EqualTo(.6f),"a value saved by an older version");
+                InteractionPreferences.DockDistance=.45f; InteractionPreferences.DockYaw=-20; InteractionPreferences.DockHeight=.1f; InteractionPreferences.PalmSummon=false; InteractionPreferences.DockPinnedSetting=false;
+                InteractionPreferences.ResetDock();
+                Assert.That(InteractionPreferences.DockDistance,Is.EqualTo(InteractionPreferences.DefaultDockDistance));
+                Assert.That(InteractionPreferences.DockYaw,Is.EqualTo(InteractionPreferences.DefaultDockYaw));
+                Assert.That(InteractionPreferences.DockHeight,Is.EqualTo(InteractionPreferences.DefaultDockHeight));
+                Assert.That(InteractionPreferences.PalmSummon,Is.True); Assert.That(InteractionPreferences.DockPinnedSetting,Is.True);
+            }
+            finally
+            {
+                InteractionPreferences.DockDistance=distance; InteractionPreferences.DockYaw=yaw; InteractionPreferences.DockHeight=height;
+                InteractionPreferences.PalmSummon=palm; InteractionPreferences.DockPinnedSetting=pinned;
+            }
         }
 
         [Test] public void OnlyAnIdleUnpinnedDockHides()

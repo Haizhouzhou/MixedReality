@@ -86,6 +86,12 @@ def main():
         check(f"{c} button.saveAlignment", t["button.saveAlignment"], 408, 21, shrink_to=16)
         check(f"{c} button.autoAlign heading", t["button.autoAlign"], 432, 24, "semibold")
         check(f"{c} text.dragTwinHint", t["text.dragTwinHint"], 432, 12)
+        check(f"{c} text.detectHint", t["text.detectHint"], 432, 12)
+        check(f"{c} page.annotate.heading", t["page.annotate.heading"], 432, 24, "semibold")
+        for key in ("button.markSurface", "button.detectOn", "button.detectOff"):
+            check(f"{c} {key}", t[key], 408, 21, shrink_to=16)
+        for key in ("guide.5.body", "guide.6.body"):
+            check(f"{c} {key} (three lines)", t[key], 3 * 432 * .85, 16)
         coverage = t["text.autoAlign.coverage"].replace("{0:F1}", "999.9").replace("{1:F0}", "6").replace("{2:F1}", "999.9").replace("{3:F0}", "2")
         result = t["text.autoAlign.result"].replace("{0:F0}", "100").replace("{1:F1}", "4.0")
         review = t["text.autoAlign.reviewTip"].replace("{0:F2}", "99.99").replace("{1:F1}", "180.0")

@@ -360,3 +360,12 @@ After the restart, HG E3 Hall gave two reliable matches: 85–86% wall inliers, 
 ## v1.5.0 — automatic alignment — 2026-10-25 (Europe/Paris)
 
 Release of the work in the three sections above: Auto align with scan view, Reset scan and Rescan, the solver, and Google scene meshing. Also included are the large-boundary manifest property, Diagnostics → Scene probe and the recording script. Version 1.5.0, Android version code 6.
+
+## v1.5.1 — dock and detection fixes — 2026-10-31 (Europe/Paris)
+
+- **Grab bar removed.** It dragged unreliably and caught accidental pinches. The Menu position page is now the only way to move the dock.
+- **Dock limits.** Distance is limited to 40–60 cm, also when reading a value saved by an older version. Reset now restores the position, palm gesture and pin.
+- **Change detection off by default.** Each space now starts with detection off, and no candidates are computed until the user turns it on. Strip cell 03 opens a new Annotate page with Mark a surface and the Change detection switch, which replaces Diff on/off on the display page. Switching either way clears existing candidates.
+- **Hidden behind the system interface.** Logcat showed the session going FOCUSED → VISIBLE for 30 s with no Unity focus event (07:49:19), so `OnApplicationFocus` alone misses the system menu. `AppBootstrap` now also reads the session state through the OpenXR package's native `session_GetSessionState`. While the session is not focused, the camera draws nothing over a transparent background.
+
+Evidence: the Runtime, Tests and Editor assemblies compile with 0 errors; the 11 Python tests pass; the text-fit check passes for 414 strings. On the headset, the build logged `System in front=True`, `False` and `True` again in HG E3 Hall, so the hiding logic responds to the system. No separate check of the other fixes was recorded. The Unity Test Runner was not run, including the new dock test. Version 1.5.1, Android version code 7.

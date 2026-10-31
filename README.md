@@ -2,7 +2,7 @@
 
 TwinInspector is a Unity application for inspecting a scanned building on Samsung Galaxy XR. It combines a digital twin with camera passthrough, supports manual, surveyed-marker and automatic scene-mesh alignment, and stores inspection notes in the building's original coordinate frame. The same project runs in the Unity Editor with a mouse and keyboard.
 
-**Version 1.5.0** · Android XR · Unity 6000.3.26f1
+**Version 1.5.1** · Android XR · Unity 6000.3.26f1
 
 [Releases](https://github.com/Haizhouzhou/MixedReality/releases) · [Setup and development guide](TwinInspector/README.md) · [Development notes](TwinInspector/docs/DEVLOG.md)
 
@@ -72,7 +72,7 @@ Annotations retain their surface position, normal and stable ID when their displ
 | --- | --- |
 | ![Four annotation types with distinct geometric symbols](TwinInspector/docs/screenshots/v12-picker.png) | ![Annotation list with type, index, distance and editing controls](TwinInspector/docs/screenshots/v12-list.png) |
 
-Hands use pointing and pinch, with near poke for UI. Optional controllers use the same interaction path. The dock (tool strip and panel) keeps a saved offset from your body direction, by default 30° to the right, 60 cm away and 20 cm below eye level; drag its grab bar to move it, or set the offset in Setup → Preferences → Menu position. Either hand can summon it with a brief palm-up gesture and then operate it. The pin cell at the strip's right end keeps it visible; unpinned, it fades 2 s after the hand is down and you look away, until the next palm-up. The palm gesture can be turned off there (the dock then stays pinned). A persistent dominant-hand preference selects the default pointer without requiring that hand to remain tracked. Sound can be adjusted or muted without losing visual feedback.
+Hands use pointing and pinch, with near poke for UI. Optional controllers use the same interaction path. The dock (tool strip and panel) keeps a saved offset from your body direction, by default 30° to the right, 60 cm away and 20 cm below eye level; set the offset in Setup → Preferences → Menu position, up to 60 cm away, where Reset restores the first-run dock. Either hand can summon it with a brief palm-up gesture and then operate it. The pin cell at the strip's right end keeps it visible; unpinned, it fades 2 s after the hand is down and you look away, until the next palm-up. The palm gesture can be turned off there (the dock then stays pinned). A persistent dominant-hand preference selects the default pointer without requiring that hand to remain tracked. Sound can be adjusted or muted without losing visual feedback.
 
 ## Run the application
 
@@ -103,15 +103,17 @@ Enable USB debugging on the headset, connect it to the development computer, and
 
 ```powershell
 adb devices -l
-adb install -r TwinInspector-1.5.0.apk
+adb install -r TwinInspector-1.5.1.apk
 adb shell am start -n com.mrtwin.inspector/com.unity3d.player.UnityPlayerGameActivity
 ```
 
 Grant the requested camera, scene-understanding and hand-tracking permissions. The APK includes LOD2 copies of HG Main Hall and CAB Main Hall; full-detail data and the HG E3/E7 Hall spaces come from the [space data release](TwinInspector/README.md#download-space-data-from-github-releases). See the [project guide](TwinInspector/README.md#headset-setup-and-data-transfer) for full-region transfer and surveyed-marker setup.
 
-The application version is **1.5.0** (Android version code **6**) and the package ID is **`com.mrtwin.inspector`**; a published release lists the APK's size and SHA-256. Installing with `-r` updates an existing installation while preserving its data, provided it was signed with the same key; an APK built on another computer must be uninstalled first, which deletes the app's data folder. The previous v1.3 build remains at `TwinInspector/Builds/TwinInspector-0.1.0.apk`. Repository access is required to download these private builds.
+The application version is **1.5.1** (Android version code **7**) and the package ID is **`com.mrtwin.inspector`**; a published release lists the APK's size and SHA-256. Installing with `-r` updates an existing installation while preserving its data, provided it was signed with the same key; an APK built on another computer must be uninstalled first, which deletes the app's data folder. The previous v1.3 build remains at `TwinInspector/Builds/TwinInspector-0.1.0.apk`. Repository access is required to download these private builds.
 
 ## Verification status
+
+v1.5.1 (dock and change-detection fixes) was checked on 31 October 2026: the Runtime, Editor and Test assemblies compile with 0 errors, the 11 Python tests pass, and `tools/check_text_fit.py` passes for 414 strings. On the Galaxy XR, the fixed build logged the app hiding and returning as the system came to the front and left it (`System in front=`). The Unity Test Runner was not run.
 
 v1.5.0 (automatic alignment) was checked on 25 October 2026. Verified:
 - The Runtime, Editor and Test assemblies compile with 0 errors.

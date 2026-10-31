@@ -92,7 +92,7 @@ namespace TwinInspector
             if(app.Roam) app.Roam.Move(Vector2.zero);
             if(app.Ready && (target=="align" || target=="nudge" || target=="height" || target=="marker" || target=="auto") && app.Style.Mode!=ViewMode.Overlay) app.Style.SetMode(ViewMode.Overlay);
             if(app.Placer) app.Placer.Active=false;
-            if(spatialStrip) spatialStrip.Select((target=="mode"||target=="display"||target=="roam")?0:target=="align"||target=="nudge"||target=="height"||target=="marker"||target=="auto"?1:target=="picker"?2:target=="list"?3:SetupPages.Contains(target)?ToolStrip.SetupIndex:-1);
+            if(spatialStrip) spatialStrip.Select((target=="mode"||target=="display"||target=="roam")?0:target=="align"||target=="nudge"||target=="height"||target=="marker"||target=="auto"?1:target=="annotate"||target=="picker"?2:target=="list"?3:SetupPages.Contains(target)?ToolStrip.SetupIndex:-1);
             if (app.Manual) app.Manual.SetActive(target == "align" || target == "nudge" || target == "height");
             if (app.Performance) app.Performance.Visible = target == "diagnostics";
             if(spatialStrip) spatialStrip.Reveal();
@@ -131,6 +131,7 @@ namespace TwinInspector
                 case "marker": MarkerPage(); break;
                 case "auto": AutoAlignPage(); break;
                 case "list": ListPage(); break;
+                case "annotate": AnnotatePage(); break;
                 case "picker": PickerPage(); break;
                 case "diagnostics": DiagnosticsPage(); break;
                 case "guide": GuidePage(); break;
@@ -170,9 +171,7 @@ namespace TwinInspector
             panel.Header(L.Get("page.mode.label"),L.Get("page.display.heading"),L.Format("meta.l0D1",app.Style.LensActive?"+":"−",app.Diff.Visible?"+":"−"));
             panel.Text(L.Get("text.twinOpacity"),24,104,432,24,19); panel.Slider(app.Style.Blend,app.Style.SetBlend,128);
             panel.Text(L.Get("text.lensRadius"),24,184,432,24,19); panel.Slider(app.Style.LensRadius,app.Style.SetLensRadius,208,.5f,5," m");
-            panel.Button(L.Get("button.diffOn"),24,264,144,()=>{app.Diff.Visible=true;Render();},app.Diff.Visible);
-            panel.Button(L.Get("button.diffOff"),168,264,144,()=>{app.Diff.Visible=false;Render();},!app.Diff.Visible);
-            panel.Button(L.Get("button.back"),312,264,144,()=>Show("mode"));
+            panel.Button(L.Get("button.back"),24,264,432,()=>Show("mode"));
         }
         void PreferencesPage()
         {
@@ -192,12 +191,12 @@ namespace TwinInspector
             // 96 px readout fits "−30 cm" at body size.
             { panel.Text(label,24,y+8,104,24,16); panel.Slider(value,changed,y,min,max,suffix,128,224,"F0"); }
             // Sliders work in cm and degrees; the dock moves while they are dragged.
-            Row(L.Get("text.dockDistance"),104,InteractionPreferences.DockDistance*100,v=>InteractionPreferences.DockDistance=v/100,40,90," cm");
+            Row(L.Get("text.dockDistance"),104,InteractionPreferences.DockDistance*100,v=>InteractionPreferences.DockDistance=v/100,InteractionPreferences.MinDockDistance*100,InteractionPreferences.MaxDockDistance*100," cm");
             Row(L.Get("text.dockSideways"),144,InteractionPreferences.DockYaw,v=>InteractionPreferences.DockYaw=v,-45,45,"°");
             Row(L.Get("text.dockHeight"),184,InteractionPreferences.DockHeight*100,v=>InteractionPreferences.DockHeight=v/100,-30,20," cm");
             panel.Text(L.Get("text.dockAutoHide"),24,224,432,20,DesignTokens.Label);
             panel.Button(L.Get(InteractionPreferences.PalmSummon?"button.palmOn":"button.palmOff"),24,248,144,()=>{ InteractionPreferences.PalmSummon=!InteractionPreferences.PalmSummon; if(spatialStrip) spatialStrip.RefreshPin(); Render(); },InteractionPreferences.PalmSummon);
-            panel.Button(L.Get("button.reset"),168,248,144,()=>{ InteractionPreferences.ResetDock(); Render(); });
+            panel.Button(L.Get("button.reset"),168,248,144,()=>{ InteractionPreferences.ResetDock(); if(spatialStrip) spatialStrip.RefreshPin(); Render(); });
             panel.Button(L.Get("button.back"),312,248,144,()=>Show("preferences"));
         }
         void SoundPage()
@@ -303,6 +302,15 @@ namespace TwinInspector
             panel.Button(L.Get("button.cancel"),24,248,208,() => Show("align"));
             var confirm=panel.Button(L.Get("button.confirm"),248,248,208,() => Run(app.Markers.ConfirmAsync,() => { Show("setup"); Notify(L.Get(app.Anchors.Status)); }),true);
             confirm.interactable=app.Markers.AwaitingConfirmation;
+        }
+        void AnnotatePage()
+        {
+            panel.Header(L.Get("page.annotate.label"),L.Get("page.annotate.heading"));
+            panel.Button(L.Get("button.markSurface"),24,104,432,BeginAnnotation,true);
+            panel.Button(L.Get(app.Diff.Visible?"button.detectOn":"button.detectOff"),24,168,432,()=>{app.Diff.Visible=!app.Diff.Visible;Render();},app.Diff.Visible);
+            panel.Text(L.Get("text.detectHint"),24,224,432,20,DesignTokens.Label);
+            panel.Button(L.Get("button.list"),24,248,208,()=>Show("list"));
+            panel.Button(L.Get("button.close"),248,248,208,()=>{panel.gameObject.SetActive(false);if(spatialStrip)spatialStrip.Select(-1);});
         }
         void PickerPage()
         {

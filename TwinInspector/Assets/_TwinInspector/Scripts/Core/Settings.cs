@@ -16,7 +16,7 @@ namespace TwinInspector
         [SerializeField] int loadConcurrency = 2;
         [SerializeField] float targetRefreshRate = 90;
         [SerializeField] float loadingRefreshRate = 72;
-        [SerializeField] bool diffEnabled = true;
+        [SerializeField] bool diffEnabled = false;
         [SerializeField] float diffDistanceMax = .35f, diffMinAreaM2 = .15f, diffMinExtentM = .25f;
         // diffFloorZ is relative to the manifest datum_z of the loaded space.
         [SerializeField] float diffObservedRadiusM = 1, diffChangedPairDistanceM = 1, diffFloorZ;
