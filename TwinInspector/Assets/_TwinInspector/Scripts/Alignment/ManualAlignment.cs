@@ -43,7 +43,15 @@ namespace TwinInspector
                 if (score < error && plane.center.y < camera.transform.position.y - .6f) { best = plane; error = score; }
             }
             if (!best) return false;
-            persistence.Detach(); var p = root.transform.position; p.y = best.center.y + root.Origin.z; root.transform.position = p; return true;
+            persistence.Detach(); var p = root.transform.position; p.y = FloorSnapHeight(best.center.y, root.Origin.z, Datum()); root.transform.position = p; return true;
+        }
+        /// <summary>Root height that puts the twin datum (main floor, twin Z) on a tracked floor plane: a twin point at Z sits at
+        /// root height + (Z − origin Z), so the datum lands on the plane when root height = plane − datum + origin Z.</summary>
+        public static float FloorSnapHeight(float planeY, float originZ, float datumZ) => planeY - datumZ + originZ;
+        static float Datum()
+        {
+            var app = AppBootstrap.Instance;
+            return app && app.Loader && app.Loader.Manifest != null ? app.Loader.Manifest.datum_z : 0;
         }
         void LateUpdate()
         {

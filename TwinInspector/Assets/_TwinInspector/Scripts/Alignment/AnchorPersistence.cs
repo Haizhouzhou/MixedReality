@@ -70,13 +70,20 @@ namespace TwinInspector
                 // Save first: permission/runtime failures still retain a usable fallback.
                 JsonStore.Write(path, state);
                 Status = "Alignment saved · JSON fallback";
+                if (!Application.isEditor)
+                    DevLog.Write("Anchor save: manager=" + (manager ? (manager.enabled ? "enabled" : "disabled") : "none")
+                        + " subsystem=" + (manager?.subsystem != null ? manager.subsystem.running ? "running" : "stopped" : "none")
+                        + (manager?.subsystem != null ? " supportsSave=" + manager.descriptor.supportsSaveAnchor + " supportsLoad=" + manager.descriptor.supportsLoadAnchor + " supportsErase=" + manager.descriptor.supportsEraseAnchor : ""));
                 if (!Application.isEditor && manager?.subsystem != null && manager.descriptor.supportsSaveAnchor)
                 {
                     var created = await manager.TryAddAnchorAsync(pose);
+                    DevLog.Write("Anchor save: add status=" + created.status + " anchor=" + (created.value ? created.value.trackingState.ToString() : "none"));
                     if (created.status.IsSuccess() && created.value)
                     {
                         active = created.value;
                         var saved = await manager.TrySaveAnchorAsync(active);
+                        DevLog.Write("Anchor save: save status=" + saved.status);
+                        if (!saved.status.IsSuccess()) { manager.TryRemoveAnchor(active); active = previousAnchor; }
                         if (saved.status.IsSuccess())
                         {
                             state.anchor_id = saved.value.guid.ToString();

@@ -79,17 +79,17 @@ namespace TwinInspector
             {
                 tile.Wanted = -1;
                 float distance = Vector3.Distance(tile.LocalBounds.ClosestPoint(localCamera), localCamera);
-                if (distance > settings.LodDistances[2]) continue;
-                int lod = tile.Data.Available(distance < settings.LodDistances[0] ? 0 : distance < settings.LodDistances[1] ? 1 : 2);
+                if (distance > RuntimeTuning.LodDistance(settings, 2)) continue;
+                int lod = tile.Data.Available(distance < RuntimeTuning.LodDistance(settings, 0) ? 0 : distance < RuntimeTuning.LodDistance(settings, 1) ? 1 : 2);
                 var worldBounds = TransformBounds(tile.LocalBounds);
                 candidates.Add(new Candidate { Tile = tile, Lod = lod, Priority = distance + (GeometryUtility.TestPlanesAABB(planes, worldBounds) ? 0 : 40) });
             }
             candidates.Sort((a, b) => a.Priority.CompareTo(b.Priority));
-            int planned = 0;
+            int planned = 0, budget = RuntimeTuning.MaxTriangles(settings);
             foreach (var candidate in candidates)
             {
                 int lod = candidate.Lod;
-                while (lod >= 0 && planned + candidate.Tile.Data.Count(lod) + candidate.Tile.Data.Count(2) > settings.MaxTriangles)
+                while (lod >= 0 && planned + candidate.Tile.Data.Count(lod) + candidate.Tile.Data.Count(2) > budget)
                     lod = candidate.Tile.Data.Available(lod + 1);
                 if (lod < 0) continue;
                 candidate.Tile.Wanted = lod;
@@ -106,8 +106,13 @@ namespace TwinInspector
                 if (activeLoads >= settings.LoadConcurrency) break;
                 if (tile.Wanted < 0 || tile.Loading || tile.Lod == tile.Wanted || Time.unscaledTime < tile.RetryAfter) continue;
                 int need = tile.Data.Count(tile.Wanted) + (tile.Collision ? 0 : tile.Data.Count(2));
-                if (Triangles + reserved + need > settings.MaxTriangles) tile.ReleaseVisual();
-                if (Triangles + reserved + need > settings.MaxTriangles) continue;
+                // A swap that does not add triangles (e.g. to a coarser level after the budget was lowered) always proceeds
+                // and keeps the old visual until the new one is ready. Otherwise the current visual is released only when that
+                // makes room for the replacement, so a load that cannot fit leaves no hole.
+                int freed = tile.Visual ? tile.Data.Count(tile.Lod) : 0;
+                bool adds = need > freed;
+                if (adds && Triangles + reserved + need - freed > budget) continue;
+                if (adds && Triangles + reserved + need > budget) tile.ReleaseVisual();
                 _ = LoadTileAsync(tile, tile.Wanted, need);
             }
         }

@@ -10,9 +10,10 @@ namespace TwinInspector
         public int Version { get; private set; }
         public MeshFilter Filter { get; private set; }
         public MeshCollider Collider { get; private set; }
-        public Vector3[] Vertices { get; private set; }
-        public Vector3[] Normals { get; private set; }
-        public int[] Triangles { get; private set; }
+        public Geometry Snapshot { get; private set; }
+        public Vector3[] Vertices => Snapshot?.Vertices;
+        public Vector3[] Normals => Snapshot?.Normals;
+        public int[] Triangles => Snapshot?.Triangles;
         public Matrix4x4 LocalToWorld { get; private set; }
         public Bounds Bounds { get; private set; }
         public SurfaceChunk(string id,MeshFilter filter) { Id=id; Capture(filter); }
@@ -24,11 +25,20 @@ namespace TwinInspector
             Collider=filter.GetComponent<MeshCollider>();if(!Collider)Collider=filter.gameObject.AddComponent<MeshCollider>();Collider.sharedMesh=mesh;
             LocalToWorld=filter.transform.localToWorldMatrix;
             var normalMatrix=LocalToWorld.inverse.transpose;
-            Vertices=mesh.vertices; Normals=mesh.normals;Triangles=mesh.triangles;
-            if(Normals.Length!=Vertices.Length) {mesh.RecalculateNormals();Normals=mesh.normals;}
+            // Built in locals and published only when complete: readers on worker threads must never see local-space
+            // vertices or a vertex array that does not belong to the triangle array.
+            var vertices=mesh.vertices; var normals=mesh.normals; var triangles=mesh.triangles;
+            if(normals.Length!=vertices.Length) {mesh.RecalculateNormals();normals=mesh.normals;}
             var bounds=new Bounds(LocalToWorld.MultiplyPoint3x4(mesh.bounds.center),Vector3.zero);
-            for(int i=0;i<Vertices.Length;i++) { Vertices[i]=LocalToWorld.MultiplyPoint3x4(Vertices[i]); Normals[i]=normalMatrix.MultiplyVector(Normals[i]).normalized;bounds.Encapsulate(Vertices[i]); }
+            for(int i=0;i<vertices.Length;i++) { vertices[i]=LocalToWorld.MultiplyPoint3x4(vertices[i]); normals[i]=normalMatrix.MultiplyVector(normals[i]).normalized;bounds.Encapsulate(vertices[i]); }
+            Snapshot=new Geometry(vertices,normals,triangles);
             Bounds=bounds; Version++;
+        }
+        /// <summary>One consistent version of the arrays; take this once on the main thread before handing geometry to a worker.</summary>
+        public sealed class Geometry
+        {
+            public readonly Vector3[] Vertices, Normals; public readonly int[] Triangles;
+            public Geometry(Vector3[] vertices,Vector3[] normals,int[] triangles) { Vertices=vertices; Normals=normals; Triangles=triangles; }
         }
     }
 }

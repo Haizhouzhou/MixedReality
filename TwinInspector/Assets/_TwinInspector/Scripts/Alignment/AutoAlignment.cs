@@ -117,11 +117,12 @@ namespace TwinInspector
             {
                 var started = Time.realtimeSinceStartup;
                 var head = app.Viewer.transform.position;
-                // Chunk arrays are replaced, never edited, on update, so the snapshot can be read on a worker thread.
-                var chunks = new List<SurfaceChunk>();
-                foreach (var chunk in app.SceneSource.Chunks) if (Counts(chunk)) chunks.Add(chunk);
                 var twin = await twinLocal;
                 if (run != attempt) return;
+                // Taken after the (possibly long) twin load and on the main thread: each snapshot is one consistent,
+                // never-edited version, so the worker cannot see a chunk while the scene mesh updates it.
+                var chunks = new List<SurfaceChunk.Geometry>();
+                foreach (var chunk in app.SceneSource.Chunks) if (Counts(chunk) && chunk.Snapshot != null) chunks.Add(chunk.Snapshot);
                 var rootMatrix = app.Root.transform.localToWorldMatrix;
                 float twinFloor = app.Root.TwinToWorld(new Vector3(0, 0, app.Loader.Manifest.datum_z)).y, floorHint = TrackingSpace.FloorHeight(app.Origin);
                 var result = await Task.Run(() => Solve(twin, chunks, rootMatrix, twinFloor, head, floorHint), lifetime.Token);
@@ -143,7 +144,7 @@ namespace TwinInspector
 
         /// <summary>Tries the twin near its current placement first (fast, and keeps a nearly right alignment); the whole twin only if that is not reliable.</summary>
         /// <remarks>Both clouds are solved relative to the viewer, so "smallest change" and ambiguity distances are measured where the viewer stands.</remarks>
-        static AutoAligner.Result Solve(AutoAligner.Cloud twinLocal, List<SurfaceChunk> chunks, Matrix4x4 root, float twinFloor, Vector3 head, float floorHint)
+        static AutoAligner.Result Solve(AutoAligner.Cloud twinLocal, List<SurfaceChunk.Geometry> chunks, Matrix4x4 root, float twinFloor, Vector3 head, float floorHint)
         {
             var h = new Vector3(head.x, 0, head.z);
             var sceneSamples = new AutoAligner.Accumulator();

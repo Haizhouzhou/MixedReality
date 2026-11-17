@@ -94,7 +94,7 @@ namespace TwinInspector
             if(app.Placer) app.Placer.Active=false;
             if(spatialStrip) spatialStrip.Select((target=="mode"||target=="display"||target=="roam")?0:target=="align"||target=="nudge"||target=="height"||target=="marker"||target=="auto"||target=="forget"?1:target=="annotate"||target=="picker"?2:target=="list"?3:SetupPages.Contains(target)?ToolStrip.SetupIndex:-1);
             if (app.Manual) app.Manual.SetActive(target == "align" || target == "nudge" || target == "height");
-            if (app.Performance) app.Performance.Visible = target == "diagnostics";
+            if (app.Performance) app.Performance.Visible = target == "diagnostics" || target == "performance";
             if(spatialStrip) spatialStrip.Reveal();
             panel.gameObject.SetActive(true); Render();
         }
@@ -131,6 +131,8 @@ namespace TwinInspector
                 case "marker": MarkerPage(); break;
                 case "auto": AutoAlignPage(); break;
                 case "forget": ForgetPage(); break;
+                case "performance": PerformancePage(); break;
+                case "continue": ContinuePage(); break;
                 case "list": ListPage(); break;
                 case "annotate": AnnotatePage(); break;
                 case "picker": PickerPage(); break;
@@ -212,7 +214,7 @@ namespace TwinInspector
             if(app.Style.Mode!=ViewMode.Twin) { Show("mode"); return; }
             panel.Header(L.Get("page.mode.label"),L.Get("button.roam"),L.Get("meta.holdToMove05MS"));
             void Move(string label,float x,float y,Vector2 direction)
-            { var button=panel.Button(label,x,y,144,()=>{}); button.gameObject.AddComponent<HoldControl>().Direction=direction; }
+            { panel.Button(label,x,y,144,()=>app.Roam.Step(direction)); } // one click = one step, like the 30° turns
             Move(L.Get("button.left"),24,104,Vector2.left); Move(L.Get("button.forward"),168,104,Vector2.up); Move(L.Get("button.right"),312,104,Vector2.right);
             panel.Button(L.Get("button.turnMinus30"),24,168,144,()=>app.Roam.Turn(-30)); Move(L.Get("button.backwards"),168,168,Vector2.down);
             panel.Button(L.Get("button.turnPlus30"),312,168,144,()=>app.Roam.Turn(30));
@@ -230,6 +232,14 @@ namespace TwinInspector
             panel.Text(L.Get("text.dragTwinHint"),24,224,432,20,DesignTokens.Label);
             panel.Button(L.Get("button.forgetAlignment"),24,248,208,() => Show("forget"));
             panel.Button(L.Get("button.saveAlignment"),248,248,208,() => Run(app.Anchors.SaveAsync,() => { Show("setup"); Notify(L.Get(app.Anchors.Status)); }));
+        }
+        /// <summary>Offered at the system boundary: restart where the user stands, so the boundary moves with them.</summary>
+        void ContinuePage()
+        {
+            panel.Header(L.Get("page.setup.label"),L.Get("page.continue.heading"),app.Space.name);
+            panel.Text(L.Get("text.continueBody"),24,104,432,104,18);
+            panel.Button(L.Get("button.cancel"),24,248,208,() => panel.gameObject.SetActive(false));
+            panel.Button(L.Get("button.continueHere"),248,248,208,() => { Notify(L.Get("toast.restarting")); ContinueHere.SaveAndRestart(app); },true);
         }
         void ForgetPage()
         {
@@ -393,7 +403,22 @@ namespace TwinInspector
             panel.Button(L.Get("button.sceneProbe"),24,192,144,()=>app.Probes.SceneProbe(),true);
             panel.Button(L.Get("button.depthProbe"),168,192,144,()=>app.Probes.DepthProbe());
             panel.Button(L.Get("button.cameraProbe"),312,192,144,()=>app.Probes.CameraProbe());
-            panel.Button(L.Get("button.back"),24,248,432,() => Show("setup"));
+            panel.Button(L.Get("button.performance"),24,248,208,() => Show("performance"));
+            panel.Button(L.Get("button.back"),248,248,208,() => Show("setup"));
+        }
+        /// <summary>Runtime performance switches (see RuntimeTuning); every change is logged and the 10 s metrics line names the active set.</summary>
+        void PerformancePage()
+        {
+            panel.Header(L.Get("page.diagnostics.label"),L.Get("button.performance"),Application.isEditor ? L.Get("meta.editor") : L.Get("meta.device"));
+            liveText=panel.Text(DiagnosticsReadout,24,104,432,40,16);liveText.overflowMode=TextOverflowModes.Truncate;
+            void Cycle(string key,int count){RuntimeTuning.Cycle(key,count);Render();}
+            int budget=RuntimeTuning.MaxTriangles(app.Config);
+            panel.Button(L.Format("button.budget0",(budget/1000)+"k"),24,160,144,()=>Cycle(RuntimeTuning.Budget,RuntimeTuning.Budgets.Length));
+            panel.Button(L.Format("button.detail0",(RuntimeTuning.DistanceScale*100).ToString("F0",System.Globalization.CultureInfo.InvariantCulture)+"%"),168,160,144,()=>Cycle(RuntimeTuning.Distance,RuntimeTuning.DistanceScales.Length));
+            panel.Button(L.Format("button.antialias0",RuntimeTuning.Samples),312,160,144,()=>Cycle(RuntimeTuning.Msaa,RuntimeTuning.MsaaSamples.Length));
+            panel.Button(L.Format("button.refresh0",RuntimeTuning.RefreshRate.ToString("F0",System.Globalization.CultureInfo.InvariantCulture)),24,248,144,()=>Cycle(RuntimeTuning.Refresh,RuntimeTuning.RefreshRates.Length));
+            panel.Button(L.Get("button.reset"),168,248,144,()=>{RuntimeTuning.Reset();Render();});
+            panel.Button(L.Get("button.back"),312,248,144,() => Show("diagnostics"));
         }
         string DiagnosticsReadout=>app.Performance.Readout+(string.IsNullOrEmpty(app.Probes.Status)?"":"\n"+app.Probes.Status);
         void LanguagePage()
@@ -449,7 +474,7 @@ namespace TwinInspector
             var back=panel.Button(L.Get("button.back"),168,248,144,()=>{guide.Back();Render();});back.interactable=guide.Index>0;
             panel.Button(L.Get(guide.Last?"button.done":"button.next"),312,248,144,()=>{if(guide.Last){guide.Done();Show("setup");}else{guide.Next();Render();}},true);
         }
-        static readonly HashSet<string> SetupPages=new HashSet<string>{"setup","preferences","sound","language","diagnostics","guide","space","spaceConfirm","dock"};
+        static readonly HashSet<string> SetupPages=new HashSet<string>{"setup","preferences","sound","language","diagnostics","guide","space","spaceConfirm","dock","performance"};
         void Update()
         {
             if (!panel) return;
@@ -476,7 +501,7 @@ namespace TwinInspector
                 nextRefresh=Time.unscaledTime+.25f;
                 if(liveText && page=="marker") liveText.text=app.Markers.DisplayStatus;
                 if(liveText && page=="auto") liveText.text=AutoAlignReadout;
-                if(liveText && page=="diagnostics") liveText.text=DiagnosticsReadout;
+                if(liveText && (page=="diagnostics" || page=="performance")) liveText.text=DiagnosticsReadout;
             }
         }
         void OnDestroy()

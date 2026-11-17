@@ -28,6 +28,7 @@ namespace TwinInspector
         bool starting, applicationFocused=true, systemInFront;
         int viewerMask; Color viewerBackground;
         TaskCompletionSource<TwinSpace> spaceChoice;
+        ContinueHere.Handoff handoff;
         public static AppBootstrap Instance { get; private set; }
         public bool Ready { get; private set; }
         public bool Starting => starting;
@@ -111,6 +112,14 @@ namespace TwinInspector
                 if (!Tokens) throw new Exception("Design resources are missing");
                 CjkFonts.Install(Tokens);
                 Spaces ??= await SpaceCatalog.LoadAsync(lifetime.Token);
+                // "Continue here" restarted the app: reopen the same space without asking.
+                if (Space == null && !Application.isEditor)
+                {
+                    handoff = ContinueHere.TakePending();
+                    var resumed = handoff != null ? Spaces.Find(handoff.space) : null;
+                    if (resumed != null && TwinPaths.Available(settings, resumed)) { Space = resumed; DevLog.Write("Continue here: resuming " + resumed.id); }
+                    else handoff = null;
+                }
                 if (Space == null)
                 {
                     spaceChoice = new TaskCompletionSource<TwinSpace>();
@@ -125,9 +134,11 @@ namespace TwinInspector
                 await Loader.InitializeAsync(settings,Space,Root,viewer,Tokens.TwinMaterial);
                 Anchors = gameObject.AddComponent<AnchorPersistence>(); Anchors.Initialize(Root,anchorManager,Space.Storage);
                 await Anchors.RestoreAsync();
+                gameObject.AddComponent<RecenterKeeper>().Initialize(this, anchorManager);
                 Annotations = new AnnotationStore(Space.Storage);
                 var visuals = gameObject.AddComponent<AnnotationVisuals>(); visuals.Initialize(Annotations,Root,Tokens);
                 Style = gameObject.AddComponent<TwinStyle>(); Style.Initialize(Loader,Root,viewer,cameraManager,Tokens);
+                if (handoff != null) { ContinueHere.Apply(this, handoff); handoff = null; }
                 Manual = gameObject.AddComponent<ManualAlignment>();
                 Manual.Initialize(Root,Anchors,planeManager,Input);
                 Markers = gameObject.AddComponent<MarkerAlignment>();

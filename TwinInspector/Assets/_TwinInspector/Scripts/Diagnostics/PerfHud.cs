@@ -33,7 +33,8 @@ namespace TwinInspector
                 if (!display.running) continue;
                 if (XRStats.TryGetStat(display,"/perfmetrics_android/app/cpu_frametime",out float cpu)) CpuMs = cpu;
                 if (XRStats.TryGetStat(display,"/perfmetrics_android/app/gpu_frametime",out float gpu)) GpuMs = gpu;
-                float desired = loader.PendingLoads > 0 ? settings.LoadingRefreshRate : settings.TargetRefreshRate;
+                // Fixed rate from Diagnostics → Performance; switching with tile loading changed the display mode every 1–2 s.
+                float desired = RuntimeTuning.RefreshRate;
                 if (!Application.isEditor && !Mathf.Approximately(desired,requestedRate))
                 {
                     var status = display.TryGetSupportedDisplayRefreshRates(Allocator.Temp,out var rates);
@@ -46,10 +47,11 @@ namespace TwinInspector
                     if (rates.IsCreated) rates.Dispose();
                 }
             }
+            RuntimeTuning.ApplyRendering();
             if (Time.unscaledTime-lastLog >= 10)
             {
                 lastLog = Time.unscaledTime;
-                DevLog.Write($"Metrics source={(Application.isEditor?"Editor":"device")} fps={Fps:F1} cpu_ms={CpuMs:F2} gpu_ms={GpuMs:F2} tiles={loader.LoadedTiles} resident_tris={loader.Triangles}");
+                DevLog.Write($"Metrics source={(Application.isEditor?"Editor":"device")} fps={Fps:F1} cpu_ms={CpuMs:F2} gpu_ms={GpuMs:F2} tiles={loader.LoadedTiles} resident_tris={loader.Triangles} view={(AppBootstrap.Instance && AppBootstrap.Instance.Style ? AppBootstrap.Instance.Style.Mode + (AppBootstrap.Instance.Style.Technical ? "/Technical" : "/Colour") : "-")} {RuntimeTuning.Describe(settings)}");
             }
         }
         public string Readout => L.Format("diagnostics.metrics", Fps, CpuMs<0?L.Get("text.nA"):CpuMs.ToString("F1",System.Globalization.CultureInfo.InvariantCulture)+" ms", GpuMs<0?L.Get("text.nA"):GpuMs.ToString("F1",System.Globalization.CultureInfo.InvariantCulture)+" ms", loader?.LoadedTiles??0, loader?.Triangles??0);

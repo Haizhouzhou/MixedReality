@@ -17,7 +17,9 @@ namespace TwinInspector
             catch (Exception error) when (error is IOException || error is JsonException)
             {
                 DevLog.Write("JSON recovery: " + Path.GetFileName(path) + " / " + error.Message);
-                return File.Exists(path + ".bak") ? JsonConvert.DeserializeObject<T>(File.ReadAllText(path + ".bak"), Format) : null;
+                if (!File.Exists(path + ".bak")) return null;
+                try { return JsonConvert.DeserializeObject<T>(File.ReadAllText(path + ".bak"), Format); }
+                catch (Exception backup) when (backup is IOException || backup is JsonException) { DevLog.Write("JSON backup unusable: " + Path.GetFileName(path) + " / " + backup.Message); return null; }
             }
         }
 

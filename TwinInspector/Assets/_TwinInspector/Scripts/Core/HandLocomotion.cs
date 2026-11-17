@@ -28,6 +28,20 @@ namespace TwinInspector
             if(!app || app.Style.Mode!=ViewMode.Twin) return;
             EnterTwin(); app.Origin.transform.RotateAround(app.Viewer.transform.position,Vector3.up,degrees); app.UI.Summon();
         }
+        /// <summary>Metres per click on Forward / Backwards / Left / Right.</summary>
+        public const float StepMetres=2f;
+        /// <summary>One snap step in the viewing direction (y forward, x right), kept within 50 m of the physical position.</summary>
+        public void Step(Vector2 value)
+        {
+            if(!app || app.Style.Mode!=ViewMode.Twin || value.sqrMagnitude==0) return;
+            EnterTwin(); dragging=false; direction=Vector2.zero;
+            var forward=Vector3.ProjectOnPlane(app.Viewer.transform.forward,Vector3.up).normalized;
+            var displacement=(forward*value.y+Vector3.Cross(Vector3.up,forward)*value.x)*StepMetres;
+            var offset=app.Origin.transform.position+displacement-physicalPose.position;
+            app.Origin.transform.position=physicalPose.position+Vector3.ClampMagnitude(offset,50);
+            DevLog.Write("Roam step "+value+" offset="+Vector3.ClampMagnitude(offset,50).ToString("F1"));
+            app.UI.Summon();
+        }
         void LateUpdate()
         {
             if(app && app.Ready && app.Style.Mode==ViewMode.Twin)
