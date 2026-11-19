@@ -16,11 +16,20 @@ namespace TwinInspector
         /// <summary>Scanned surface needed before matching, in m²: walls carry yaw and position, the floor carries height, and
         /// walls across the main direction fix the position along it (parallel walls alone let the scan slide).</summary>
         public const float WallsNeeded = 6, FloorNeeded = 2, CrossNeeded = 1.5f;
-        const float ScanRadius = 10, CropRadius = 20, TwinSpacing = .1f, SceneSpacing = .05f;
+        /// <remarks>Scan radius around the viewer at match time: large enough to keep what was scanned while walking a hall.
+        /// The twin is cropped 10 m wider, so scanned walls near the edge still find their counterpart.</remarks>
+        const float ScanRadius = 30, CropRadius = 40, TwinSpacing = .1f, SceneSpacing = .05f;
+        /// <summary>While scanning, a background match runs at most every <see cref="TrialInterval"/> seconds once at least
+        /// <see cref="TrialGrowth"/> m² of new wall was scanned. Two agreeing confident matches in a row apply the alignment.</summary>
+        const float TrialInterval = 4, TrialGrowth = 3, AgreeDistance = .25f, AgreeYaw = 2;
         const int DirectionBins = 18; // 10° bins of wall direction modulo 180°
         AppBootstrap app;
         readonly CancellationTokenSource lifetime = new CancellationTokenSource();
-        sealed class ChunkCoverage { public int Version; public float Walls, Floor; public readonly float[] Directions = new float[DirectionBins]; }
+        sealed class ChunkCoverage { public int Version; public float Walls, Floor, Ceiling; public readonly float[] Directions = new float[DirectionBins];
+            /// <summary>Horizontal surface area per 5 cm band of absolute height, independent of the floor reference.</summary>
+            public readonly Dictionary<int, float> Levels = new Dictionary<int, float>(); }
+        const float LevelBin = .05f;
+        bool floorFromScan;
         readonly Dictionary<string, ChunkCoverage> coverage = new Dictionary<string, ChunkCoverage>();
         readonly Dictionary<string, GameObject> scanVisuals = new Dictionary<string, GameObject>();
         Material scanMaterial;
@@ -38,6 +47,8 @@ namespace TwinInspector
         public bool Active => State == AutoAlignState.Scanning || State == AutoAlignState.Matching || State == AutoAlignState.Review;
         public float Walls { get; private set; }
         public float Floor { get; private set; }
+        /// <summary>Horizontal surface at least 2.2 m above the floor; optional, but it tells apart sections whose walls look alike.</summary>
+        public float Ceiling { get; private set; }
         /// <summary>Wall area within ±35° of perpendicular to the main wall direction.</summary>
         public float Cross { get; private set; }
         /// <summary>The headset has delivered no scene mesh at all several seconds into a scan (seen after the system perception service restarted).</summary>
@@ -50,6 +61,31 @@ namespace TwinInspector
         /// <summary>String key for the failure shown on the page.</summary>
         public string Failure { get; private set; }
         public event Action Changed;
+        /// <summary>The latest background match while scanning (walking); <see cref="HasTrial"/> is false until one was found.</summary>
+        public AutoAligner.Result Trial { get; private set; }
+        public bool HasTrial { get; private set; }
+        /// <summary>Background matches in a row that agree with each other (same place within 25 cm and 2°).</summary>
+        public int Agreeing { get; private set; }
+        bool trialRunning; float nextTrial, trialWalls;
+        /// <summary>Start-up mode: matches as soon as enough wall and floor are scanned and confirms a reliable result
+        /// without a tap. An unreliable or failed result is left for the user to review, as in the manual flow.</summary>
+        public bool Automatic { get; private set; }
+        /// <summary>Stricter than the solver's "reliable" (45 % wall inliers, ambiguity 1.15) for confirming without a tap.</summary>
+        public const float AutoConfirmInliers = .6f, AutoConfirmAmbiguity = 1.5f;
+        /// <summary>Or a clear lead instead of a high match: 50 % wall inliers with no other place fitting even half as well.
+        /// Rooms changed since the 2022 scan stay near 50 % at the right place (HG, Nov 19: 52-54 % at 2 cm, lead 2.6-6.6);
+        /// the wrong CAB match had 47 %.</summary>
+        public const float AutoConfirmInliersWithLead = .5f, AutoConfirmLead = 2f;
+        /// <summary>Set once when an automatic run confirmed its result; read and cleared by the UI.</summary>
+        public bool TakeAutoConfirmed() { bool value = autoConfirmed; autoConfirmed = false; return value; }
+        bool autoConfirmed;
+
+        public void BeginAutomatic()
+        {
+            Begin(true); Automatic = true;
+            DevLog.Write("Auto alignment at start: scanning");
+            Changed?.Invoke();
+        }
 
         public void Initialize(AppBootstrap application) => app = application;
 
@@ -57,10 +93,12 @@ namespace TwinInspector
         public void Begin(bool fresh = true)
         {
             if (State == AutoAlignState.Review) Revert();
+            Automatic = false;
             if (fresh) baseline = null;
             floorReference = TrackingSpace.FloorHeight(app.Origin);
             if (float.IsNaN(floorReference)) floorReference = app.Viewer.transform.position.y - 1.6f;
-            coverage.Clear(); Walls = Floor = Cross = 0; scanStarted = Time.unscaledTime; noMeshLogged = false;
+            floorFromScan = false;
+            coverage.Clear(); Walls = Floor = Cross = Ceiling = 0; scanStarted = Time.unscaledTime; noMeshLogged = false; ClearTrials();
             attempt++; State = AutoAlignState.Scanning; Failure = null; nextCoverage = 0;
             // The twin samples load while the viewer scans.
             if (twinLocal == null || twinLocal.IsFaulted || twinLocal.IsCanceled) twinLocal = LoadTwinAsync(lifetime.Token);
@@ -70,6 +108,7 @@ namespace TwinInspector
         /// <summary>Leaves the flow; a twin moved for review goes back to where it was.</summary>
         public void Cancel()
         {
+            Automatic = false;
             if (State == AutoAlignState.Idle) return;
             if (State == AutoAlignState.Review) Revert();
             attempt++; State = AutoAlignState.Idle; Changed?.Invoke();
@@ -92,12 +131,14 @@ namespace TwinInspector
             if (State != AutoAlignState.Scanning) return;
             baseline = new Dictionary<string, int>();
             foreach (var chunk in app.SceneSource?.Chunks ?? (IReadOnlyList<SurfaceChunk>)Array.Empty<SurfaceChunk>()) baseline[chunk.Id] = chunk.Version;
-            Walls = Floor = Cross = 0; nextCoverage = Time.unscaledTime + .5f;
+            Walls = Floor = Cross = Ceiling = 0; nextCoverage = Time.unscaledTime + .5f;
+            attempt++; ClearTrials(); // a background match still running used the discarded scan
             foreach (var visual in scanVisuals.Values) if (visual) Destroy(visual);
             scanVisuals.Clear();
             DevLog.Write("Auto alignment scan reset: " + baseline.Count + " chunks set aside");
             Changed?.Invoke();
         }
+        void ClearTrials() { HasTrial = false; Trial = default; Agreeing = 0; trialWalls = 0; nextTrial = 0; }
         bool Counts(SurfaceChunk chunk) => baseline == null || !baseline.TryGetValue(chunk.Id, out int version) || chunk.Version != version;
 
         public async Task ConfirmAsync()
@@ -121,18 +162,11 @@ namespace TwinInspector
                 if (run != attempt) return;
                 // Taken after the (possibly long) twin load and on the main thread: each snapshot is one consistent,
                 // never-edited version, so the worker cannot see a chunk while the scene mesh updates it.
-                var chunks = new List<SurfaceChunk.Geometry>();
-                foreach (var chunk in app.SceneSource.Chunks) if (Counts(chunk) && chunk.Snapshot != null) chunks.Add(chunk.Snapshot);
-                var rootMatrix = app.Root.transform.localToWorldMatrix;
-                float twinFloor = app.Root.TwinToWorld(new Vector3(0, 0, app.Loader.Manifest.datum_z)).y, floorHint = TrackingSpace.FloorHeight(app.Origin);
-                var result = await Task.Run(() => Solve(twin, chunks, rootMatrix, twinFloor, head, floorHint), lifetime.Token);
+                var result = await SolveNowAsync(twin, head);
                 if (run != attempt || !this) return;
-                Result = result;
-                DevLog.Write($"Auto alignment: found={result.Found} reliable={result.Reliable} yaw={result.Yaw * Mathf.Rad2Deg:F2}° t={result.Translation:F3} inliers={result.Inliers:P0} rms={result.Rms * 100:F1}cm ambiguity={result.Ambiguity:F2} constraint={result.Constraint:F2} keptCurrent={result.KeptCurrent} floor={result.SceneFloor:F2} floorHint={floorHint:F2} candidates={result.Candidates} reason='{result.Reason}' seconds={Time.realtimeSinceStartup - started:F1}");
-                if (result.All != null) foreach (var c in result.All) DevLog.Write($"  candidate yaw={c.yaw * Mathf.Rad2Deg:F2}° t={c.t:F2} inliers={c.inliers:P0} rms={c.rms * 100:F1}cm");
-                if (!result.Found) { Failure = FailureKey(result.Reason); State = AutoAlignState.Failed; Changed?.Invoke(); return; }
-                Apply(result, head);
-                State = AutoAlignState.Review; Changed?.Invoke();
+                Log("Auto alignment", result, started);
+                if (!result.Found) { Automatic = false; Failure = FailureKey(result.Reason); State = AutoAlignState.Failed; Changed?.Invoke(); return; }
+                await AcceptAsync(result, head, Automatic && Confident(result));
             }
             catch (OperationCanceledException) { }
             catch (Exception error)
@@ -140,6 +174,87 @@ namespace TwinInspector
                 DevLog.Write("Auto alignment failed: " + error);
                 if (run == attempt && this) { Failure = "text.autoAlign.failedError"; State = AutoAlignState.Failed; Changed?.Invoke(); }
             }
+        }
+
+        /// <summary>Solves the scan counted so far against the twin on a worker thread.</summary>
+        Task<AutoAligner.Result> SolveNowAsync(AutoAligner.Cloud twin, Vector3 head)
+        {
+            // Taken on the main thread: each snapshot is one consistent, never-edited version, so the worker cannot see a
+            // chunk while the scene mesh updates it.
+            var chunks = new List<SurfaceChunk.Geometry>();
+            foreach (var chunk in app.SceneSource.Chunks) if (Counts(chunk) && chunk.Snapshot != null) chunks.Add(chunk.Snapshot);
+            var rootMatrix = app.Root.transform.localToWorldMatrix;
+            float twinFloor = app.Root.TwinToWorld(new Vector3(0, 0, app.Loader.Manifest.datum_z)).y, floorHint = TrackingSpace.FloorHeight(app.Origin);
+            lastFloorHint = floorHint;
+            return Task.Run(() => Solve(twin, chunks, rootMatrix, twinFloor, head, floorHint), lifetime.Token);
+        }
+        float lastFloorHint;
+
+        void Log(string label, AutoAligner.Result result, float started)
+        {
+            DevLog.Write($"{label}: found={result.Found} reliable={result.Reliable} yaw={result.Yaw * Mathf.Rad2Deg:F2}° t={result.Translation:F3} inliers={result.Inliers:P0} rms={result.Rms * 100:F1}cm ambiguity={result.Ambiguity:F2} constraint={result.Constraint:F2} keptCurrent={result.KeptCurrent} ceiling={result.Ceiling:P0} of {result.CeilingPoints} pts{(result.CeilingIgnored ? " (ignored: agrees nowhere)" : "")} (scanned {Ceiling:F1}m²) floor={result.SceneFloor:F2} floorHint={lastFloorHint:F2} candidates={result.Candidates} walls={Walls:F1}m² reason='{result.Reason}' seconds={Time.realtimeSinceStartup - started:F1}");
+            if (result.All != null) foreach (var c in result.All) DevLog.Write($"  candidate yaw={c.yaw * Mathf.Rad2Deg:F2}° t={c.t:F2} inliers={c.inliers:P0} rms={c.rms * 100:F1}cm ceiling={c.ceiling:P0} of {c.ceilingPoints} score={c.score:P0}");
+        }
+
+        /// <summary>Clearly good enough to apply without a tap: a 47 % result in CAB passed the general 45 % bar but was
+        /// turned 41° and shifted 14.5 m.</summary>
+        static bool Confident(AutoAligner.Result r) => r.Reliable && !r.Slides
+            && (r.Inliers >= AutoConfirmInliers && r.Ambiguity >= AutoConfirmAmbiguity || r.Inliers >= AutoConfirmInliersWithLead && r.Ambiguity >= AutoConfirmLead);
+
+        /// <summary>Moves the twin to the result for review; with <paramref name="confirm"/> also saves it without a tap.</summary>
+        async Task AcceptAsync(AutoAligner.Result result, Vector3 head, bool confirm)
+        {
+            Result = result;
+            Apply(result, head);
+            State = AutoAlignState.Review;
+            if (confirm)
+            {
+                Automatic = false;
+                DevLog.Write("Auto alignment: confident, confirming");
+                // ConfirmAsync leaves Review synchronously; the UI can move on while the save (and the anchor attempt,
+                // which can take 10 s on a headset whose persistence service does not answer) completes.
+                var confirming = ConfirmAsync();
+                autoConfirmed = true; Changed?.Invoke();
+                await confirming;
+                return;
+            }
+            if (Automatic) { Automatic = false; DevLog.Write("Auto alignment at start: not confident, left for review"); }
+            Changed?.Invoke();
+        }
+
+        /// <summary>Background match while the viewer keeps scanning (walking): nothing moves until two confident matches in
+        /// a row agree. Then the twin snaps to the result, for review, or confirmed in the automatic start-up mode.</summary>
+        async void TrialAsync()
+        {
+            int run = attempt; trialRunning = true;
+            try
+            {
+                var started = Time.realtimeSinceStartup;
+                var head = app.Viewer.transform.position;
+                var twin = await twinLocal;
+                if (run != attempt || !this || State != AutoAlignState.Scanning) return;
+                float walls = Walls;
+                var result = await SolveNowAsync(twin, head);
+                if (run != attempt || !this || State != AutoAlignState.Scanning) return;
+                trialWalls = walls;
+                bool agrees = HasTrial && result.Found && Agree(Trial, result, head);
+                Agreeing = !result.Found ? 0 : agrees ? Agreeing + 1 : 1;
+                if (result.Found) { Trial = result; HasTrial = true; }
+                Log($"Auto alignment trial (agreeing={Agreeing}, confident={Confident(result)})", result, started);
+                if (Agreeing >= 2 && Confident(result)) { DevLog.Write("Auto alignment: two trials agree"); await AcceptAsync(result, head, Automatic); return; }
+                Changed?.Invoke();
+            }
+            catch (OperationCanceledException) { }
+            catch (Exception error) { DevLog.Write("Auto alignment trial failed: " + error); }
+            finally { trialRunning = false; nextTrial = Time.unscaledTime + TrialInterval; }
+        }
+
+        /// <summary>Two results put the twin in the same place: same turn, and the viewer's position maps to the same point.</summary>
+        static bool Agree(AutoAligner.Result a, AutoAligner.Result b, Vector3 head)
+        {
+            if (Mathf.Abs(Mathf.DeltaAngle(a.Yaw * Mathf.Rad2Deg, b.Yaw * Mathf.Rad2Deg)) > AgreeYaw) return false;
+            var pa = AutoAligner.Rotate(head, a.Yaw) + a.Translation; var pb = AutoAligner.Rotate(head, b.Yaw) + b.Translation;
+            return new Vector2(pa.x - pb.x, pa.z - pb.z).magnitude <= AgreeDistance;
         }
 
         /// <summary>Tries the twin near its current placement first (fast, and keeps a nearly right alignment); the whole twin only if that is not reliable.</summary>
@@ -238,6 +353,8 @@ namespace TwinInspector
             nextCoverage = Time.unscaledTime + .5f;
             bool could = CanMatch, empty = NoMesh;
             Measure();
+            // Matches run in the background while the viewer walks on; nothing moves until two agree.
+            if (CanMatch && !trialRunning && Time.unscaledTime >= nextTrial && Walls >= trialWalls + TrialGrowth) TrialAsync();
             if (NoMesh && !noMeshLogged) { noMeshLogged = true; DevLog.Write("Auto alignment: no scene mesh after 8 s · " + TrackingSpace.Describe()); }
             if (CanMatch != could || NoMesh != empty) Changed?.Invoke();
         }
@@ -246,7 +363,7 @@ namespace TwinInspector
         /// also keeps one overlay per counted chunk.</summary>
         void Measure()
         {
-            float walls = 0, floor = 0; var directions = new float[DirectionBins];
+            float walls = 0, floor = 0, ceiling = 0; var directions = new float[DirectionBins]; var levels = new Dictionary<int, float>();
             var chunks = app.SceneSource?.Chunks;
             if (chunks != null)
                 foreach (var chunk in chunks)
@@ -268,13 +385,44 @@ namespace TwinInspector
                                 c.Directions[Mathf.Min(DirectionBins - 1, (int)(heading / (180f / DirectionBins)))] += area;
                             }
                             else if (up > .9f && Mathf.Abs(height) < .3f) c.Floor += area;
+                            else if (up > .9f && height > AutoAligner.CeilingAbove) c.Ceiling += area;
+                            if (up > .9f) { int level = Mathf.FloorToInt((height + floorReference) / LevelBin); c.Levels.TryGetValue(level, out float sum); c.Levels[level] = sum + area; }
                         }
                     }
-                    walls += c.Walls; floor += c.Floor;
+                    walls += c.Walls; floor += c.Floor; ceiling += c.Ceiling;
                     for (int b = 0; b < DirectionBins; b++) directions[b] += c.Directions[b];
+                    foreach (var level in c.Levels) { levels.TryGetValue(level.Key, out float sum); levels[level.Key] = sum + level.Value; }
                     ShowScan(chunk);
                 }
-            Walls = walls; Floor = floor; Cross = CrossArea(directions);
+            Walls = walls; Floor = floor; Ceiling = ceiling; Cross = CrossArea(directions);
+            if (FloorFromScan(levels)) { coverage.Clear(); nextCoverage = 0; } // re-measure walls and floor against the new floor
+        }
+
+        /// <summary>The headset's floor height can be off by tens of centimetres (scanned floor shown grey). When hardly any
+        /// horizontal surface lies near it, the lowest broad horizontal surface below the head becomes the floor reference,
+        /// the same fallback the solver uses. Returns true when the reference changed.</summary>
+        bool FloorFromScan(Dictionary<int, float> levels)
+        {
+            if (levels.Count == 0) return false;
+            float near = 0;
+            foreach (var level in levels) if (Mathf.Abs((level.Key + .5f) * LevelBin - floorReference) < .3f) near += level.Value;
+            // Switch away from the headset's floor only when hardly anything lies near it; once switched, only move down
+            // (a table seen before the floor can look like the lowest broad surface for a while).
+            if (!floorFromScan && near >= .5f) return false;
+            int top = Mathf.FloorToInt((app.Viewer.transform.position.y - .4f) / LevelBin);
+            float Window(int b) { float sum = 0; for (int k = -3; k <= 3; k++) if (levels.TryGetValue(b + k, out float a)) sum += a; return sum; }
+            float peak = 0; foreach (var level in levels) if (level.Key <= top) peak = Mathf.Max(peak, Window(level.Key));
+            if (peak < 1f) return false; // not enough horizontal surface seen yet
+            float threshold = Mathf.Max(.5f, .25f * peak); int lowest = int.MaxValue;
+            foreach (var level in levels) if (level.Key <= top && level.Key < lowest && Window(level.Key) >= threshold) lowest = level.Key;
+            if (lowest == int.MaxValue) return false;
+            float weight = 0, height = 0;
+            for (int k = -3; k <= 3; k++) if (levels.TryGetValue(lowest + k, out float a)) { weight += a; height += a * (lowest + k + .5f) * LevelBin; }
+            height /= weight;
+            if (Mathf.Abs(height - floorReference) < .15f || floorFromScan && height > floorReference) return false;
+            DevLog.Write($"Auto alignment: floor taken from the scan at y={height:F2} (headset floor y={floorReference:F2}, {near:F1} m² near it)");
+            floorReference = height; floorFromScan = true;
+            return true;
         }
 
         /// <summary>Area in the bins 55°–125° away from the strongest ±10° direction.</summary>

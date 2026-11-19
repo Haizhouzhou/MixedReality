@@ -75,7 +75,11 @@ namespace TwinInspector
             if(page=="list"||page=="picker"||page=="display")diffRefreshPending=true;
         }
         void MarkerChanged() { if (page == "marker") Render(); }
-        void AutoAlignChanged() { if (page == "auto") Render(); }
+        void AutoAlignChanged()
+        {
+            if (app.AutoAlign.TakeAutoConfirmed()) { if (page == "auto") Show("setup"); Notify(L.Get("toast.autoAligned")); return; }
+            if (page == "auto") Render();
+        }
         void PickChanged(){if(page=="picker")Render();}
         public void Notify(string message) { if (panel) panel.Notify(message); }
         public void Show(string target)
@@ -124,6 +128,7 @@ namespace TwinInspector
                 case "display": DisplayPage(); break;
                 case "preferences": PreferencesPage(); break;
                 case "sound": SoundPage(); break;
+                case "input": InputPage(); break;
                 case "roam": RoamPage(); break;
                 case "align": AlignPage(); break;
                 case "nudge": NudgePage(); break;
@@ -132,7 +137,6 @@ namespace TwinInspector
                 case "auto": AutoAlignPage(); break;
                 case "forget": ForgetPage(); break;
                 case "performance": PerformancePage(); break;
-                case "continue": ContinuePage(); break;
                 case "list": ListPage(); break;
                 case "annotate": AnnotatePage(); break;
                 case "picker": PickerPage(); break;
@@ -184,8 +188,18 @@ namespace TwinInspector
             panel.Button(L.Get("button.language"),24,168,208,()=>{ languageReturn="preferences"; Show("language"); });
             panel.Button(L.Get("button.menuPosition"),248,168,208,()=>Show("dock"));
             panel.Text(L.Get("text.eitherHandCanSummonAndOperate"),24,224,432,20,DesignTokens.Label);
-            panel.Button(L.Get("button.feedbackSound"),24,248,208,()=>Show("sound"));
-            panel.Button(L.Get("button.back"),248,248,208,()=>Show("setup"));
+            panel.Button(L.Get("button.sound"),24,248,144,()=>Show("sound"));
+            panel.Button(L.Get("button.input"),168,248,144,()=>Show("input"));
+            panel.Button(L.Get("button.back"),312,248,144,()=>Show("setup"));
+        }
+        void InputPage()
+        {
+            panel.Header(L.Get("page.setup.label"),L.Get("button.input"));
+            void Choose(bool tap) { InteractionPreferences.Tap=tap; app.Input.RefreshPressMode(); Render(); }
+            panel.Button(L.Get("button.pinch"),24,104,208,()=>Choose(false),!InteractionPreferences.Tap);
+            panel.Button(L.Get("button.tap"),248,104,208,()=>Choose(true),InteractionPreferences.Tap);
+            panel.Text(L.Get(InteractionPreferences.Tap?"text.inputTap":"text.inputPinch"),24,168,432,56,16);
+            panel.Button(L.Get("button.back"),24,248,432,()=>Show("preferences"));
         }
         void DockPage()
         {
@@ -233,14 +247,6 @@ namespace TwinInspector
             panel.Button(L.Get("button.forgetAlignment"),24,248,208,() => Show("forget"));
             panel.Button(L.Get("button.saveAlignment"),248,248,208,() => Run(app.Anchors.SaveAsync,() => { Show("setup"); Notify(L.Get(app.Anchors.Status)); }));
         }
-        /// <summary>Offered at the system boundary: restart where the user stands, so the boundary moves with them.</summary>
-        void ContinuePage()
-        {
-            panel.Header(L.Get("page.setup.label"),L.Get("page.continue.heading"),app.Space.name);
-            panel.Text(L.Get("text.continueBody"),24,104,432,104,18);
-            panel.Button(L.Get("button.cancel"),24,248,208,() => panel.gameObject.SetActive(false));
-            panel.Button(L.Get("button.continueHere"),248,248,208,() => { Notify(L.Get("toast.restarting")); ContinueHere.SaveAndRestart(app); },true);
-        }
         void ForgetPage()
         {
             panel.Header(L.Get("page.align.label"),L.Get("button.forgetAlignment"),app.Space.name);
@@ -252,9 +258,9 @@ namespace TwinInspector
         {
             var auto=app.AutoAlign;
             panel.Header(L.Get("page.align.label"),L.Get("button.autoAlign"),app.Space.name);
-            liveText=panel.Text(AutoAlignReadout,24,104,432,56,18);
-            string tip=auto.NoMesh?L.Get("text.autoAlign.noMesh"):auto.State==AutoAlignState.Scanning?L.Get("text.autoAlign.tip"):auto.State==AutoAlignState.Review?L.Format("text.autoAlign.reviewTip",auto.Moved,auto.Turned):null;
-            if(tip!=null) panel.Text(tip,24,168,432,56,16);
+            liveText=panel.Text(AutoAlignReadout,24,104,432,66,16);
+            string tip=auto.NoMesh?L.Get("text.autoAlign.noMesh"):auto.State==AutoAlignState.Scanning?L.Get(auto.HasTrial&&auto.Trial.Slides?"text.autoAlign.slides":"text.autoAlign.tip"):auto.State==AutoAlignState.Review?L.Format("text.autoAlign.reviewTip",auto.Moved,auto.Turned):null;
+            if(tip!=null) panel.Text(tip,24,176,432,56,16);
             switch(auto.State)
             {
                 case AutoAlignState.Scanning:
@@ -283,7 +289,7 @@ namespace TwinInspector
                 var auto=app.AutoAlign; var r=auto.Result;
                 switch(auto.State)
                 {
-                    case AutoAlignState.Scanning: return L.Format("text.autoAlign.coverage",auto.Walls,AutoAlignment.WallsNeeded,auto.Floor,AutoAlignment.FloorNeeded)+"\n"+L.Format("text.autoAlign.cross",auto.Cross,AutoAlignment.CrossNeeded);
+                    case AutoAlignState.Scanning: return L.Format("text.autoAlign.coverage",auto.Walls,AutoAlignment.WallsNeeded,auto.Floor,AutoAlignment.FloorNeeded)+"\n"+(auto.HasTrial?L.Format("text.autoAlign.result",auto.Trial.Inliers*100,auto.Trial.Rms*100):L.Format("text.autoAlign.cross",auto.Cross,AutoAlignment.CrossNeeded))+"\n"+L.Format("text.autoAlign.ceiling",auto.Ceiling);
                     case AutoAlignState.Matching: return L.Get("text.autoAlign.matching");
                     case AutoAlignState.Review: return L.Format("text.autoAlign.result",r.Inliers*100,r.Rms*100)+"\n"+L.Get(r.Slides?"text.autoAlign.slides":r.Reliable?"text.autoAlign.reliable":"text.autoAlign.uncertain");
                     case AutoAlignState.Failed: return L.Get(auto.Failure);
@@ -474,7 +480,7 @@ namespace TwinInspector
             var back=panel.Button(L.Get("button.back"),168,248,144,()=>{guide.Back();Render();});back.interactable=guide.Index>0;
             panel.Button(L.Get(guide.Last?"button.done":"button.next"),312,248,144,()=>{if(guide.Last){guide.Done();Show("setup");}else{guide.Next();Render();}},true);
         }
-        static readonly HashSet<string> SetupPages=new HashSet<string>{"setup","preferences","sound","language","diagnostics","guide","space","spaceConfirm","dock","performance"};
+        static readonly HashSet<string> SetupPages=new HashSet<string>{"setup","preferences","sound","input","language","diagnostics","guide","space","spaceConfirm","dock","performance"};
         void Update()
         {
             if (!panel) return;

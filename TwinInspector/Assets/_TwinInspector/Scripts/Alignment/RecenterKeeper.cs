@@ -6,22 +6,19 @@ using UnityEngine.XR.ARSubsystems;
 
 namespace TwinInspector
 {
-    /// <summary>Keeps the twin fixed to the building when the system recenters the view (Galaxy XR: touch and hold the
-    /// top button). A recenter moves the whole tracking frame, so without this the twin would move with the user.
+    /// <summary>Keeps the twin fixed to the building when the system recenters the view (Galaxy XR: touch and hold the side
+    /// of the headset, or Quick Panel → Recenter). A recenter moves the whole tracking frame, so without this the twin would move with the user.
     /// The twin's pose is remembered relative to a world-locked session anchor; whenever that anchor jumps in Unity
     /// coordinates the twin is moved by the same yaw and translation. Any other change to the twin (alignment, nudges,
-    /// roaming, a followed persistent anchor) simply becomes the new remembered pose. Also shows a recenter hint
-    /// before the system boundary (1.5 m) fades the app.</summary>
+    /// roaming, a followed persistent anchor) simply becomes the new remembered pose.</summary>
     [DefaultExecutionOrder(1500)] // after the alignment components' LateUpdate, before TwinRoot (2000)
     public sealed class RecenterKeeper : MonoBehaviour
     {
-        /// <summary>Horizontal distance from the tracking origin at which the hint appears, and at which it re-arms.</summary>
-        public const float HintDistance = 1.2f, RearmDistance = .8f;
         const float SameMetres = .001f, SameDegrees = .05f, LogMetres = .05f, LogDegrees = 1f;
         AppBootstrap app;
         ARAnchorManager anchors;
         ARAnchor frame;
-        bool creating, dirty = true, hintArmed = true;
+        bool creating, dirty = true;
         Pose offset, applied;
         readonly List<XRInputSubsystem> inputs = new List<XRInputSubsystem>();
         public int Compensations { get; private set; }
@@ -45,7 +42,6 @@ namespace TwinInspector
         void LateUpdate()
         {
             if (Application.isEditor || !app || !app.Root) return;
-            Hint();
             var root = app.Root.transform;
             var current = new Pose(root.position, root.rotation);
             if (!frame) { if (!creating) CreateFrameAsync(); return; }
@@ -95,24 +91,6 @@ namespace TwinInspector
                 current = target;
             }
             applied = current;
-        }
-
-        void Hint()
-        {
-            var local = app.Viewer.transform.localPosition;
-            float distance = new Vector2(local.x, local.z).magnitude;
-            if (hintArmed && distance > HintDistance)
-            {
-                hintArmed = false;
-                // With the room visible and nothing in progress, offer "Continue here"; otherwise (Twin mode is fully
-                // virtual, or an alignment or annotation is underway) only warn.
-                bool busy = app.AutoAlign && app.AutoAlign.Active || app.Markers && app.Markers.AwaitingConfirmation || app.Placer && app.Placer.Active
-                            || app.UI && (app.UI.Page == "auto" || app.UI.Page == "marker" || app.UI.Page == "picker" || app.UI.Page == "continue");
-                if (app.UI && app.Style && app.Style.Mode != ViewMode.Twin && !busy) app.UI.Show("continue");
-                else if (app.UI) app.UI.Notify(L.Get("text.recenterHint"));
-                DevLog.Write($"Recenter hint at {distance:F2} m from the tracking origin");
-            }
-            else if (!hintArmed && distance < RearmDistance) hintArmed = true;
         }
 
         async void CreateFrameAsync()

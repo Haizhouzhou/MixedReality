@@ -17,6 +17,14 @@ namespace TwinInspector
     {
         public const int BuildingMask=1<<8;
         public const int SurfaceMask=BuildingMask | (1<<9);
+        /// <summary>Near poke on panels, chosen in Preferences > Input (<see cref="InteractionPreferences.Tap"/>). Off (the default):
+        /// the poke interactors and the pointing-gesture switch that turns the hand ray off are disabled, so a pinch with the hand
+        /// ray presses buttons. On: both work as in the original rig, and the hand ray is switched off while the hand points.</summary>
+        public static bool PokeEnabled => InteractionPreferences.Tap;
+        bool? pokeApplied;
+        LineRenderer uiLine;
+        readonly Dictionary<XRRayInteractor,bool> pinching=new Dictionary<XRRayInteractor,bool>();
+        bool pinchPressReady;
         XROrigin origin; Camera viewer; XRInputModalityManager modality;
         readonly List<XRRayInteractor> rays=new List<XRRayInteractor>();
         readonly List<TrackedRayPose> sources=new List<TrackedRayPose>();
@@ -52,7 +60,75 @@ namespace TwinInspector
             rays.Clear(); sources.Clear();
             if(origin) origin.GetComponentsInChildren(true,rays);
             foreach(var ray in rays) sources.Add(ray.GetComponent<TrackedRayPose>());
+            for(int i=0;i<rays.Count;i++)
+                // Hands press UI with the same pinch as select. The sample binds UI press to the hand-interaction "aim activate"
+                // signal, which is not the pinch on every runtime.
+                if(rays[i] && sources[i] && sources[i].Hand && rays[i].uiPressInput!=rays[i].selectInput) rays[i].uiPressInput=rays[i].selectInput;
+            if(origin && pokeApplied!=PokeEnabled) ApplyPressMode();
+            if(!pinchPressReady) pinchPressReady=PressFromPinchValue();
             discoverAt=Time.unscaledTime+1;
+        }
+        /// <summary>On the Galaxy XR the hand's pinch strength arrives (0.6 to 0.85 when pinched) but its pinch button never fires,
+        /// so select and UI press stayed off. The button bindings of the hand select and UI press actions are redirected to the
+        /// strength: a button action bound to an analog control presses at the Input System's press point (0.5) and releases below it.</summary>
+        static bool PressFromPinchValue()
+        {
+            int redirected=0;
+            foreach(var action in UnityEngine.InputSystem.InputSystem.ListEnabledActions())
+            {
+                var map=action.actionMap?.name; if(map==null || !map.StartsWith("XRI ") || !map.EndsWith(" Interaction")) continue;
+                if(action.name!="Select" && action.name!="UI Press") continue;
+                for(int i=0;i<action.bindings.Count;i++)
+                {
+                    var binding=action.bindings[i]; string path=binding.effectivePath;
+                    if(binding.isComposite || binding.isPartOfComposite || string.IsNullOrEmpty(path)) continue;
+                    bool hand=path.StartsWith("<HandInteraction>") || path.StartsWith("<XRHandDevice>");
+                    if(!hand || !(path.EndsWith("/pinchTouched") || path.EndsWith("/pointerActivated"))) continue;
+                    action.ApplyBindingOverride(i,path.Substring(0,path.LastIndexOf('/'))+"/pinchValue"); redirected++;
+                }
+            }
+            if(redirected>0) DevLog.Write("Input: hand select and UI press follow pinch strength ("+redirected+" bindings)");
+            return redirected>0;
+        }
+        /// <summary>Switches poke (and the pointing gesture that hands the press over to it) on or off to match the preference.
+        /// Called again within a second of a change in Preferences, or at once through <see cref="RefreshPressMode"/>.</summary>
+        void ApplyPressMode()
+        {
+            bool on=PokeEnabled; pokeApplied=on;
+            foreach(var poke in origin.GetComponentsInChildren<XRPokeInteractor>(true)) poke.enabled=on;
+            foreach(var component in origin.GetComponentsInChildren<MonoBehaviour>(true))
+                if(component && component.GetType().Name=="PokeGestureDetector") component.enabled=on;
+            // A pointing gesture in progress may have switched its hand ray off; with the detector gone nothing would switch it back.
+            if(!on) for(int i=0;i<rays.Count;i++) if(rays[i] && sources[i] && sources[i].Hand && !rays[i].enabled) rays[i].enabled=true;
+            DevLog.Write(on ? "Input: tap, the fingertip presses panels" : "Input: pinch, the hand ray presses panels");
+        }
+        public void RefreshPressMode() { if(origin && pokeApplied!=PokeEnabled) ApplyPressMode(); }
+        /// <summary>One log line when a hand starts or ends a pinch: what the ray saw and which inputs fired.</summary>
+        void LogPinches()
+        {
+            foreach(var ray in rays)
+            {
+                if(!ray) continue; int index=rays.IndexOf(ray); var source=sources[index]; if(!source || !source.Hand) continue;
+                float value=ray.isActiveAndEnabled ? ray.selectInput.ReadValue() : 0;
+                pinching.TryGetValue(ray,out bool was); bool now=was ? value>.3f : value>.6f;
+                if(now==was) continue; pinching[ray]=now;
+                bool ui=ray.isActiveAndEnabled && ray.TryGetCurrentUIRaycastResult(out _);
+                DevLog.Write($"Pinch {(IsLeft(ray)?"left":"right")} {(now?"start":"end")}: value={value:F2} select={ray.selectInput.ReadIsPerformed()} uiPress={ray.uiPressInput.ReadIsPerformed()} enabled={ray.isActiveAndEnabled} ready={source.Ready} owner={ray==owner} uiInteraction={ray.enableUIInteraction} overPanel={ui}");
+            }
+        }
+        /// <summary>A thin line from the hand to the panel while it points at one, so a pinch's target is visible.</summary>
+        void DrawUILine()
+        {
+            bool show=!Desktop && owner && OverUI && HasPointer;
+            if(!show) return;
+            if(!uiLine)
+            {
+                uiLine=new GameObject("Panel pointer line").AddComponent<LineRenderer>();
+                uiLine.useWorldSpace=true; uiLine.positionCount=2; uiLine.startWidth=.002f; uiLine.endWidth=.001f;
+                uiLine.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off; uiLine.receiveShadows=false;
+                var tokens=AppBootstrap.Instance ? AppBootstrap.Instance.Tokens : null; if(tokens) uiLine.sharedMaterial=tokens.InkMaterial;
+            }
+            uiLine.enabled=true; uiLine.SetPosition(0,owner.rayOriginTransform.position); uiLine.SetPosition(1,PointerPosition);
         }
         void UpdateDesktopMode()
         {
@@ -90,7 +166,9 @@ namespace TwinInspector
         void LateUpdate()
         {
             OverUI=Pressed=Held=HasHit=HasPointer=HasBuildingHit=Valid=false; Strength=0;
+            if(uiLine) uiLine.enabled=false;
             if(!viewer || !focused) return;
+            if(!Desktop) LogPinches(); // before the early returns below: a pinch that reaches nothing is the case to see
             if(Desktop)
             {
                 var mouse=Mouse.current;
@@ -133,6 +211,7 @@ namespace TwinInspector
             if(HasBuildingHit) BuildingHit=building;
             if(!OverUI && HasHit) SetPointer(Hit.point,Hit.normal);
             if(consumedFrame==Time.frameCount) Pressed=false;
+            DrawUILine();
         }
         public bool ConsumePress() { if(!Pressed || OverUI || consumedFrame==Time.frameCount) return false; consumedFrame=Time.frameCount; Pressed=false; return true; }
         public void CaptureUI(PointerEventData data=null) { uiCapture=true; consumedFrame=Time.frameCount; uiPoke=(data as TrackedDeviceEventData)?.interactor as XRPokeInteractor; }
@@ -174,7 +253,8 @@ namespace TwinInspector
         }
         void ResetInput()
         { owner=null; uiPoke=null; uiCapture=false; Valid=Pressed=Held=HasHit=HasPointer=HasBuildingHit=false; Strength=0; foreach(var source in sources) if(source) source.ResetPose(); }
-        void OnDisable() => ResetInput();
+        void OnDisable() { ResetInput(); if(uiLine) uiLine.enabled=false; }
+        void OnDestroy() { if(uiLine) Destroy(uiLine.gameObject); }
         void OnApplicationFocus(bool value) { focused=value; ResetInput(); }
     }
 }

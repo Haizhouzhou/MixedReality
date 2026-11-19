@@ -19,6 +19,8 @@ namespace TwinInspector
         public void SuspendForRoaming(bool value) { inspectionSuspended=value; if(!value && following) Follow(); }
         AlignmentState state;
         public string Status { get; private set; } = "Not aligned";
+        /// <summary>True when a saved persistent anchor was found and tracked at start-up, so the twin is placed in the room.</summary>
+        public bool PersistentRestored { get; private set; }
 
         public void Initialize(TwinRoot twin, ARAnchorManager anchors, string scanId)
         { root = twin; manager = anchors; scan = scanId; path = TwinPaths.SaveFile("alignment", scan); }
@@ -40,7 +42,7 @@ namespace TwinInspector
                     float deadline = Time.realtimeSinceStartup + 12;
                     while (active && active.trackingState != TrackingState.Tracking && Time.realtimeSinceStartup < deadline) await Task.Yield();
                     if (active && active.trackingState == TrackingState.Tracking)
-                    { following = true; Follow(); Status = "Persistent anchor restored"; }
+                    { following = true; Follow(); Status = "Persistent anchor restored"; PersistentRestored = true; }
                 }
             }
             catch (Exception error) { DevLog.Write("Anchor restore: " + error.Message); }

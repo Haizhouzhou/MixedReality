@@ -168,6 +168,82 @@ namespace TwinInspector.Tests
             Assert.That(Vector3.Distance(AutoAligner.Rotate(v, 40 * Mathf.Deg2Rad), expected), Is.LessThan(1e-5f));
         }
 
+        // Two copies of the hall 30 m apart that differ only in ceiling height: 2.8 m in the first, 3.6 m in the second.
+        static AutoAligner.Cloud TwoHalls(bool ceilings = true)
+        {
+            var hall = Hall(); var p = new List<Vector3>(); var n = new List<Vector3>();
+            foreach (var shift in new[] { Vector3.zero, new Vector3(30, 0, 0) })
+                for (int i = 0; i < hall.Count; i++) { p.Add(hall.Points[i] + shift); n.Add(hall.Normals[i]); }
+            if (ceilings)
+                foreach (var (x, height) in new[] { (0f, 2.8f), (30f, 3.6f) })
+                    for (float a = 0; a <= 20; a += .05f) for (float b = 0; b <= 12; b += .05f) { p.Add(new Vector3(x + a, height, b)); n.Add(Vector3.down); }
+            return new AutoAligner.Cloud { Points = p.ToArray(), Normals = n.ToArray() };
+        }
+
+        [Test] public void CeilingHeightPicksTheRightOneOfTwoLookAlikeSections()
+        {
+            // Scanned in the second hall; the current alignment is near the first, whose walls fit just as well.
+            var twin = AutoAligner.Downsample(TwoHalls());
+            float yaw = .05f; var t = new Vector3(30.3f, 0, .2f);
+            var scene = AutoAligner.Downsample(Scan(TwoHalls(), new Vector2(40, 2.5f), 6, yaw, t));
+            var result = AutoAligner.Solve(twin, scene, 0, 1.6f);
+            Assert.That(result.Found, Is.True, result.Reason);
+            Assert.That(Vector3.Distance(result.Translation, t), Is.LessThan(.05f), "the hall with the matching ceiling, not the nearer look-alike " + result.Translation);
+            Assert.That(result.CeilingSeen, Is.True);
+            Assert.That(result.Ceiling, Is.GreaterThan(.9f));
+            Assert.That(result.Reliable, Is.True);
+        }
+
+        [Test] public void WithoutCeilingTheLookAlikeSectionsCannotBeToldApart()
+        {
+            // Control for the test above: the same scan without ceilings lands in the nearer, wrong hall, 30 m off.
+            var twin = AutoAligner.Downsample(TwoHalls(false));
+            float yaw = .05f; var t = new Vector3(30.3f, 0, .2f);
+            var result = AutoAligner.Solve(twin, AutoAligner.Downsample(Scan(TwoHalls(false), new Vector2(40, 2.5f), 6, yaw, t)), 0, 1.6f);
+            Assert.That(result.Found, Is.True, result.Reason);
+            Assert.That(result.CeilingSeen, Is.False);
+            Assert.That(Vector3.Distance(result.Translation, t - new Vector3(30, 0, 0)), Is.LessThan(.05f), "the look-alike " + result.Translation);
+        }
+
+        [Test] public void HeightComesFromTheTwinFloorUnderTheScanNotTheDatum()
+        {
+            // The space's datum says the floor is 0.3 m higher than the twin's floor where the scan was taken. Walls do not
+            // notice; the ceiling and the overlay do. The match takes its height from the twin floor under the scan.
+            var twin = AutoAligner.Downsample(TwoHalls());
+            float yaw = .05f; var t = new Vector3(30.3f, 0, .2f);
+            var result = AutoAligner.Solve(twin, AutoAligner.Downsample(Scan(TwoHalls(), new Vector2(40, 2.5f), 6, yaw, t)), .3f, 1.6f);
+            Assert.That(result.Found, Is.True, result.Reason);
+            Assert.That(Mathf.Abs(result.Translation.y - t.y), Is.LessThan(.03f), "height " + result.Translation);
+            Assert.That(Vector3.Distance(result.Translation, t), Is.LessThan(.05f), "the right hall " + result.Translation);
+            Assert.That(result.Ceiling, Is.GreaterThan(.9f));
+            Assert.That(result.Reliable, Is.True);
+        }
+
+        [Test] public void ACeilingThatAgreesNowhereIsLeftOut()
+        {
+            // The room has a suspended ceiling at 2.5 m that the twin does not have (its ceilings are 2.8 and 3.6 m): the walls decide.
+            var twin = AutoAligner.Downsample(TwoHalls());
+            float yaw = .05f; var t = new Vector3(30.3f, 0, .2f);
+            var scan = Scan(TwoHalls(false), new Vector2(40, 2.5f), 6, yaw, t);
+            var p = new List<Vector3>(scan.Points); var n = new List<Vector3>(scan.Normals);
+            for (float a = 34; a <= 46; a += .05f) for (float b = 0; b <= 6; b += .05f) { p.Add(AutoAligner.Rotate(new Vector3(a, 2.5f, b) - t, -yaw)); n.Add(Vector3.down); }
+            var result = AutoAligner.Solve(twin, AutoAligner.Downsample(new AutoAligner.Cloud { Points = p.ToArray(), Normals = n.ToArray() }), 0, 1.6f);
+            Assert.That(result.Found, Is.True, result.Reason);
+            Assert.That(result.CeilingIgnored, Is.True);
+            Assert.That(result.CeilingAgrees, Is.True, "a ceiling left out does not count against the fit");
+        }
+
+        [Test] public void ACeilingAtAnotherHeightMakesAFitUnreliable()
+        {
+            var r = new AutoAligner.Result { Found = true, Inliers = .8f, Rms = .01f, Ambiguity = 3, Constraint = .5f, Ceiling = .2f, CeilingPoints = 1000 };
+            Assert.That(r.CeilingAgrees, Is.False); Assert.That(r.Reliable, Is.False);
+            r.CeilingPoints = 100; // too little ceiling under twin ceiling to judge
+            Assert.That(r.CeilingAgrees, Is.True); Assert.That(r.Reliable, Is.True);
+            Assert.That(AutoAligner.Score(.8f, 1, 1000, 1000), Is.EqualTo(.8f).Within(1e-6));
+            Assert.That(AutoAligner.Score(.8f, 0, 1000, 1000), Is.EqualTo(.4f).Within(1e-6));
+            Assert.That(AutoAligner.Score(.8f, 0, 0, 0), Is.EqualTo(.8f).Within(1e-6), "no scanned ceiling: walls alone");
+        }
+
         [Test] public void RefusesWhenTooLittleWallWasScanned()
         {
             var hall = AutoAligner.Downsample(Hall());

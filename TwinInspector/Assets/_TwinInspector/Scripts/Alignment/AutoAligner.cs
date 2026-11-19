@@ -30,15 +30,30 @@ namespace TwinInspector
             public bool KeptCurrent;
             public int Candidates;
             public string Reason;
-            /// <summary>Every refined candidate (yaw, translation, inlier fraction, RMS), for logs and review.</summary>
-            public (float yaw, Vector3 t, float inliers, float rms)[] All;
+            /// <summary>Every refined candidate (yaw, translation, wall inlier fraction, RMS, ceiling share and count, combined score), for logs and review.</summary>
+            public (float yaw, Vector3 t, float inliers, float rms, float ceiling, int ceilingPoints, float score)[] All;
             public bool Slides => Found && Constraint < MinConstraint;
+            /// <summary>Share of scanned ceiling points that meet a twin ceiling at the same height (within 15 cm), counted only
+            /// where the twin has a ceiling above them; <see cref="CeilingPoints"/> is how many were counted.</summary>
+            public float Ceiling;
+            public int CeilingPoints;
+            /// <summary>Ceiling was scanned but agreed for no candidate, so it was left out of the decision.</summary>
+            public bool CeilingIgnored;
+            /// <summary>Enough ceiling under twin ceiling was scanned for the ceiling to count.</summary>
+            public bool CeilingSeen => CeilingPoints >= MinCeilingPoints;
+            /// <summary>No ceiling to judge by, or the ceiling heights agree: a placement under a ceiling of another height is wrong.</summary>
+            public bool CeilingAgrees => !CeilingSeen || Ceiling >= .5f;
             /// <summary>Thresholds for presenting a result as reliable rather than to be checked carefully.</summary>
-            public bool Reliable => Found && Inliers >= .45f && Rms <= .04f && Ambiguity >= 1.15f && !Slides;
+            public bool Reliable => Found && Inliers >= .45f && Rms <= .04f && Ambiguity >= 1.15f && !Slides && CeilingAgrees;
         }
 
         /// <remarks>Walls count from 0.8 m above the floor: below that, desks, chairs and boxes that the twin may not have dominate.</remarks>
         public const float Voxel = .05f, GridCell = .2f, WallBandLow = .8f, WallBandHigh = 2.2f, MinConstraint = .12f;
+        /// <remarks>Ceilings: horizontal surfaces at least 2.2 m above the floor (above heads and most furniture). Sections and
+        /// floors of a building differ in ceiling height, so the ceiling tells apart places whose walls look alike.</remarks>
+        public const float CeilingAbove = 2.2f, CeilingTolerance = .15f;
+        public const int MinCeilingPoints = 300;
+        const int MaxCeilingPoints = 3000, MaxCeilingCells = 400;
         /// <summary>A fit this close to the current alignment is "near" it: kept unless a distant fit scores clearly higher.</summary>
         const float NearYaw = 15 * Mathf.Deg2Rad, NearDistance = 1.5f, NearShare = .85f;
         const int MaxIcpPoints = 6000, TopPerYaw = 3, IcpCandidates = 6;
@@ -138,6 +153,8 @@ namespace TwinInspector
             return n > 0 ? sum / n : centre;
         }
 
+        static bool Ceiling(Vector3 p, Vector3 n, float floor) => Mathf.Abs(n.y) > .9f && p.y > floor + CeilingAbove;
+
         static bool Wall(Vector3 p, Vector3 n, float floor) => Mathf.Abs(n.y) < .3f && p.y > floor + WallBandLow && p.y < floor + WallBandHigh;
 
         /// <summary>Dominant wall heading modulo 90° (4θ circular mean) and its strength in [0, 1].</summary>
@@ -175,6 +192,9 @@ namespace TwinInspector
                 for (int k = 0; k < 36; k++) yaws.Add(k * Mathf.PI / 18);
 
             var grid = new TwinGrid(twin, twinFloor);
+            var heights = new HeightColumns(twin);
+            var ceiling = Subsample(Select(scene, (p, n) => Ceiling(p, n, sceneFloor)), MaxCeilingPoints);
+            var floorSample = Subsample(Select(scene, (p, n) => Mathf.Abs(n.y) > .9f && Mathf.Abs(p.y - sceneFloor) < .1f), MaxCeilingPoints);
             var starts = new List<(float yaw, Vector3 t, float score)>();
             foreach (float yaw in yaws) starts.AddRange(grid.Search(scene, sceneFloor, yaw, dy, TopPerYaw));
             starts.Sort((a, b) => b.score.CompareTo(a.score));
@@ -182,31 +202,45 @@ namespace TwinInspector
 
             var index = new SpatialIndex(twin, .25f);
             var sample = Subsample(Structure(scene, sceneFloor), MaxIcpPoints);
-            var refined = new List<(float yaw, Vector3 t, float inliers, float rms)>();
+            var refined = new List<(float yaw, Vector3 t, float inliers, float rms, float ceiling, int ceilingPoints, float score)>();
             // The current alignment always competes, so a nearly right twin is refined rather than replaced by a look-alike.
             var tries = new List<(float yaw, Vector3 t)> { (0, new Vector3(0, dy, 0)) };
             for (int i = 0; i < Math.Min(IcpCandidates, starts.Count); i++) tries.Add((starts[i].yaw, starts[i].t));
             foreach (var (startYaw, startT) in tries)
             {
                 var (yaw, t) = Icp(index, sample, startYaw, startT, !floorKnown);
+                // Height from the twin's own floor under the scan, not the space's datum: a room whose floor lies off the
+                // datum would otherwise sit too high or low, which walls do not notice but ceilings and the overlay do.
+                if (floorKnown) { var (offset, counted) = heights.Offset(floorSample, yaw, t, .6f); if (counted >= 50) t.y += offset; }
                 var (inliers, rms) = Evaluate(index, sample, yaw, t, sceneFloor);
-                refined.Add((yaw, t, inliers, rms));
+                var (ceilingShare, ceilingPoints) = heights.Ceiling(ceiling, yaw, t);
+                refined.Add((yaw, t, inliers, rms, ceilingShare, ceilingPoints, Score(inliers, ceilingShare, ceilingPoints, ceiling.Count)));
+            }
+            // When no candidate's ceiling agrees at all, the twin's ceiling differs from the room (suspended ceiling, lamps,
+            // ducts) or was not captured: then the ceiling cannot tell candidates apart and must not count against them.
+            float bestCeiling = 0;
+            foreach (var r in refined) if (r.ceilingPoints >= MinCeilingPoints) bestCeiling = Math.Max(bestCeiling, r.ceiling);
+            if (ceiling.Count >= MinCeilingPoints && bestCeiling < .2f)
+            {
+                result.CeilingIgnored = true;
+                for (int i = 0; i < refined.Count; i++) { var r = refined[i]; r.score = r.inliers; refined[i] = r; }
             }
             result.Candidates = refined.Count; result.All = refined.ToArray();
-            float bestScore = 0; foreach (var r in refined) bestScore = Math.Max(bestScore, r.inliers);
-            if (bestScore < .2f) { result.Reason = "no candidate matched"; return result; }
+            float bestInliers = 0, bestScore = 0;
+            foreach (var r in refined) { bestInliers = Math.Max(bestInliers, r.inliers); bestScore = Math.Max(bestScore, r.score); }
+            if (bestInliers < .2f) { result.Reason = "no candidate matched"; return result; }
 
             // A fit near the current alignment wins unless a distant one is clearly better: symmetric halls have look-alikes,
             // and the user's rough placement (or a previous alignment) says which one is meant.
             int chosen = -1; float cost = float.MaxValue;
             for (int i = 0; i < refined.Count; i++)
-                if (Near(refined[i].yaw, refined[i].t) && refined[i].inliers >= NearShare * bestScore && (chosen < 0 || refined[i].inliers > refined[chosen].inliers)) chosen = i;
+                if (Near(refined[i].yaw, refined[i].t) && refined[i].score >= NearShare * bestScore && (chosen < 0 || refined[i].score > refined[chosen].score)) chosen = i;
             bool kept = chosen >= 0;
             if (!kept)
                 // Among near-equal fits, prefer the smallest change from the current alignment.
                 for (int i = 0; i < refined.Count; i++)
                 {
-                    if (refined[i].inliers < .97f * bestScore) continue;
+                    if (refined[i].score < .97f * bestScore) continue;
                     float c = Mathf.Abs(Mathf.DeltaAngle(0, refined[i].yaw * Mathf.Rad2Deg)) / 10 + new Vector2(refined[i].t.x, refined[i].t.z).magnitude;
                     if (c < cost) { cost = c; chosen = i; }
                 }
@@ -214,12 +248,72 @@ namespace TwinInspector
             // Distant look-alikes do not make a kept-near fit ambiguous; other near fits (sliding along a wall) still do.
             float runnerUp = 0;
             foreach (var r in refined)
-                if (Distinct(r.yaw, r.t, pick.yaw, pick.t) && (!kept || Near(r.yaw, r.t))) runnerUp = Math.Max(runnerUp, r.inliers);
+                if (Distinct(r.yaw, r.t, pick.yaw, pick.t) && (!kept || Near(r.yaw, r.t))) runnerUp = Math.Max(runnerUp, r.score);
             result.Found = true; result.Yaw = Mathf.Repeat(pick.yaw + Mathf.PI, 2 * Mathf.PI) - Mathf.PI; result.Translation = pick.t;
-            result.Inliers = pick.inliers; result.Rms = pick.rms; result.Ambiguity = runnerUp > 0 ? pick.inliers / runnerUp : 10;
-            result.KeptCurrent = kept && pick.inliers < bestScore - 1e-4f;
+            result.Inliers = pick.inliers; result.Rms = pick.rms; result.Ambiguity = runnerUp > 0 ? pick.score / runnerUp : 10;
+            result.Ceiling = pick.ceiling; result.CeilingPoints = result.CeilingIgnored ? 0 : pick.ceilingPoints;
+            result.KeptCurrent = kept && pick.score < bestScore - 1e-4f;
             result.Constraint = Constraint(index, sample, pick.yaw, pick.t, sceneFloor);
             return result;
+        }
+
+        /// <summary>Wall inliers, scaled by the ceiling: up to ×1 where the ceiling heights agree, down to ×0.5 where they do not,
+        /// ×0.75 where too little scanned ceiling lies under twin ceiling to judge. Without any scanned ceiling, wall inliers alone.</summary>
+        public static float Score(float inliers, float ceiling, int ceilingPoints, int ceilingScanned)
+            => ceilingScanned < MinCeilingPoints ? inliers : ceilingPoints >= MinCeilingPoints ? inliers * (.5f + .5f * ceiling) : inliers * .75f;
+
+        static Cloud Select(Cloud cloud, Func<Vector3, Vector3, bool> keep)
+        {
+            var p = new List<Vector3>(); var q = new List<Vector3>();
+            for (int i = 0; i < cloud.Count; i++) if (keep(cloud.Points[i], cloud.Normals[i])) { p.Add(cloud.Points[i]); q.Add(cloud.Normals[i]); }
+            return new Cloud { Points = p.ToArray(), Normals = q.ToArray() };
+        }
+
+        /// <summary>Heights of the twin's horizontal surfaces (floors, landings, ceilings) per 25 cm column of the floor plan.</summary>
+        public sealed class HeightColumns
+        {
+            const float Cell = .25f;
+            readonly Dictionary<long, List<float>> heights = new Dictionary<long, List<float>>();
+            public HeightColumns(Cloud twin)
+            {
+                for (int i = 0; i < twin.Count; i++)
+                {
+                    if (Mathf.Abs(twin.Normals[i].y) <= .9f) continue;
+                    var p = twin.Points[i]; long key = Column(p);
+                    if (!heights.TryGetValue(key, out var list)) heights[key] = list = new List<float>();
+                    bool known = false; foreach (float h in list) if (Mathf.Abs(h - p.y) < .03f) { known = true; break; }
+                    if (!known) list.Add(p.y);
+                }
+            }
+            static long Column(Vector3 p) => Key(Mathf.FloorToInt(p.x / Cell), 0, Mathf.FloorToInt(p.z / Cell));
+            bool Nearest(Vector3 p, float within, out float height)
+            {
+                height = 0; if (!heights.TryGetValue(Column(p), out var list)) return false;
+                float best = within;  bool found = false;
+                foreach (float h in list) if (Mathf.Abs(h - p.y) <= best) { best = Mathf.Abs(h - p.y); height = h; found = true; }
+                return found;
+            }
+            /// <summary>Median vertical gap from the moved points to the nearest twin surface within <paramref name="within"/>, and how many had one.</summary>
+            public (float offset, int counted) Offset(Cloud points, float yaw, Vector3 t, float within)
+            {
+                var gaps = new List<float>();
+                for (int i = 0; i < points.Count; i++) { var p = Rotate(points.Points[i], yaw) + t; if (Nearest(p, within, out float h)) gaps.Add(h - p.y); }
+                if (gaps.Count == 0) return (0, 0);
+                gaps.Sort(); return (gaps[gaps.Count / 2], gaps.Count);
+            }
+            /// <summary>Of the moved ceiling points with a twin surface within 1 m above or below, the share within
+            /// <see cref="CeilingTolerance"/> of it; and their count. Columns without twin surface near ceiling height do not count.</summary>
+            public (float share, int counted) Ceiling(Cloud ceiling, float yaw, Vector3 t)
+            {
+                int counted = 0, hits = 0;
+                for (int i = 0; i < ceiling.Count; i++)
+                {
+                    var p = Rotate(ceiling.Points[i], yaw) + t;
+                    if (!Nearest(p, 1f, out float h)) continue;
+                    counted++; if (Mathf.Abs(h - p.y) < CeilingTolerance) hits++;
+                }
+                return (counted > 0 ? hits / (float)counted : 0, counted);
+            }
         }
 
         static bool Near(float yaw, Vector3 t) => Mathf.Abs(Mathf.DeltaAngle(0, yaw * Mathf.Rad2Deg)) <= NearYaw * Mathf.Rad2Deg && new Vector2(t.x, t.z).magnitude <= NearDistance;
@@ -367,6 +461,8 @@ namespace TwinInspector
         sealed class TwinGrid
         {
             readonly float[,] score; readonly float x0, z0; readonly int width, depth;
+            /// <summary>Twin ceiling heights above the floor per grid cell (null where the twin has no ceiling).</summary>
+            readonly List<float>[,] ceilings;
             public TwinGrid(Cloud twin, float floor)
             {
                 float minX = float.MaxValue, minZ = float.MaxValue, maxX = float.MinValue, maxZ = float.MinValue;
@@ -379,6 +475,27 @@ namespace TwinInspector
                 for (int i = 0; i < twin.Count; i++)
                     if (Wall(twin.Points[i], twin.Normals[i], floor))
                         occupied[(int)((twin.Points[i].x - x0) / GridCell), (int)((twin.Points[i].z - z0) / GridCell)] = true;
+                // Ceiling heights count from each cell's own floor (the lowest horizontal surface within 1.5 m of the datum),
+                // since a room's floor can lie off the space's datum; the scan's ceiling counts from the scanned floor.
+                var cellFloor = new float[width, depth];
+                for (int x = 0; x < width; x++) for (int z = 0; z < depth; z++) cellFloor[x, z] = float.NaN;
+                for (int i = 0; i < twin.Count; i++)
+                {
+                    var p = twin.Points[i]; if (Mathf.Abs(twin.Normals[i].y) <= .9f || Mathf.Abs(p.y - floor) > 1.5f) continue;
+                    int cx = (int)((p.x - x0) / GridCell), cz = (int)((p.z - z0) / GridCell);
+                    if (cx < 0 || cz < 0 || cx >= width || cz >= depth) continue;
+                    if (float.IsNaN(cellFloor[cx, cz]) || p.y < cellFloor[cx, cz]) cellFloor[cx, cz] = p.y;
+                }
+                ceilings = new List<float>[width, depth];
+                for (int i = 0; i < twin.Count; i++)
+                {
+                    var p = twin.Points[i]; if (!Ceiling(p, twin.Normals[i], floor)) continue;
+                    int cx = (int)((p.x - x0) / GridCell), cz = (int)((p.z - z0) / GridCell);
+                    if (cx < 0 || cz < 0 || cx >= width || cz >= depth) continue;
+                    var list = ceilings[cx, cz] ??= new List<float>(); float h = p.y - (float.IsNaN(cellFloor[cx, cz]) ? floor : cellFloor[cx, cz]);
+                    bool known = false; foreach (float k in list) if (Mathf.Abs(k - h) < .05f) { known = true; break; }
+                    if (!known) list.Add(h);
+                }
                 score = new float[width, depth];
                 for (int x = 0; x < width; x++) for (int z = 0; z < depth; z++)
                 {
@@ -403,13 +520,37 @@ namespace TwinInspector
                 if (cells.Count < 20) return found;
                 var offsets = new List<(int, int)>(); int spanI = 0, spanJ = 0;
                 foreach (var (i, j) in cells) { offsets.Add((i - minI, j - minJ)); spanI = Math.Max(spanI, i - minI); spanJ = Math.Max(spanJ, j - minJ); }
+                // Scanned ceiling: the lowest ceiling height above the scene floor per cell, at most MaxCeilingCells of them.
+                var lowest = new Dictionary<(int, int), float>();
+                for (int i = 0; i < scene.Count; i++)
+                {
+                    if (!Ceiling(scene.Points[i], scene.Normals[i], sceneFloor)) continue;
+                    var p = Rotate(scene.Points[i], yaw); var c = (Mathf.FloorToInt(p.x / GridCell), Mathf.FloorToInt(p.z / GridCell));
+                    float h = scene.Points[i].y - sceneFloor;
+                    if (!lowest.TryGetValue(c, out float known) || h < known) lowest[c] = h;
+                }
+                var roof = new List<(int i, int j, float h)>(); int every = Math.Max(1, lowest.Count / MaxCeilingCells), seen = 0;
+                foreach (var cell in lowest) if (seen++ % every == 0) roof.Add((cell.Key.Item1 - minI, cell.Key.Item2 - minJ, cell.Value));
                 int lowU = -spanI / 2, highU = width - spanI / 2, lowV = -spanJ / 2, highV = depth - spanJ / 2;
                 var map = new float[highU - lowU + 1, highV - lowV + 1];
                 for (int u = lowU; u <= highU; u++) for (int v = lowV; v <= highV; v++)
                 {
                     float sum = 0;
                     foreach (var (i, j) in offsets) { int x = u + i, z = v + j; if (x >= 0 && z >= 0 && x < width && z < depth) sum += score[x, z]; }
-                    map[u - lowU, v - lowV] = sum / offsets.Count;
+                    float placement = sum / offsets.Count;
+                    if (roof.Count >= 20)
+                    {
+                        // Same scaling as Score: ceiling at the twin's height raises a placement, another height lowers it.
+                        int covered = 0, hits = 0;
+                        foreach (var (i, j, h) in roof)
+                        {
+                            int x = u + i, z = v + j; if (x < 0 || z < 0 || x >= width || z >= depth) continue;
+                            var list = ceilings[x, z]; if (list == null) continue;
+                            covered++; foreach (float k in list) if (Mathf.Abs(k - h) < .25f) { hits++; break; }
+                        }
+                        placement *= covered >= 10 ? .5f + .5f * hits / covered : .75f;
+                    }
+                    map[u - lowU, v - lowV] = placement;
                 }
                 int suppress = Mathf.CeilToInt(1 / GridCell);
                 for (int k = 0; k < keep; k++)

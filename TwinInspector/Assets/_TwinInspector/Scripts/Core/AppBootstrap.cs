@@ -28,7 +28,6 @@ namespace TwinInspector
         bool starting, applicationFocused=true, systemInFront;
         int viewerMask; Color viewerBackground;
         TaskCompletionSource<TwinSpace> spaceChoice;
-        ContinueHere.Handoff handoff;
         public static AppBootstrap Instance { get; private set; }
         public bool Ready { get; private set; }
         public bool Starting => starting;
@@ -112,14 +111,6 @@ namespace TwinInspector
                 if (!Tokens) throw new Exception("Design resources are missing");
                 CjkFonts.Install(Tokens);
                 Spaces ??= await SpaceCatalog.LoadAsync(lifetime.Token);
-                // "Continue here" restarted the app: reopen the same space without asking.
-                if (Space == null && !Application.isEditor)
-                {
-                    handoff = ContinueHere.TakePending();
-                    var resumed = handoff != null ? Spaces.Find(handoff.space) : null;
-                    if (resumed != null && TwinPaths.Available(settings, resumed)) { Space = resumed; DevLog.Write("Continue here: resuming " + resumed.id); }
-                    else handoff = null;
-                }
                 if (Space == null)
                 {
                     spaceChoice = new TaskCompletionSource<TwinSpace>();
@@ -132,13 +123,16 @@ namespace TwinInspector
                 if (!Root) { Root = new GameObject("TwinRoot").AddComponent<TwinRoot>(); Root.transform.position=new Vector3(0,0,-10); }
                 Loader = gameObject.AddComponent<TwinLoader>();
                 await Loader.InitializeAsync(settings,Space,Root,viewer,Tokens.TwinMaterial);
+                // Default placement before any saved or automatic alignment: the space's main floor (manifest datum_z,
+                // e.g. -4.8 m in CAB) on the tracked floor, not twin height 0, which would leave CAB one storey too low.
+                { float floor = TrackingSpace.FloorHeight(origin); if (float.IsNaN(floor)) floor = 0;
+                  var start = Root.transform.position; start.y = ManualAlignment.FloorSnapHeight(floor, Root.Origin.z, Loader.Manifest.datum_z); Root.transform.position = start; }
                 Anchors = gameObject.AddComponent<AnchorPersistence>(); Anchors.Initialize(Root,anchorManager,Space.Storage);
                 await Anchors.RestoreAsync();
                 gameObject.AddComponent<RecenterKeeper>().Initialize(this, anchorManager);
                 Annotations = new AnnotationStore(Space.Storage);
                 var visuals = gameObject.AddComponent<AnnotationVisuals>(); visuals.Initialize(Annotations,Root,Tokens);
                 Style = gameObject.AddComponent<TwinStyle>(); Style.Initialize(Loader,Root,viewer,cameraManager,Tokens);
-                if (handoff != null) { ContinueHere.Apply(this, handoff); handoff = null; }
                 Manual = gameObject.AddComponent<ManualAlignment>();
                 Manual.Initialize(Root,Anchors,planeManager,Input);
                 Markers = gameObject.AddComponent<MarkerAlignment>();
@@ -157,6 +151,10 @@ namespace TwinInspector
                 Ready = true; Status = Space.name+(Loader.Manifest.demo ? " · built-in data" : " · Region "+Loader.Manifest.region.name+" · external data");
                 EnsureUI(); UI.Show("setup");
                 DevLog.Write("Ready: "+Status);
+                // Without a persistent anchor the saved pose is only right when the app starts where it was aligned:
+                // align from the room itself instead. Continue here already carried the pose across its restart.
+                if (settings.AutoAlignAtStart && !Application.isEditor && !Anchors.PersistentRestored && SceneSource != null)
+                { AutoAlign.BeginAutomatic(); UI.Show("auto"); UI.Notify(L.Get("toast.autoAlignAtStart")); }
                 DevLog.Write("Tracking space: "+TrackingSpace.Describe());
             }
             catch (OperationCanceledException) { }

@@ -14,7 +14,7 @@ namespace TwinInspector
         [SerializeField, Range(.05f,.25f)] float preparationWindow=.15f;
         XRRayInteractor ray;
         readonly PinchStabilization pinch = new PinchStabilization();
-        bool initialized, ready, focused=true;
+        bool initialized, ready;
         Vector3 previousPosition, filteredPosition;
         Quaternion previousRotation, filteredRotation;
         public bool Hand { get => hand; set => hand=value; }
@@ -24,11 +24,13 @@ namespace TwinInspector
         void Awake() { ray=GetComponent<XRRayInteractor>(); }
         void OnEnable() { ResetPose(); }
         void OnDisable() { ResetPose(); }
-        void OnApplicationFocus(bool value) { focused=value; ResetPose(); }
+        void OnApplicationFocus(bool value) { ResetPose(); }
         public void ResetPose() { initialized=ready=false; Strength=0; pinch.Reset(); }
         void Update()
         {
-            if(!source || !source.gameObject.activeInHierarchy || !ray || !ray.enabled || !focused) { ResetPose(); return; }
+            // Application.isFocused, not a flag kept by OnApplicationFocus: the hand objects are inactive while the headset is off
+            // the head, so they miss the "focus regained" message and the ray would stay off until the app restarts.
+            if(!source || !source.gameObject.activeInHierarchy || !ray || !ray.enabled || !Application.isFocused) { ResetPose(); return; }
             Strength=Mathf.Clamp01(ray.selectInput.ReadValue()); // The sample's value reader forwards continuous pinch strength.
             bool held=ray.selectInput.ReadIsPerformed() || ray.uiPressInput.ReadIsPerformed();
             if(!held && Strength<.3f) ready=true; // Never synthesize a press when tracking returns mid-pinch.

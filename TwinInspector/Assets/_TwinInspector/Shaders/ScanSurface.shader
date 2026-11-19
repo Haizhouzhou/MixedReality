@@ -29,9 +29,10 @@ Shader "TwinInspector/ScanSurface"
             {
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
                 float3 n=normalize(i.normal); float height=i.world.y-_ScanFloor;
-                // Colours follow AutoAligner's evidence: walls above the furniture band (blue), floor (green), the rest (grey).
-                bool wall=abs(n.y)<.3, floorLike=abs(n.y)>.9 && abs(height)<.3;
-                half4 colour=wall&&height>.8?half4(.10,.55,.95,.38):floorLike?half4(.20,.80,.45,.24):half4(.75,.75,.72,.14);
+                // Colours follow AutoAligner's evidence: walls above the furniture band (blue), floor (green), ceiling 2.2 m or more
+                // above the floor (amber), the rest (grey).
+                bool wall=abs(n.y)<.3, floorLike=abs(n.y)>.9 && abs(height)<.3, ceiling=abs(n.y)>.9 && height>2.2;
+                half4 colour=wall&&height>.8?half4(.10,.55,.95,.38):floorLike?half4(.20,.80,.45,.24):ceiling?half4(.95,.65,.15,.32):half4(.75,.75,.72,.14);
                 // A 25 cm world grid shows the scanned surface's shape and extent; the axis along the normal draws no lines.
                 float3 cell=abs(frac(i.world/.25+.5)-.5)/max(fwidth(i.world/.25),1e-4), an=abs(n);
                 float d=1e3;

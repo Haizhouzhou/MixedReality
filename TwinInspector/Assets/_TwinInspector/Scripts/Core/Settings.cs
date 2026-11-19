@@ -17,6 +17,9 @@ namespace TwinInspector
         [SerializeField] float targetRefreshRate = 90;
         [SerializeField] float loadingRefreshRate = 72;
         [SerializeField] bool diffEnabled = false;
+        // Start Auto align by itself when no persistent anchor could be restored (the saved JSON pose is only valid
+        // when the app starts at the spot and heading where it was aligned).
+        [SerializeField] bool autoAlignAtStart = true;
         [SerializeField] float diffDistanceMax = .35f, diffMinAreaM2 = .15f, diffMinExtentM = .25f;
         // diffFloorZ is relative to the manifest datum_z of the loaded space.
         [SerializeField] float diffObservedRadiusM = 1, diffChangedPairDistanceM = 1, diffFloorZ;
@@ -28,6 +31,7 @@ namespace TwinInspector
         [SerializeField] float objectPickFramesBudgetMs = 4;
         [SerializeField] string editorModelsPath = "tools/sam/models";
         public bool DiffEnabled => diffEnabled;
+        public bool AutoAlignAtStart => autoAlignAtStart;
         public float DiffDistanceMax => Mathf.Max(.001f, diffDistanceMax);
         public float DiffMinAreaM2 => diffMinAreaM2;
         public float DiffMinExtentM => diffMinExtentM;
