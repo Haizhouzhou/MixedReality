@@ -11,7 +11,7 @@ namespace TwinInspector
         bool hasLensCenter, scanView;
         public ViewMode Mode { get; private set; }=ViewMode.Overlay;
         public float Blend { get; private set; }=.45f;
-        public bool Technical { get; private set; }=true;
+        public bool Technical { get; private set; }
         public bool Lens { get; private set; }
         public float LensRadius { get; private set; }=1.5f;
         public float DatumZ { get; private set; }
@@ -20,6 +20,7 @@ namespace TwinInspector
         public bool LensActive => Lens && Mode==ViewMode.Overlay;
         public void Initialize(TwinLoader twin,TwinRoot twinRoot,Camera camera,ARCameraManager cameraManager,DesignTokens design)
         {
+            Technical=InteractionPreferences.Technical;
             loader=twin; root=twinRoot; viewer=camera; passthrough=cameraManager; tokens=design; DatumZ=loader.Manifest.datum_z;
             grid=new GameObject("Metre floor grid",typeof(MeshFilter),typeof(MeshRenderer)); grid.transform.SetParent(root.transform,false);
             var lo=root.ToLocal(TwinRoot.Vector(loader.Manifest.region.min)); var hi=root.ToLocal(TwinRoot.Vector(loader.Manifest.region.max));
@@ -36,7 +37,7 @@ namespace TwinInspector
             app?.Anchors?.SuspendForRoaming(mode==ViewMode.Twin);
         }
         public void SetBlend(float value) { Blend=Mathf.Clamp01(value); Apply(); }
-        public void SetTechnical(bool value) { Technical=value; Apply(); }
+        public void SetTechnical(bool value) { Technical=value; InteractionPreferences.Technical=value; Apply(); }
         public void SetLens(bool value) { Lens=value; lastHit=-10; hasLensCenter=false; visibility=0; Apply(); }
         public void SetLensRadius(float radius) => LensRadius=Mathf.Clamp(radius,.5f,5);
         /// <summary>Auto-align scanning: hide the twin and its grid so the viewer judges the room, not the model.</summary>

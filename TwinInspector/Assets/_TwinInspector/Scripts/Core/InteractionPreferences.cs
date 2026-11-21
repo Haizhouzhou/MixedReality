@@ -10,6 +10,8 @@ namespace TwinInspector
         public static bool LeftHand { get => PlayerPrefs.GetInt("TwinInspector.leftHand",0)!=0; set { PlayerPrefs.SetInt("TwinInspector.leftHand",value?1:0); PlayerPrefs.Save(); } }
         /// <summary>How hands press panel buttons: false (default) pinch with the hand ray, true tap them with the fingertip (poke).</summary>
         public static bool Tap { get => PlayerPrefs.GetInt("TwinInspector.tap",0)!=0; set { PlayerPrefs.SetInt("TwinInspector.tap",value?1:0); PlayerPrefs.Save(); } }
+        /// <summary>Remember the rendering style across spaces and launches; first use starts in Colour.</summary>
+        public static bool Technical { get => PlayerPrefs.GetInt("TwinInspector.technical",0)!=0; set { PlayerPrefs.SetInt("TwinInspector.technical",value?1:0); PlayerPrefs.Save(); } }
         public static bool Sound { get => PlayerPrefs.GetInt("TwinInspector.sound",1)!=0; set { PlayerPrefs.SetInt("TwinInspector.sound",value?1:0); PlayerPrefs.Save(); } }
         public static float Volume { get => PlayerPrefs.GetFloat("TwinInspector.volume",.18f); set => PlayerPrefs.SetFloat("TwinInspector.volume",Mathf.Clamp01(value)); }
         // Dock placement relative to the body direction; saved on leaving the Menu position page.
