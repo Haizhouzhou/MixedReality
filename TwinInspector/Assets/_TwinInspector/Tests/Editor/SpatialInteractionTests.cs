@@ -57,7 +57,19 @@ namespace TwinInspector.Tests
                 Assert.That(InputRouter.ChooseOwner(-1,left,!left,0,0,preferLeft),Is.EqualTo(side));
                 Assert.That(InputRouter.ChooseOwner(side,true,true,left?.5f:1,left?1:.5f,preferLeft),Is.EqualTo(side));
                 Assert.That(InputRouter.ChooseOwner(side,!left,left,0,0,preferLeft),Is.EqualTo(1-side));
+                Assert.That(InputRouter.ChooseOwner(1-side,true,true,0,0,preferLeft,left,!left),Is.EqualTo(side),"the hand pointing at a panel gets the pointer");
+                Assert.That(InputRouter.ChooseOwner(1-side,true,true,0,0,preferLeft,true,true),Is.EqualTo(1-side),"both point: the current one keeps it");
+                Assert.That(InputRouter.ChooseOwner(1-side,true,true,left?0:.5f,left?.5f:0,preferLeft,false,false),Is.EqualTo(1-side),"a pinching hand keeps it");
+                Assert.That(InputRouter.ChooseOwner(1-side,true,true,left?0:.5f,left?.5f:0,preferLeft,left,!left),Is.EqualTo(side),"but not against a hand pointing at the menu");
+                Assert.That(InputRouter.ChooseOwner(side,true,true,left?0:.6f,left?.6f:0,preferLeft,left,!left),Is.EqualTo(side),"a pinch elsewhere does not take the menu hand's pointer");
             }
+        }
+        [Test]
+        public void RelaxedGalaxyXrHandReadsAsNoPinch()
+        {
+            Assert.That(InputRouter.HandPinch(.28f),Is.EqualTo(0),"relaxed hand");
+            Assert.That(InputRouter.HandPinch(.5f),Is.EqualTo(.5f).Within(1e-5f),"press point unchanged");
+            Assert.That(InputRouter.HandPinch(.75f),Is.EqualTo(1),"full pinch");
         }
         [Test]
         public void CoplanarNoiseIsNotACreaseButCornerIs()

@@ -120,6 +120,7 @@ namespace TwinInspector
         }
         void Render()
         {
+            long started=System.Diagnostics.Stopwatch.GetTimestamp();
             diffRefreshPending=false;
             panel.Clear(); liveText = null;
             switch (page)
@@ -148,6 +149,9 @@ namespace TwinInspector
                 case "dock": DockPage(); break;
                 default: SetupPage(); break;
             }
+            // Each page is rebuilt from scratch on every change; log the slow ones, which show as a stutter after a press.
+            double ms=(System.Diagnostics.Stopwatch.GetTimestamp()-started)*1000.0/System.Diagnostics.Stopwatch.Frequency;
+            if(ms>8) DevLog.Write($"UI page {page} built in {ms:F0} ms");
         }
         void SetupPage()
         {
@@ -195,10 +199,12 @@ namespace TwinInspector
         void InputPage()
         {
             panel.Header(L.Get("page.setup.label"),L.Get("button.input"));
-            void Choose(bool tap) { InteractionPreferences.Tap=tap; app.Input.RefreshPressMode(); Render(); }
-            panel.Button(L.Get("button.pinch"),24,104,208,()=>Choose(false),!InteractionPreferences.Tap);
-            panel.Button(L.Get("button.tap"),248,104,208,()=>Choose(true),InteractionPreferences.Tap);
-            panel.Text(L.Get(InteractionPreferences.Tap?"text.inputTap":"text.inputPinch"),24,168,432,56,16);
+            var mode=InteractionPreferences.Press;
+            void Choose(InteractionPreferences.PressMode choice) { InteractionPreferences.Press=choice; app.Input.RefreshPressMode(); Render(); }
+            panel.Button(L.Get("button.pinch"),24,104,144,()=>Choose(InteractionPreferences.PressMode.Pinch),mode==InteractionPreferences.PressMode.Pinch);
+            panel.Button(L.Get("button.tap"),168,104,144,()=>Choose(InteractionPreferences.PressMode.Tap),mode==InteractionPreferences.PressMode.Tap);
+            panel.Button(L.Get("button.both"),312,104,144,()=>Choose(InteractionPreferences.PressMode.Both),mode==InteractionPreferences.PressMode.Both);
+            panel.Text(L.Get(mode==InteractionPreferences.PressMode.Tap?"text.inputTap":mode==InteractionPreferences.PressMode.Pinch?"text.inputPinch":"text.inputBoth"),24,168,432,56,16);
             panel.Button(L.Get("button.back"),24,248,432,()=>Show("preferences"));
         }
         void DockPage()

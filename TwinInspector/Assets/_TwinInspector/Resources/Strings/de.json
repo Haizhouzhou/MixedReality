@@ -15,6 +15,8 @@
   "button.input": "Eingabe",
   "button.pinch": "Pinch-Geste",
   "button.tap": "Antippen",
+  "button.both": "Beides",
+  "text.inputBoth": "Aus der Ferne zusammenführen oder Tasten direkt mit der Fingerspitze antippen.",
   "text.inputPinch": "Auf eine Taste zeigen und Daumen und Zeigefinger zusammenführen. Eine dünne Linie zeigt die Richtung.",
   "text.inputTap": "Tasten direkt mit der Fingerspitze antippen.",
   "button.recenterBack": "Zentrieren / rück.",

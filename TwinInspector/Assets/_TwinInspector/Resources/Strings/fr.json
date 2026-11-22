@@ -15,6 +15,8 @@
   "button.input": "Saisie",
   "button.pinch": "Pincer",
   "button.tap": "Toucher",
+  "button.both": "Les deux",
+  "text.inputBoth": "Pincez à distance, ou touchez les boutons directement du bout du doigt.",
   "text.inputPinch": "Pointez un bouton et pincez le pouce et l'index. Une fine ligne montre où vous pointez.",
   "text.inputTap": "Touchez les boutons directement du bout du doigt.",
   "button.recenterBack": "Recentrer / retour",

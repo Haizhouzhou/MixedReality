@@ -31,7 +31,8 @@ namespace TwinInspector
             // Application.isFocused, not a flag kept by OnApplicationFocus: the hand objects are inactive while the headset is off
             // the head, so they miss the "focus regained" message and the ray would stay off until the app restarts.
             if(!source || !source.gameObject.activeInHierarchy || !ray || !ray.enabled || !Application.isFocused) { ResetPose(); return; }
-            Strength=Mathf.Clamp01(ray.selectInput.ReadValue()); // The sample's value reader forwards continuous pinch strength.
+            // The sample's value reader forwards continuous pinch strength; for hands it is rescaled to the headset's range.
+            Strength=hand ? InputRouter.HandPinch(ray.selectInput.ReadValue()) : Mathf.Clamp01(ray.selectInput.ReadValue());
             bool held=ray.selectInput.ReadIsPerformed() || ray.uiPressInput.ReadIsPerformed();
             if(!held && Strength<.3f) ready=true; // Never synthesize a press when tracking returns mid-pinch.
             var position=source.position; var rotation=source.rotation;

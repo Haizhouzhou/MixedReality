@@ -16,6 +16,8 @@
   "button.input": "Input",
   "button.pinch": "Pinch",
   "button.tap": "Tap",
+  "button.both": "Both",
+  "text.inputBoth": "Pinch from a distance, or touch buttons directly with your fingertip.",
   "text.inputPinch": "Point at a button and pinch thumb and index finger. A thin line shows where you point.",
   "text.inputTap": "Touch buttons directly with your fingertip.",
   "button.recenterBack": "Recenter / back",

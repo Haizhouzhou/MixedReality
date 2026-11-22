@@ -12,8 +12,8 @@ namespace TwinInspector
     {
         readonly List<XRDisplaySubsystem> displays = new List<XRDisplaySubsystem>();
         TwinLoader loader; Settings settings;
-        float elapsed, lastLog, requestedRate;
-        int frames;
+        float elapsed, lastLog, requestedRate, worstFrame;
+        int frames, slowFrames;
         public float Fps { get; private set; }
         public float CpuMs { get; private set; } = -1;
         public float GpuMs { get; private set; } = -1;
@@ -24,6 +24,14 @@ namespace TwinInspector
         {
             if (!loader) return;
             frames++; elapsed += Time.unscaledDeltaTime;
+            // Hitches: averages hide them, but a single long frame is what makes motion look clunky. Frames over 1.5 display
+            // periods count as slow; while the app is not focused (system menu, headset off) frames do not count.
+            if (Application.isFocused)
+            {
+                float frame = Time.unscaledDeltaTime * 1000, period = 1000 / Mathf.Max(1, RuntimeTuning.RefreshRate);
+                if (frame > 1.5f * period) slowFrames++;
+                worstFrame = Mathf.Max(worstFrame, frame);
+            }
             if (elapsed < .5f) return;
             Fps = frames / elapsed; frames = 0; elapsed = 0;
             SubsystemManager.GetSubsystems(displays);
@@ -51,7 +59,8 @@ namespace TwinInspector
             if (Time.unscaledTime-lastLog >= 10)
             {
                 lastLog = Time.unscaledTime;
-                DevLog.Write($"Metrics source={(Application.isEditor?"Editor":"device")} fps={Fps:F1} cpu_ms={CpuMs:F2} gpu_ms={GpuMs:F2} tiles={loader.LoadedTiles} resident_tris={loader.Triangles} view={(AppBootstrap.Instance && AppBootstrap.Instance.Style ? AppBootstrap.Instance.Style.Mode + (AppBootstrap.Instance.Style.Technical ? "/Technical" : "/Colour") : "-")} {RuntimeTuning.Describe(settings)}");
+                DevLog.Write($"Metrics source={(Application.isEditor?"Editor":"device")} fps={Fps:F1} cpu_ms={CpuMs:F2} gpu_ms={GpuMs:F2} slow_frames={slowFrames} worst_ms={worstFrame:F0} tiles={loader.LoadedTiles} resident_tris={loader.Triangles} view={(AppBootstrap.Instance && AppBootstrap.Instance.Style ? AppBootstrap.Instance.Style.Mode + (AppBootstrap.Instance.Style.Technical ? "/Technical" : "/Colour") : "-")} {RuntimeTuning.Describe(settings)}");
+                slowFrames = 0; worstFrame = 0;
             }
         }
         public string Readout => L.Format("diagnostics.metrics", Fps, CpuMs<0?L.Get("text.nA"):CpuMs.ToString("F1",System.Globalization.CultureInfo.InvariantCulture)+" ms", GpuMs<0?L.Get("text.nA"):GpuMs.ToString("F1",System.Globalization.CultureInfo.InvariantCulture)+" ms", loader?.LoadedTiles??0, loader?.Triangles??0);
