@@ -32,6 +32,7 @@ read_ply_layout, read_alignment = _overview.read_ply_layout, _overview.read_alig
 
 VERSION = "twin_pipeline 0.1"
 BOUNDARY_POLICY = "exact-open-boundary-v1"
+CLEANUP_POLICY = "positive-float32-open-boundary-v2"
 REGIONS = {"a": [-20, 70, -5, 32, -1, 8], "b": [-40, 90, -80, 60, -1, 8]}
 DEFAULT_MESH = "proc/meshes/mesh.ply"
 FACE_DTYPE = np.dtype([("count", "u1"), ("indices", "<u4", (3,))])
@@ -117,7 +118,8 @@ def config(args):
                 sha256_alignment=hashlib.sha256((args.session / "proc/alignment_global.txt").read_bytes()).hexdigest(),
                 region=region, region_name=args.region_name or args.region.upper(), chunk=args.chunk,
                 target_ratio=args.target_ratio, lods=args.lods, batch_faces=args.batch_faces,
-                simplify_batch_faces=args.simplify_batch_faces, origin_world=origin, version=VERSION)
+                simplify_batch_faces=args.simplify_batch_faces, origin_world=origin, version=VERSION,
+                cleanup_policy=CLEANUP_POLICY)
     # Non-default sources only, so existing HGE outputs keep their fingerprint.
     if args.mesh != DEFAULT_MESH:
         data["mesh"] = args.mesh
@@ -230,28 +232,42 @@ def chunk(args, cfg):
     atomic_json(args.out / "chunks.json", records)
 
 
-def clean_mesh(p, c, f, weld=True, weld_m=.001):
-    """Weld at 1 mm, discard duplicate/zero-area faces and unused vertices."""
+def clean_mesh(p, c, f, weld=True, weld_m=.001, *, preserve_open_boundary=False):
+    """Clean faces, optionally retaining positive-area pinned boundary slivers.
+
+    Source cleanup retains its original area cutoff. After QEM, a pinned edge
+    can border a smaller but still valid face; deleting it would break the
+    boundary contract. Such faces must remain nonzero in stored float32 XYZ.
+    """
     if weld:
         _, selected, inverse = np.unique(np.round(p / weld_m).astype(np.int64), axis=0, return_index=True, return_inverse=True)
         p, c, f = p[selected], c[selected], inverse[f]
     valid = (f[:, 0] != f[:, 1]) & (f[:, 1] != f[:, 2]) & (f[:, 0] != f[:, 2])
     f = f[valid]
-    area = np.cross(p[f[:, 1]] - p[f[:, 0]], p[f[:, 2]] - p[f[:, 0]])
-    f = f[np.sum(area * area, axis=1) > 1e-16]
     _, unique = np.unique(np.sort(f, axis=1), axis=0, return_index=True)
     f = f[np.sort(unique)]
+    area = np.cross(p[f[:, 1]] - p[f[:, 0]], p[f[:, 2]] - p[f[:, 0]])
+    keep = np.sum(area * area, axis=1) > 1e-16
+    if preserve_open_boundary and len(f):
+        edges = np.sort(np.concatenate((f[:, [0, 1]], f[:, [1, 2]], f[:, [2, 0]])), axis=1)
+        _, inverse_edges, counts = np.unique(edges, axis=0, return_inverse=True, return_counts=True)
+        boundary_face = np.any(counts[inverse_edges].reshape(3, len(f)) == 1, axis=0)
+        stored = p.astype("<f4").astype(np.float64)
+        stored_area = np.cross(stored[f[:, 1]] - stored[f[:, 0]], stored[f[:, 2]] - stored[f[:, 0]])
+        positive = np.sum(stored_area * stored_area, axis=1) > 0
+        keep = (keep | boundary_face) & positive
+    f = f[keep]
     ids, inverse = np.unique(f, return_inverse=True)
     return p[ids].astype("<f4"), c[ids].astype("u1"), inverse.reshape(-1, 3).astype("<u4")
 
 
-def decimate(p, c, f, target):
+def decimate(p, c, f, target, *, preserve_input_boundary=False):
     import fast_simplification
     from scipy.spatial import cKDTree
     # Centroid chunks share a zig-zag edge, not necessarily vertices on x/y % 10.
     # Do not quantize or weld their coordinates independently. Pin every open
     # boundary, including intermediate spatial partitions, at every LOD.
-    p, c, f = clean_mesh(p, c, f, weld=False)
+    p, c, f = clean_mesh(p, c, f, weld=False, preserve_open_boundary=preserve_input_boundary)
     if len(f) > target:
         q, g = fast_simplification.simplify(p, f, target_count=max(4, target), agg=7.0, preserve_border=True)
         # Sample up to one million original colours, with an exact nearest query.
@@ -259,7 +275,7 @@ def decimate(p, c, f, target):
         tree = cKDTree(p[::step])
         _, ix = tree.query(q, workers=1)
         p, c, f = q, c[::step][ix], g
-    return clean_mesh(p, c, f, weld=False)
+    return clean_mesh(p, c, f, weld=False, preserve_open_boundary=True)
 
 
 def spatial_parts(p, f, limit):
@@ -294,7 +310,8 @@ def simplify(args, cfg):
         if args.force or not all(p.exists() for p in outputs) or not metadata.exists():
             return False
         records = json.loads(metadata.read_text())
-        return all(records.get(str(i), {}).get("boundary_policy") == BOUNDARY_POLICY for i in range(args.lods))
+        return all(records.get(str(i), {}).get("boundary_policy") == BOUNDARY_POLICY
+                   and records.get(str(i), {}).get("cleanup_policy") == CLEANUP_POLICY for i in range(args.lods))
     if args.workers > 1 and not args.tile:
         def run_tile(record):
             tile = record["id"]
@@ -345,7 +362,7 @@ def simplify(args, cfg):
         c = np.concatenate([q[1] for q in pieces])
         f = np.concatenate(indices)
         del pieces, indices
-        p, c, f = decimate(p, c, f, target)
+        p, c, f = decimate(p, c, f, target, preserve_input_boundary=True)
         reductions = {}
         for level, out in enumerate(outputs):
             used_weld = .001
@@ -356,12 +373,13 @@ def simplify(args, cfg):
                 # Tiny boundary slivers may contain too few connected faces
                 # for a further legal collapse. Preserve up to 64 triangles.
                 level_target = max(64, int(target * multiplier))
-                p, c, f = decimate(*original, level_target)
+                p, c, f = decimate(*original, level_target, preserve_input_boundary=True)
             # Pinned boundaries take priority over an individual LOD ratio.
             # Never fall back to destructive welding to meet a target. The
             # independent seam check and hard regional budget remain gates.
             reductions[str(level)] = {"triangles": len(f), "fragment_weld_m": 0,
                                       "boundary_policy": BOUNDARY_POLICY,
+                                      "cleanup_policy": CLEANUP_POLICY,
                                       "target_triangles": level_target, "preserved_fragment_excess": max(0, len(f) - level_target)}
             atomic_npz(out, positions=p, colors=c, faces=f)
             log(f"simplify {tile} LOD{level}: {len(f):,} (source {record['triangles']:,})")

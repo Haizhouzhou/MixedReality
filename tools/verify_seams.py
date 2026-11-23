@@ -32,6 +32,46 @@ def source_edges(root, tile):
     return p[ids], inverse.reshape(-1, 2)
 
 
+def boundary_matches(points, faces, boundary, edges, tolerance=2e-5):
+    """Match geometric edges, including coincident vertices with different indices.
+
+    A nearest-vertex query can select the wrong copy of an identical point. Keep
+    the fast nearest match, then require an actual mesh edge between endpoint
+    candidates inside the same strict distance tolerance for every unresolved edge.
+    """
+    tree = cKDTree(points)
+    distances, indices = tree.query(boundary)
+    error = float(distances.max(initial=0))
+    output_edges = np.sort(np.concatenate((faces[:, [0, 1]], faces[:, [1, 2]], faces[:, [2, 0]])), axis=1).astype(np.uint64)
+    keys = np.unique(output_edges[:, 0]*np.uint64(len(points))+output_edges[:, 1])
+    wanted = np.sort(indices[edges], axis=1).astype(np.uint64)
+    missing = ~np.isin(wanted[:, 0]*np.uint64(len(points))+wanted[:, 1], keys)
+    unresolved = np.flatnonzero(missing)
+    if not len(unresolved):
+        return error, 0, 0
+    endpoint_ids = np.unique(edges[unresolved])
+    candidates = {}
+    for endpoint, neighbours in zip(endpoint_ids, tree.query_ball_point(boundary[endpoint_ids], tolerance)):
+        neighbours = np.asarray(neighbours, dtype=np.int64)
+        candidates[int(endpoint)] = neighbours[np.linalg.norm(points[neighbours]-boundary[endpoint], axis=1) < tolerance]
+    resolved = 0
+    for edge_id in unresolved:
+        a, b = edges[edge_id]
+        for first in candidates[int(a)]:
+            other = candidates[int(b)]
+            candidate_keys = np.minimum(first, other).astype(np.uint64)*np.uint64(len(points))+np.maximum(first, other).astype(np.uint64)
+            positions = np.searchsorted(keys, candidate_keys)
+            valid = positions < len(keys)
+            matched = np.flatnonzero(valid)[keys[positions[valid]] == candidate_keys[valid]]
+            if len(matched):
+                second = other[matched[0]]
+                error = max(error, float(np.linalg.norm(points[first]-boundary[a])), float(np.linalg.norm(points[second]-boundary[b])))
+                missing[edge_id] = False
+                resolved += 1
+                break
+    return error, int(missing.sum()), resolved
+
+
 def verify(root, only=None, report_only=False):
     root = Path(root); manifest = json.loads((root/'manifest.json').read_text())
     results = []; origin = np.array(manifest['origin_world'])
@@ -42,19 +82,13 @@ def verify(root, only=None, report_only=False):
         for level, filename in tile['files'].items():
             mesh = trimesh.load(root/filename, force='scene', process=False).to_geometry()
             p = np.column_stack((mesh.vertices[:,0], -mesh.vertices[:,2], mesh.vertices[:,1])) + origin
-            distances, indices = cKDTree(p).query(boundary)
-            error = float(distances.max(initial=0))
-            output_edges = np.sort(np.concatenate((mesh.faces[:,[0,1]],mesh.faces[:,[1,2]],mesh.faces[:,[2,0]])),axis=1).astype(np.uint64)
-            wanted = np.sort(indices[edges],axis=1).astype(np.uint64)
-            keys = output_edges[:,0]*np.uint64(len(p))+output_edges[:,1]
-            wanted_keys = wanted[:,0]*np.uint64(len(p))+wanted[:,1]
-            missing = int((~np.isin(wanted_keys,keys)).sum())
-            item = dict(tile=tile['id'],lod=level,source_boundary_vertices=len(boundary),source_boundary_edges=len(edges),max_displacement_m=error,missing_edges=missing,glb_sha256=hashlib.sha256((root/filename).read_bytes()).hexdigest())
+            error, missing, resolved = boundary_matches(p, mesh.faces, boundary, edges)
+            item = dict(tile=tile['id'],lod=level,source_boundary_vertices=len(boundary),source_boundary_edges=len(edges),max_displacement_m=error,missing_edges=missing,candidate_matched_edges=resolved,glb_sha256=hashlib.sha256((root/filename).read_bytes()).hexdigest())
             results.append(item); print(json.dumps(item),flush=True)
             if not report_only:
                 assert error < 2e-5 and missing == 0, f"Seam changed: {item}"
     if not report_only:
-        (root/'seams.json').write_text(json.dumps({'policy':'exact-open-boundary-v1','results':results},indent=2))
+        (root/'seams.json').write_text(json.dumps({'policy':'exact-open-boundary-v1','edge_matching':'candidate-endpoints-v2','tolerance_m':2e-5,'results':results},indent=2))
         print(f'PASS: {len(results)} tile LODs preserve all source open edges',flush=True)
     return results
 

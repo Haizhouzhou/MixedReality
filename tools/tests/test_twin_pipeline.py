@@ -63,6 +63,36 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(len(g), 1)
         self.assertEqual(len(q), 3)
 
+    def test_positive_boundary_microface_survives_subsequent_lod_cleanup(self):
+        p = np.array([[0., 0, 0], [1e-4, 0, 0], [0, 5e-5, 0]], dtype=np.float32)
+        c = np.full((3, 3), 128, dtype=np.uint8)
+        f = np.array([[0, 1, 2], [2, 1, 0]])
+        self.assertEqual(len(pipeline.clean_mesh(p, c, f, weld=False)[2]), 0)
+        q, colors, faces = pipeline.clean_mesh(p, c, f, weld=False, preserve_open_boundary=True)
+        self.assertEqual(len(faces), 1, "Deduplicate before identifying open boundary edges")
+        for _ in range(3):
+            q, colors, faces = pipeline.decimate(q, colors, faces, 4, preserve_input_boundary=True)
+            self.assertEqual(len(faces), 1)
+        np.testing.assert_array_equal(q, p)
+
+    def test_protected_boundary_still_discards_true_zero_area(self):
+        p = np.array([[0., 0, 0], [1e-4, 0, 0], [2e-4, 0, 0]])
+        c = np.full((3, 3), 128, dtype=np.uint8)
+        self.assertEqual(len(pipeline.clean_mesh(p, c, np.array([[0, 1, 2]]),
+                             weld=False, preserve_open_boundary=True)[2]), 0)
+
+    def test_protected_boundary_must_be_positive_after_float32_storage(self):
+        p = np.array([[70., 0, 0], [70. + 1e-7, 0, 0], [70., 1., 0]])
+        c = np.full((3, 3), 128, dtype=np.uint8)
+        self.assertEqual(len(pipeline.clean_mesh(p, c, np.array([[0, 1, 2]]),
+                             weld=False, preserve_open_boundary=True)[2]), 0)
+
+    def test_protected_boundary_does_not_relax_closed_surface_area_cutoff(self):
+        p = np.array([[0., 0, 0], [1e-5, 0, 0], [0, 1e-5, 0], [0, 0, 1e-5]])
+        c = np.full((4, 3), 128, dtype=np.uint8)
+        f = np.array([[0, 1, 2], [0, 3, 1], [1, 3, 2], [2, 3, 0]])
+        self.assertEqual(len(pipeline.clean_mesh(p, c, f, weld=False, preserve_open_boundary=True)[2]), 0)
+
     def test_restart_and_glb_roundtrip(self):
         scratch = ROOT.parent / "work/tmp"
         scratch.mkdir(parents=True, exist_ok=True)
