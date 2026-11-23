@@ -462,3 +462,26 @@ Device log times below are headset time and today's log file is `2026-06-12.log`
 **Tap or pinch preference.** Setup > Preferences > Input chooses Pinch (default) or Tap, stored as `TwinInspector.tap`. Pinch disables the poke interactors and the pointing-gesture switch; Tap restores the original behaviour. The change applies immediately. The Preferences bottom row is now Sound · Input · Back. New strings in all five languages, Chinese with existing glyphs only.
 
 Evidence: the solver compiles and its 15 tests pass in a standalone .NET harness, including three new ones. Two look-alike halls differing only in ceiling height: the right one is picked; without ceilings it lands 30 m off in the wrong one. A room whose floor is 0.3 m off the datum: correct height; the previous solver was 0.3 m off and in the wrong hall. A suspended ceiling missing from the twin: left out. On the Galaxy XR: auto align snapped in after walking and scanning a cross wall; ceiling amber and counted; pinch presses panels and survives taking the headset off. Unity Test Runner: 63/63.
+
+
+### November 21: menu smoothness, minimize, pinch input, tap/pinch preference
+
+**Diagnosis.** New metrics in the log: `slow_frames` and `worst_ms` per 10 s, and `UI page … built in N ms` for pages over 8 ms. Page building is not the cause of stutter (one page above 8 ms, 10–14 ms), and the display refresh rate is requested once per start. Frame rate by space on the Galaxy XR: HG Main Hall (1.15–1.2 M triangles) 29–41 FPS at 45 ms GPU, HG E7 (865 k) 62–72 FPS, CAB (589 k) 70–72 FPS. The default triangle budget in Diagnostics → Performance is now 800 k; 1.2 M remains as the second option.
+
+**Menu motion.** The dock followed every head movement and was always in motion, which looked like judder at frame rates below 72 Hz, worst while walking: re-projection of late frames is only correct for content fixed in the room. The dock now follows lazily: it stays put within 25 cm and 15° of its home, glides there in 0.2 s otherwise, stays fixed in the room while the viewer walks (above 0.3 m/s), and moves once they have stood still for 0.35 s. A dock left more than 1.5 m away reappears at its place.
+
+**Minimize.** A new cell at the right of the strip hides the whole menu, pinned or not; raising a palm brings it back. The cell is disabled when the palm gesture is off. The palm gesture now also accepts an open hand held towards the face, and the palm hand's own pinch reading no longer blocks it.
+
+**Pinch input.** Findings from the per-control pinch log:
+- The Galaxy XR reports 0.2–0.35 pinch strength for a relaxed hand. Hand pinch is rescaled so 0.3 reads as 0; the press point stays at 0.5.
+- The hand ray's press reader was in ObjectReference mode and read a sample component that pressed only near 1.0. It now reads the hand's Select and Select Value actions directly, so presses fire at a normal pinch (0.6).
+- Grasp (curled fingers, a fist) also counted as pinch and select. That made the idle hand take the pointer and a curled hand drag the twin. Hands now select by pinching only.
+- After a palm summon, the lowered palm hand read 0.4–0.9 pinch strength and took the pointer from the hand aiming at the menu. A hand pointing at a menu panel (steadily for 0.12 s) now beats one that only pinches.
+- XRI's UI raycast often reported no hit while the hand pointed at the menu, and pinches went to the twin behind it. A plane test against the visible panels now also counts as "over the menu".
+- The line is drawn per hand to the panel it points at, plus a 1 s stub when a hand is newly found. Lines get their material once design resources exist (the right one was magenta before).
+- The hand ray survives taking the headset off: `TrackedRayPose` checks `Application.isFocused` every frame.
+- The log records why a ray is missing (`Hand ray …`) and every change of pointer owner.
+
+**Tap or pinch.** Preferences → Input offers Pinch, Tap or Both (default Both); an earlier two-way choice is kept. In Tap and Both, each hand taps when its fingertip is within 15 cm of a panel and pinches with the ray beyond 25 cm. Only one method can press per hand at a time. This replaces the sample's pointing-gesture switch, which turned the ray off on the way into a pinch. No ray is drawn while a hand is within tapping reach. Pinching the twin works in every mode. New strings in all five languages, Chinese with existing glyphs only.
+
+

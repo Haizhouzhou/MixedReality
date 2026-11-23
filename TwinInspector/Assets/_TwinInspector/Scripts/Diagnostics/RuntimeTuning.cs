@@ -10,8 +10,10 @@ namespace TwinInspector
     /// shipped behaviour except for the refresh rate, which is fixed instead of switching with tile loading.</summary>
     public static class RuntimeTuning
     {
-        /// <summary>Resident triangle budget; 0 means the Settings asset value.</summary>
-        public static readonly int[] Budgets = { 0, 800000, 500000 };
+        /// <summary>Resident triangle budget; 0 means the Settings asset value (1.2 M). The default is 800 k: HG Region A
+        /// at 1.15-1.2 M ran at 29-41 FPS with 45 ms GPU frames, HG E7 at 865 k at 62-72 FPS and CAB at 589 k at 70-72 FPS
+        /// (Galaxy XR, Nov 21).</summary>
+        public static readonly int[] Budgets = { 800000, 0, 500000 };
         /// <summary>Factor on the Settings LOD distances (LOD0, LOD1, culling).</summary>
         public static readonly float[] DistanceScales = { 1f, .6f, .35f };
         public static readonly int[] MsaaSamples = { 4, 2, 1 };

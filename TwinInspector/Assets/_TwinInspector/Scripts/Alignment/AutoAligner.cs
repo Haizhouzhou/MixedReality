@@ -218,9 +218,10 @@ namespace TwinInspector
             }
             // When no candidate's ceiling agrees at all, the twin's ceiling differs from the room (suspended ceiling, lamps,
             // ducts) or was not captured: then the ceiling cannot tell candidates apart and must not count against them.
-            float bestCeiling = 0;
-            foreach (var r in refined) if (r.ceilingPoints >= MinCeilingPoints) bestCeiling = Math.Max(bestCeiling, r.ceiling);
-            if (ceiling.Count >= MinCeilingPoints && bestCeiling < .2f)
+            float bestCeiling = 0; bool judged = false;
+            foreach (var r in refined) if (r.ceilingPoints >= MinCeilingPoints) { judged = true; bestCeiling = Math.Max(bestCeiling, r.ceiling); }
+            // Only when some candidate had enough ceiling under twin ceiling to judge: otherwise nothing was decided by it anyway.
+            if (judged && bestCeiling < .2f)
             {
                 result.CeilingIgnored = true;
                 for (int i = 0; i < refined.Count; i++) { var r = refined[i]; r.score = r.inliers; refined[i] = r; }

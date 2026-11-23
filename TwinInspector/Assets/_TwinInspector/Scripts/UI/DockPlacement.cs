@@ -7,6 +7,20 @@ namespace TwinInspector
         /// <summary>Head yaw may turn this far before the estimated body direction follows.</summary>
         public const float BodyDeadZone=35;
         public const float HideDelay=2, FadeSeconds=.5f, LookCone=25;
+        /// <summary>Lazy follow: the dock stays put while it is within 25 cm and 15 degrees of its home (head bob, leaning in,
+        /// small steps), glides there once it is clearly out of place, and stops when it has arrived.</summary>
+        public const float GlideStartDistance=.25f, GlideStartAngle=15, GlideStopDistance=.01f, GlideStopAngle=1, GlideSeconds=.2f;
+
+        /// <summary>While the viewer walks (head faster than 0.3 m/s horizontally) the dock stays fixed in the room and moves
+        /// only after they have stood still for 0.35 s. A dock moving with a walking viewer jittered: the headset re-projects
+        /// late frames for content that stands still in the room, not for content that moves with the head. A dock left more
+        /// than 1.5 m away reappears at its place instead of sweeping across the room.</summary>
+        public const float WalkSpeed=.3f, SettleSeconds=.35f, JumpDistance=1.5f;
+
+        public static bool MayMove(float headSpeed,float stillSeconds) => headSpeed<WalkSpeed && stillSeconds>=SettleSeconds;
+
+        public static bool ShouldGlide(bool gliding,float distance,float angle)
+            => gliding ? distance>GlideStopDistance||angle>GlideStopAngle : distance>GlideStartDistance||angle>GlideStartAngle;
 
         /// <summary>Body direction trails the head: glancing at the dock leaves it in place, turning around brings it along.</summary>
         public static float FollowBodyYaw(float bodyYaw,float headYaw,float deadZone=BodyDeadZone)

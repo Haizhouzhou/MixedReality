@@ -8,10 +8,18 @@ namespace TwinInspector
         public static string Language { get => PlayerPrefs.GetString("TwinInspector.language", ""); set { PlayerPrefs.SetString("TwinInspector.language",value); PlayerPrefs.Save(); } }
         public static bool GuideSeen { get => PlayerPrefs.GetInt("TwinInspector.guideSeen",0)!=0; set { PlayerPrefs.SetInt("TwinInspector.guideSeen",value?1:0); PlayerPrefs.Save(); } }
         public static bool LeftHand { get => PlayerPrefs.GetInt("TwinInspector.leftHand",0)!=0; set { PlayerPrefs.SetInt("TwinInspector.leftHand",value?1:0); PlayerPrefs.Save(); } }
-        /// <summary>How hands press panel buttons: false (default) pinch with the hand ray, true tap them with the fingertip (poke).</summary>
-        public static bool Tap { get => PlayerPrefs.GetInt("TwinInspector.tap",0)!=0; set { PlayerPrefs.SetInt("TwinInspector.tap",value?1:0); PlayerPrefs.Save(); } }
         /// <summary>Remember the rendering style across spaces and launches; first use starts in Colour.</summary>
         public static bool Technical { get => PlayerPrefs.GetInt("TwinInspector.technical",0)!=0; set { PlayerPrefs.SetInt("TwinInspector.technical",value?1:0); PlayerPrefs.Save(); } }
+        /// <summary>How hands press panel buttons: pinch with the hand ray, tap with the fingertip (poke), or both (the default).</summary>
+        public enum PressMode { Pinch=0, Tap=1, Both=2 }
+        /// <summary>A choice made with the earlier two-way setting ("TwinInspector.tap") is kept.</summary>
+        public static PressMode Press
+        {
+            get => (PressMode)Mathf.Clamp(PlayerPrefs.GetInt("TwinInspector.pressMode",PlayerPrefs.HasKey("TwinInspector.tap")?PlayerPrefs.GetInt("TwinInspector.tap")!=0?1:0:2),0,2);
+            set { PlayerPrefs.SetInt("TwinInspector.pressMode",(int)value); PlayerPrefs.Save(); }
+        }
+        public static bool Tap => Press!=PressMode.Pinch;
+        public static bool Pinch => Press!=PressMode.Tap;
         public static bool Sound { get => PlayerPrefs.GetInt("TwinInspector.sound",1)!=0; set { PlayerPrefs.SetInt("TwinInspector.sound",value?1:0); PlayerPrefs.Save(); } }
         public static float Volume { get => PlayerPrefs.GetFloat("TwinInspector.volume",.18f); set => PlayerPrefs.SetFloat("TwinInspector.volume",Mathf.Clamp01(value)); }
         // Dock placement relative to the body direction; saved on leaving the Menu position page.

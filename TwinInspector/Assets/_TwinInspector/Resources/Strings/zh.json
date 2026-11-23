@@ -16,6 +16,8 @@
   "button.input": "操作方式",
   "button.pinch": "捏合",
   "button.tap": "点按",
+  "button.both": "两者",
+  "text.inputBoth": "指向按钮捏合，或用手指直接点按按钮。",
   "text.inputPinch": "指向按钮，然后用两指捏合。",
   "text.inputTap": "用手指直接点按按钮。",
   "button.recenterBack": "重新居中 / 返回",

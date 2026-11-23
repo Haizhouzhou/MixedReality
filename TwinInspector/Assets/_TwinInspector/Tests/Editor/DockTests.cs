@@ -47,6 +47,18 @@ namespace TwinInspector.Tests
             }
         }
 
+        [Test] public void DockFollowsLazily()
+        {
+            Assert.That(DockPlacement.ShouldGlide(false,.2f,10),Is.False,"small head movements leave it in place");
+            Assert.That(DockPlacement.ShouldGlide(false,.3f,0),Is.True,"a step away starts the glide");
+            Assert.That(DockPlacement.ShouldGlide(false,0,20),Is.True,"so does a turn");
+            Assert.That(DockPlacement.ShouldGlide(true,.1f,0),Is.True,"a glide continues until it has arrived");
+            Assert.That(DockPlacement.ShouldGlide(true,.005f,.5f),Is.False);
+            Assert.That(DockPlacement.MayMove(1,5),Is.False,"walking: it waits in the room");
+            Assert.That(DockPlacement.MayMove(.1f,.2f),Is.False,"just stopped: not yet");
+            Assert.That(DockPlacement.MayMove(.1f,.5f),Is.True,"standing still: it comes along");
+        }
+
         [Test] public void OnlyAnIdleUnpinnedDockHides()
         {
             Assert.That(DockPlacement.ShouldHide(false,false,false,false,2.1f),Is.True);
